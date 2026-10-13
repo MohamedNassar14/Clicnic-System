@@ -1,0 +1,102 @@
+<section class="schedule-page">
+	<div class="calendar-card">
+		<header class="calendar-toolbar">
+			<div class="calendar-actions">
+				<button type="button" class="add-slot-button" (click)="openCreateDialog()"
+					[disabled]="locations().length === 0">
+					<span aria-hidden="true">+</span>
+					إضافة موعد
+				</button>
+			</div>
+			<div class="calendar-navigation">
+				<h1>{{ monthLabel() }}</h1>
+				<div class="navigation-buttons">
+					<button type="button" class="nav-button" aria-label="Previous week" (click)="shiftWeek(-1)"
+						[disabled]="!canGoToPreviousWeek()">
+						<span aria-hidden="true">&#8249;</span>
+					</button>
+					<button type="button" class="nav-button" aria-label="Next week" (click)="shiftWeek(1)">
+						<span aria-hidden="true">&#8250;</span>
+					</button>
+					<button type="button" class="today-button" (click)="goToToday()">Today</button>
+				</div>
+			</div>
+		</header>
+
+		@if (loadError()) {
+		<div class="schedule-message error-message" role="alert">
+			<span>{{ loadError() }}</span>
+			<button type="button" (click)="loadLocations()">إعادة المحاولة</button>
+		</div>
+		} @else if (isLoading()) {
+		<p class="schedule-message">جاري تحميل الجدول...</p>
+		}
+
+		<div class="calendar-scroll">
+			<div class="calendar-grid">
+				@for (day of weekDays(); track day.index) {
+				<div class="day-column" [class.current-day]="day.isToday" [class.past-day]="day.isPast">
+					<div class="day-heading">
+						<span>{{ day.weekday }}</span>
+						<strong>{{ day.date }}</strong>
+					</div>
+					<div class="day-body">
+						@if (day.isPast) {
+							<span class="empty-day">-</span>
+						} @else if (slotsForDay(day.dateKey).length === 0) {
+							<span class="empty-day">لا توجد مواعيد</span>
+						}
+						@for (slot of slotsForDay(day.dateKey); track slot.id ?? $index) {
+						<article class="appointment-block">
+							<strong>{{ slot.clinicLocationName }}</strong>
+							<time>
+								{{ slot.start_time }}@if (slot.end_time) { - {{ slot.end_time }} }
+							</time>
+						</article>
+						}
+					</div>
+				</div>
+				}
+			</div>
+		</div>
+	</div>
+</section>
+
+
+<p-dialog header="إضافة موعد" [modal]="true" [visible]="isDialogVisible()"
+	(visibleChange)="isDialogVisible.set($event)"
+	[style]="{ width: 'min(30rem, calc(100vw - 2rem))' }">
+	<form class="slot-form" [formGroup]="slotForm" (ngSubmit)="createTimeSlot()">
+		<label class="slot-form-field">
+			<span>الفرع</span>
+			<select formControlName="clinicLocationId" aria-label="اختر الفرع">
+				<option [ngValue]="null" disabled>اختر الفرع</option>
+				@for (location of locations(); track location.id) {
+				<option [ngValue]="location.id">{{ location.name }}</option>
+				}
+			</select>
+		</label>
+		<label class="slot-form-field">
+			<span>التاريخ</span>
+			<p-datepicker inputId="slot-date" class="w-full" formControlName="date" [minDate]="today" [showIcon]="true"
+				iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+		</label>
+		<label class="slot-form-field">
+			<span>من الساعة</span>
+			<input type="time" formControlName="startTime" />
+		</label>
+		<label class="slot-form-field">
+			<span>إلى الساعة</span>
+			<input type="time" formControlName="endTime" />
+		</label>
+		@if (saveError()) {
+		<p class="schedule-message error-message" role="alert">{{ saveError() }}</p>
+		}
+		<div class="slot-form-actions">
+			<button type="button" class="cancel-button" (click)="isDialogVisible.set(false)">إلغاء</button>
+			<button type="submit" class="add-slot-button" [disabled]="isSaving()">
+				{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ الموعد' }}
+			</button>
+		</div>
+	</form>
+</p-dialog>

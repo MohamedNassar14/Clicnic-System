@@ -1,0 +1,55 @@
+<section class="flex justify-center gap-0 h-[100vh]">
+    <div class="info w-1/2 flex justify-center items-center px-8">
+        <div class="content w-4/6 flex flex-col gap-5">
+            <form class="flex flex-col gap-8" [formGroup]="loginForm" (ngSubmit)="onSubmitData()">
+                <div class="title">
+                    <h2 class="text-3xl font-medium text-center">تسجيل الدخول</h2>
+                </div>
+
+                <div class="form-content flex flex-col gap-6">
+                    <div class="user-name flex flex-col gap-2">
+                        <label class="text-[#333333] font-normal" for="patient-phone">رقم الهاتف</label>
+                        <input id="patient-phone" type="tel" dir="rtl" formControlName="phone"
+                            class="w-full min-h-[44px] px-3 text-right border border-[#A6B0BF] rounded-lg placeholder:leading-6 placeholder:text-[#C3C5C9]focus:outline-none"
+                            placeholder="رقم الهاتف" autocomplete="tel" />
+                        @if (isInvalid('phone')) {
+                        <div class="text-[#F04438]">يرجى إدخال رقم الهاتف</div>
+                        }
+                    </div>
+
+                    <div class="password relative flex flex-col gap-2">
+                        <label class="text-[#333333] font-normal" for="patient-password">الرقم السري</label>
+                        <input id="patient-password" type="password" formControlName="password"
+                            class="w-full min-h-[44px] px-3 border border-[#A6B0BF] rounded-lg placeholder:leading-6 placeholder:text-[#C3C5C9]focus:outline-none"
+                            placeholder="الرقم السري" autocomplete="current-password" />
+                        @if (isInvalid('password')) {
+                        <div class="text-[#F04438]">يرجى إدخال الرقم السري</div>
+                        }
+                    </div>
+                </div>
+
+                @if (errorMessage()) {
+                <p class="login-error" role="alert">{{ errorMessage() }}</p>
+                }
+
+                <button class="w-full rounded-lg py-2.5 px-3 main-color text-white" type="submit"
+                    [disabled]="loginForm.invalid || isLoading()">
+                    @if (!isLoading()) {
+                    <span>تسجيل الدخول</span>
+                    } @else {
+                    <span class="loading-content">
+                        <span>برجاء الانتظار ...</span>
+                        <span class="loading-spinner" aria-hidden="true"></span>
+                    </span>
+                    }
+                </button>
+
+                <p class="auth-switch">تسجيل دخول الأدمن؟ <a routerLink="/auth/admin-login">اضغط هنا</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="image w-1/2">
+        <img src="assets/images/banner2.png" alt="" class="tdamon-image w-full" />
+    </div>
+</section>

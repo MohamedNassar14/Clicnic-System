@@ -1,0 +1,88 @@
+<main class="branches-page bg-white p-4">
+    <header class="branches-header">
+        <div class="branches-heading">
+            <h1>الفروع والأسعار</h1>
+            <p>{{ branches().length }} فرع</p>
+        </div>
+
+        <div>
+            <button
+                class="min-w-[153px] flex items-center justify-center gap-2 text-white main-color rounded-lg py-2.5 px-4"
+                (click)="addBranch()">
+                <div class="icon">
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.00008 1.16675V12.8334M1.16675 7.00008H12.8334" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="text-sm font-bold">إضافة فرع</span>
+            </button>
+        </div>
+    </header>
+
+    <section class="grid grid-cols-4 gap-4" aria-label="قائمة الفروع">
+        @if(branches().length === 0){
+        <p class="col-span-full text-center text-gray-500">لا توجد فروع</p>
+        }
+        @else {
+            @for (branch of branches(); track branch.id) {
+        <div class="branch-card flex flex-col gap-2 bg-[#F7F5F0] rounded-2xl p-4">
+            <div class="branch-icon" aria-hidden="true">
+                <app-icons [iconKey]="'branches'"></app-icons>
+            </div>
+
+            <h2>{{ branch.name }}</h2>
+            <p class="branch-address">
+                <span aria-hidden="true">●</span>
+                {{ branch.address }}
+            </p>
+
+            <dl class="branch-prices">
+                <div class="price-row">
+                    <dt>سعر الكشف</dt>
+                    <dd>{{ branch.examinationPrice }} ج.م</dd>
+                </div>
+                <div class="price-row">
+                    <dt>سعر الاستشارة</dt>
+                    <dd>{{ branch.consultationPrice }} ج.م</dd>
+                </div>
+            </dl>
+        </div>
+        }
+        }
+    </section>
+</main>
+
+<p-dialog header="إضافة فرع" [modal]="true" [visible]="isAddDialogVisible()"
+    (visibleChange)="isAddDialogVisible.set($event)" [style]="{ width: 'min(30rem, calc(100vw - 2rem))' }">
+    <form class="branch-form" [formGroup]="branchForm" (ngSubmit)="saveBranch()">
+        <div class="branch-form-field">
+            <label for="branch-name">اسم الفرع</label>
+            <input id="branch-name" type="text" formControlName="name" placeholder="مثال: فرع المعادي" />
+        </div>
+        <div class="branch-form-field">
+            <label for="branch-address">عنوان الفرع</label>
+            <textarea id="branch-address" formControlName="address" rows="3" placeholder="عنوان الفرع"></textarea>
+        </div>
+        <div class="branch-form-field">
+            <label for="branch-checkup-price">سعر الكشف</label>
+            <input id="branch-checkup-price" type="number" min="0" formControlName="examinationPrice"
+                placeholder="سعر الكشف" />
+        </div>
+        <div class="branch-form-field">
+            <label for="branch-consultation-price">سعر الاستشارة</label>
+            <input id="branch-consultation-price" type="number" min="0" formControlName="consultationPrice"
+                placeholder="سعر الاستشارة" />
+        </div>
+        @if (requestError()) {
+        <p class="branch-form-error" role="alert">{{ requestError() }}</p>
+        }
+        <div class="branch-form-actions">
+            <button type="button" class="cancel-button" (click)="isAddDialogVisible.set(false)">إلغاء</button>
+            <button type="submit" [disabled]="isSaving()"
+                class="min-w-[130px] text-white main-color rounded-lg py-2 px-3">
+                {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ الفرع' }}
+            </button>
+        </div>
+    </form>
+</p-dialog>

@@ -1,0 +1,57 @@
+<section class="flex justify-center gap-0 h-[100vh]">
+    <div class="info w-1/2 flex justify-center items-center px-8">
+        <div class="content w-4/6 flex flex-col gap-5">
+            <form class="flex flex-col gap-8" [formGroup]="loginForm" (ngSubmit)="onSubmitData()">
+                <div class="title">
+                    <h2 class="text-3xl font-medium text-center">تسجيل الدخول</h2>
+                </div>
+                <div class="form-content flex flex-col gap-6">
+                    <div class="user-name flex flex-col gap-2">
+                        <label class="text-[#333333] font-normal">البريد الإلكتروني</label>
+                        <input type="text" formControlName="email"
+                            class="w-full min-h-[44px] px-3 border border-[#A6B0BF] rounded-lg placeholder:leading-6 placeholder:text-[#C3C5C9]focus:outline-none"
+                            placeholder="البريد الإلكتروني" />
+                        @if (isInvalid('email')) {
+                        <div class="text-[#F04438]">
+                            يرجى إدخال البريد الإلكتروني
+                        </div>
+                        }
+                    </div>
+                    <div class="password relative flex flex-col gap-2">
+                        <label class="text-[#333333] font-normal">الرقم السري</label>
+                        <input type="password" formControlName="password"
+                            class="w-full min-h-[44px] px-3 border border-[#A6B0BF] rounded-lg placeholder:leading-6 placeholder:text-[#C3C5C9]focus:outline-none"
+                            placeholder="الرقم السري" />
+                        @if (isInvalid('password')) {
+                        <div class="text-[#F04438]">
+                            يرجى إدخال الرقم السري
+                        </div>
+                        }
+                    </div>
+                </div>
+                <button class="w-full rounded-lg py-2.5 px-3 main-color text-white" type="submit"
+                    [disabled]="loginForm.invalid || isLoading()">
+                    @if(!isLoading()) {
+                    <span>
+                        تسجيل الدخول
+                    </span>
+                    }
+                    @if(isLoading()) {
+                    <div class="flex justify-center items-center gap-x-3 text-white">
+                        <span>
+                            برجاء الانتظار ...
+                        </span>
+                        <span>
+                            <app-icons [iconKey]="'loading'"></app-icons>
+                        </span>
+                    </div>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="image w-1/2">
+        <img src="assets/images/banner2.png" alt="tdamon banner" class="tdamon-image w-full" />
+    </div>
+</section>
+

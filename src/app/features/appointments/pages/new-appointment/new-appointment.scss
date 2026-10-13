@@ -1,0 +1,98 @@
+.booking-page {
+    color: #172226;
+}
+
+.form-error {
+    margin: 0;
+    color: #b42318;
+}
+
+.form-success {
+    margin: 0;
+    color: #17814e;
+}
+
+.form-error button {
+    margin-inline-start: 8px;
+    border: 0;
+    background: transparent;
+    color: #1053fc;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.form-field small {
+    font-size: 12px;
+}
+
+.patient-found {
+    color: #17814e;
+}
+
+.patient-search-error {
+    color: #b42318;
+}
+
+.tab-btn.active {
+    background: linear-gradient(to right, #1053fc 0%, #3a76f9 75%, #1053fc 100%);
+    color: #ffffff;
+}
+
+.form-field,
+.date-time-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px;
+    color: #344247;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    outline: none;
+    text-align: right;
+}
+
+.form-field input[type='tel'] {
+    direction: ltr;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    border-color: var(--mainColor, #1053fc);
+    box-shadow: 0 0 0 1px var(--mainColor, #1053fc);
+}
+
+.form-field textarea {
+    resize: vertical;
+}
+
+.date-time {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.date-time-field p-datepicker {
+    display: block;
+    width: 100%;
+}
+
+@media (max-width: 520px) {
+    .booking-form {
+        padding: 16px;
+    }
+
+    .date-time {
+        grid-template-columns: 1fr;
+    }
+}

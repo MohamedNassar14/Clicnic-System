@@ -1,0 +1,78 @@
+<!-- src/app/layout/sidebar/sidebar.component.html -->
+<aside class="sidebar bg-white rounded-[20px]">
+  <!-- Logo Section -->
+    <div class="logo py-10">
+  <span class="brand-name">Medi<span>Care</span></span>
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1A5CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    <path d="M3.5 12h4l2-4 3 8 2-5 1.5 3h4.5"></path>
+  </svg>
+</div>
+
+  <!-- Navigation Menu -->
+  <nav class="navigation">
+    <ul class="menu-list flex flex-col gap-3">
+  
+      <li routerLink="/dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span> <app-icons [iconKey]="'dashboard'"></app-icons></span>
+          <span>نظرة عامة</span>
+        </a>
+      </li>
+     
+      <li routerLink="/appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span> <app-icons [iconKey]="'appointments'"></app-icons> </span>
+          <span>الحجوزات</span>
+        </a>
+      </li>
+      
+        
+      <li routerLink="/weekly-schedule" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span> <app-icons [iconKey]="'calendar'"></app-icons> </span>
+          <span>الجدول الأسبوعي</span>
+        </a>
+      </li>
+      <!-- <li routerLink="/notes-location" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+            <span> <app-icons [iconKey]="'patients'"></app-icons> </span>
+          <span>المرضى</span>
+        </a>
+      </li> -->
+      <li routerLink="/branches" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+            <span> <app-icons [iconKey]="'branches'"></app-icons> </span>
+          <span>الفروع والاسعار</span>
+        </a>
+      </li>
+      <!-- <li routerLink="/notes-location" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+            <span> <app-icons [iconKey]="'payments'"></app-icons> </span>
+          <span>المدفوعات</span>
+        </a>
+      </li> -->
+      <li routerLink="/notes-location" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+            <span> <app-icons [iconKey]="'staff'"></app-icons> </span>
+          <span>الموظفين</span>
+        </a>
+      </li>
+    
+
+    </ul>
+  </nav>
+  <button type="button" class="logout-button" (click)="logout()">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M10 17l5-5-5-5M15 12H3m9-7h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6" />
+    </svg>
+    <span>تسجيل الخروج</span>
+  </button>
+</aside>

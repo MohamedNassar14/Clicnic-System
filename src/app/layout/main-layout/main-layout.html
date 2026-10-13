@@ -1,0 +1,20 @@
+<!-- src/app/layout/app-layout/app-layout.component.html -->
+<div class="app-layout">
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay">
+  </div>
+
+  <!-- Sidebar on the right (RTL) -->
+   <app-sidebar class="app-sidebar"></app-sidebar>
+
+  <!-- Main content area -->
+  <div class="main-content">
+    <!-- Header across the top -->
+    <!-- <app-header class="app-header"></app-header> -->
+
+    <!-- Content area where pages render -->
+    <main class="content-area">
+        <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

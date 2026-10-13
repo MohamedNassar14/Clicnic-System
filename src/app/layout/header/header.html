@@ -1,0 +1,108 @@
+<!-- src/app/layout/header/header.component.html -->
+<header class="app-header-container bg-white shadow-3xl rounded-[20px]">
+  <div class="header-content px-6">
+    <!-- Left Section: Mobile menu button -->
+    <div class="header-left">
+      <!-- <button class="mobile-menu-btn" type="button" (click)="onMenuToggle()" pButton icon="pi pi-bars" [text]="true">
+      </button> -->
+    </div>
+
+    <!-- Right Section: User actions -->
+    <div class="header-right">
+
+      <!-- Notifications -->
+      <div class="notification header-action-btn !overflow-visible">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="18" fill="#EBEBEB" />
+          <path
+            d="M15.7952 25.5001C16.3828 26.0187 17.1547 26.3334 18.0001 26.3334C18.8454 26.3334 19.6173 26.0187 20.2049 25.5001M23.0001 14.6667C23.0001 13.3407 22.4733 12.0689 21.5356 11.1312C20.5979 10.1935 19.3261 9.66675 18.0001 9.66675C16.674 9.66675 15.4022 10.1935 14.4645 11.1312C13.5268 12.0689 13.0001 13.3407 13.0001 14.6667C13.0001 17.2419 12.3504 19.005 11.6248 20.1713C11.0127 21.155 10.7066 21.6468 10.7178 21.784C10.7303 21.936 10.7624 21.9939 10.8849 22.0847C10.9954 22.1667 11.4939 22.1667 12.4908 22.1667H23.5093C24.5062 22.1667 25.0047 22.1667 25.1152 22.0847C25.2377 21.9939 25.2699 21.936 25.2823 21.784C25.2935 21.6468 24.9875 21.155 24.3753 20.1713C23.6497 19.005 23.0001 17.2419 23.0001 14.6667Z"
+            stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+      </div>
+
+
+      <!-- 
+      <button
+        class="header-action-btn !overflow-visible"
+        type="button"
+        (click)="onNotificationClick()"
+        pButton
+        icon="pi pi-bell"
+        [text]="true"
+        pBadge
+        [value]="notificationCount.toString()"
+         >
+      </button> -->
+
+
+      <!-- Messages -->
+      <div class="message header-action-btn !overflow-visible" >
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="18" fill="#EBEBEB" />
+          <path
+            d="M14.6667 15.9167H18M14.6667 18.8333H20.5M18 25.5C22.1421 25.5 25.5 22.1421 25.5 18C25.5 13.8579 22.1421 10.5 18 10.5C13.8579 10.5 10.5 13.8579 10.5 18C10.5 18.9976 10.6948 19.9497 11.0484 20.8204C11.1161 20.9871 11.1499 21.0704 11.165 21.1377C11.1798 21.2036 11.1852 21.2524 11.1852 21.3199C11.1852 21.3889 11.1727 21.4641 11.1476 21.6145L10.6534 24.5794C10.6017 24.8898 10.5758 25.0451 10.624 25.1573C10.6661 25.2556 10.7444 25.3339 10.8427 25.376C10.9549 25.4242 11.1102 25.3983 11.4206 25.3466L14.3855 24.8524C14.5359 24.8273 14.6111 24.8148 14.6801 24.8148C14.7476 24.8148 14.7964 24.8202 14.8623 24.835C14.9296 24.8501 15.0129 24.8839 15.1796 24.9516C16.0503 25.3052 17.0024 25.5 18 25.5Z"
+            stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+      </div>
+
+
+      <!-- <button
+        class="header-action-btn !overflow-visible"
+        type="button"
+        (click)="onMessagesClick()"
+        pButton
+        icon="pi pi-envelope"
+        [text]="true"
+        pBadge
+        [value]="messageCount.toString()"
+        severity="info">
+      </button> -->
+
+      <!-- User Profile Dropdown -->
+      <!-- <div class="user-profile" (click)="op.toggle($event)" #userProfileTrigger>
+        <div class="user-info">
+          <span class="user-name">{{userName}}</span>
+          <div>
+             <app-icons [iconKey]="'dropDown'"></app-icons>
+          </div>
+        </div>
+        <div class="user-avatar">
+          
+        </div>
+      </div> -->
+
+      <!-- User Profile Dropdown Menu -->
+      <!-- <p-overlayPanel #op [showCloseIcon]="false" styleClass="user-dropdown">
+        <div class="dropdown-content">
+          <div class="dropdown-header">
+            <div class="dropdown-user-info">
+              <h4 class="dropdown-user-name">{{userName}}</h4>
+              <p class="dropdown-user-role">{{userType}}</p>
+            </div>
+          </div>
+
+          <div class="dropdown-menu">
+            <button class="dropdown-item" type="button">
+              <i class="pi pi-user"></i>
+              <span>الملف الشخصي</span>
+            </button>
+
+            <button class="dropdown-item" type="button">
+              <i class="pi pi-cog"></i>
+              <span>الإعدادات</span>
+            </button>
+
+            <div class="dropdown-divider"></div>
+
+            <button class="dropdown-item logout" type="button">
+              <i class="pi pi-sign-out"></i>
+              <span>تسجيل الخروج</span>
+            </button>
+          </div>
+        </div>
+      </p-overlayPanel> -->
+    </div>
+  </div>
+</header>

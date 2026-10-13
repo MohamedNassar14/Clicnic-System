@@ -1,0 +1,178 @@
+<section class="dashboard flex flex-col gap-6">
+    <div class="header bg-white flex justify-between items-center p-6 rounded-2xl">
+        <div class="welcome-msg">
+            <h2 class="text-xl font-bold">أهلاً سارة 👋</h2>
+            <p class="text-[#9F9F9F]">إليك ما يحدث في عيادتك اليوم.</p>
+        </div>
+        <div class="appointment">
+            <a
+                class="min-w-[153px] flex items-center justify-center gap-2 text-white main-color rounded-lg py-2.5 px-4"
+                [routerLink]="['/appointments/new']">
+                <div class="icon">
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.00008 1.16675V12.8334M1.16675 7.00008H12.8334" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="text-sm font-bold">حجز موعد من العيادة</span>
+            </a>
+        </div>
+    </div>
+    <div class="cards bg-white grid grid-cols-4 gap-6 p-6 rounded-2xl">
+        <div class="today-appointments flex flex-col gap-5 bg-[#E8F0FF] rounded-2xl p-4">
+            <h3 class="text-[#1A5CFF] text-lg font-bold">حجوزات النهاردة</h3>
+            <div class="icon-total flex justify-between items-center">
+                <div class="total text-blue-800 text-3xl font-bold">
+                    8
+                </div>
+                <div class="icon bg-blue-200 p-1.5 rounded-lg">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A5CFF" stroke-width="1.25"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                        <path d="M9 16l2 2 4-4"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="today-entered flex flex-col gap-5 bg-[#D9F8F1] rounded-2xl p-4">
+            <h3 class="text-[#024938] text-lg font-bold">دخل النهاردة</h3>
+            <div class="icon-total flex justify-between items-center">
+                <div class="total text-[#024938] text-3xl font-bold">
+                    12,000
+                </div>
+                <div class="icon bg-[#7cdcc44a] p-1.5 rounded-lg">
+                    <svg width="30" height="30" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <g stroke="#21bb94" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Wallet -->
+                            <path
+                                d="M18 30C18 25 22 22 27 22H73C78 22 82 26 82 31V73C82 78 78 82 73 82H27C22 82 18 78 18 73V30Z" />
+
+                            <!-- Wallet top -->
+                            <path d="M18 35H76C81 35 84 39 84 44V62H66C60 62 56 58 56 52C56 46 60 42 66 42H84" />
+
+                            <!-- Coin -->
+                            <circle cx="67" cy="52" r="5" fill="#21bb94" stroke="none" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="Pending payments flex flex-col gap-5 bg-[#fee5b959] rounded-2xl p-4">
+            <h3 class="text-[#5D4037] text-lg font-bold">دفعات معلّقة</h3>
+            <div class="icon-total flex justify-between items-center">
+                <div class="total text-[#5D4037] text-3xl font-bold">
+                    9
+                </div>
+                <div class="icon bg-[#ebb4523b] p-1.5 rounded-lg">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#f0751adb" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="9" cy="8" r="3" stroke="#f0751adb" stroke-width="2" />
+
+                        <path d="M3.5 20C4.1 16.5 5.8 14.5 9 14.5C12.2 14.5 13.9 16.5 14.5 20" stroke="#f0751adb"
+                            stroke-width="2" stroke-linecap="round" />
+
+                        <circle cx="16.5" cy="9" r="2.5" stroke="#f0751adb" stroke-width="1.8" />
+
+                        <path d="M13.5 20C13.9 17.3 15.2 15.8 17.5 15.8C19.5 15.8 20.5 17.1 21 19.5" stroke="#f0751adb"
+                            stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="Total patients flex flex-col gap-5 bg-[#f19a9a57] rounded-2xl p-4">
+            <h3 class="text-[#000] text-lg font-bold">إجمالي المرضى</h3>
+            <div class="icon-total flex justify-between items-center">
+                <div class="total text-[#000] text-3xl font-bold">
+                    6
+                </div>
+                <div class="icon bg-[#ed979766] p-1.5 rounded-lg">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="#de4b4b91" stroke="#de4b4b91"
+                        stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path>
+                        <path d="M19 11v6"></path>
+                        <path d="M16 14h6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="appointments-section" aria-labelledby="appointments-title">
+        <h2 id="appointments-title" class="appointments-title">حجوزات النهاردة</h2>
+        @if (isLoadingAppointments()) {
+        <p role="status">جاري تحميل حجوزات اليوم...</p>
+        } @else if (appointmentsError()) {
+        <p role="alert">
+            {{ appointmentsError() }}
+            <button type="button" (click)="loadTodayAppointments()">إعادة المحاولة</button>
+        </p>
+        } @else if (todayAppointments().length === 0) {
+        <p class="text-center">لا توجد حجوزات اليوم.</p>
+        }
+        @for (appointment of todayAppointments(); track appointment.id) {
+        <article class="appointment-card">
+            <div class="appointment-details">
+                <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
+
+                <div class="patient-copy">
+                    <div class="patient-heading">
+                        <h3>{{ appointment.patientName }}</h3>
+                        <span class="visit-type">{{ appointment.visitType }}</span>
+                    </div>
+
+                    <div class="appointment-meta">
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path
+                                    d="M5.4 2.5 8 5.1 6.5 7.3c.8 1.6 2.1 2.9 3.7 3.7l2.2-1.5 2.6 2.6-1.6 2.6c-.5.8-1.4 1.2-2.3 1C6.6 14.5 3 10.9 1.8 6.4c-.2-.9.2-1.8 1-2.3l2.6-1.6Z" />
+                            </svg>
+                            <span>{{ appointment.patientPhone }}</span>
+                        </span>
+                        <span class="meta-dot" aria-hidden="true"></span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <circle cx="10" cy="10" r="7.2" />
+                                <path d="M10 5.8v4.5l3 1.8" />
+                            </svg>
+                            <span>{{ appointment.time }}</span>
+                        </span>
+                        <span class="meta-dot" aria-hidden="true"></span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
+                                <circle cx="10" cy="8" r="1.8" />
+                            </svg>
+                            <span>{{ appointment.branchName }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="appointment-actions">
+                <div class="appointment-badges">
+                    <span class="appointment-badge"
+                        [class.paid]="appointment.isPaid"
+                        [class.unpaid]="!appointment.isPaid">
+                        {{ appointment.paymentStatusText }}
+                    </span>
+                </div>
+            </div>
+        </article>
+        }
+
+        @if (lastPage() > 1) {
+        <div class="pagination flex items-center justify-center gap-3 pt-3">
+            <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
+                [disabled]="currentPage() === 1" (click)="loadTodayAppointments(currentPage() - 1)">
+                السابق
+            </button>
+            <span class="text-sm text-[#4B5563]">الصفحة {{ currentPage() }} من {{ lastPage() }}</span>
+            <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
+                [disabled]="currentPage() >= lastPage()" (click)="loadTodayAppointments(currentPage() + 1)">
+                التالي
+            </button>
+        </div>
+        }
+    </section>
+</section>

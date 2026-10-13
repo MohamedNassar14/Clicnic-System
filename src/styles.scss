@@ -1,1 +1,56 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Almarai:wght@300;400;700;800&family=Cairo:wght@200..1000&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* Global styles - just the basics */
+:root {
+      --primary-color: #1A5CFF; 
+}
+
+html {
+  direction: rtl;
+  font-family: 'Almarai', sans-serif !important;
+}
+
+body {
+  background-color: #F2F2F2;
+}
+
+.main-color {
+  background: linear-gradient(
+  to right,
+  #1053fc 0%,
+  #3a76f9 75%,
+  #1053fc 100%
+);
+}
+.second-color {
+  background: linear-gradient(to right, #2D4B36 0%, #4B8256 100%);
+}
+
+.third-color {
+  background: linear-gradient(
+    to bottom,
+    #3F6A4D 0%,
+    #5F8F6A 45%,
+    #8FBFA1 100%
+  );
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+input:hover,
+.p-inputtext:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+button[disabled] {
+  cursor: not-allowed;
+  opacity: .8;
+}

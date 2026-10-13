@@ -1,0 +1,93 @@
+<section class="appointments-page flex flex-col gap-6">
+    <div class="header flex justify-between items-center">
+        <div class="welcome-msg">
+            <h2 class="text-xl font-bold">كل الحجوزات</h2>
+            <p class="text-[#9F9F9F]">{{ totalAppointments() }} حجز إجمالاً</p>
+        </div>
+        <div class="appointment">
+            <button
+                class="min-w-[153px] flex items-center justify-center gap-2 text-white main-color rounded-lg py-2.5 px-4"
+                routerLink="/appointments/new">
+                <div class="icon">
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.00008 1.16675V12.8334M1.16675 7.00008H12.8334" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="text-sm font-bold">حجز موعد من العيادة</span>
+            </button>
+        </div>
+    </div>
+    @if (isLoading()) {
+        <p role="status">جاري تحميل الحجوزات...</p>
+    } @else if (loadError()) {
+        <p role="alert">
+            {{ loadError() }}
+            <button type="button" (click)="loadAppointments()">إعادة المحاولة</button>
+        </p>
+    } @else if (appointments().length === 0) {
+        <p class="text-center text-gray-500">لا توجد حجوزات .</p>
+    }
+
+    @for (appointment of appointments(); track appointment.id) {
+        <article class="appointment-card">
+            <div class="appointment-details">
+                <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
+
+                <div class="patient-copy">
+                    <div class="patient-heading">
+                        <h3>{{ appointment.patientName }}</h3>
+                        <span class="visit-type">{{ appointment.visitType }}</span>
+                    </div>
+
+                    <div class="appointment-meta">
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M5.4 2.5 8 5.1 6.5 7.3c.8 1.6 2.1 2.9 3.7 3.7l2.2-1.5 2.6 2.6-1.6 2.6c-.5.8-1.4 1.2-2.3 1C6.6 14.5 3 10.9 1.8 6.4c-.2-.9.2-1.8 1-2.3l2.6-1.6Z" />
+                            </svg>
+                            <span>{{ appointment.patientPhone }}</span>
+                        </span>
+                        <span class="meta-dot" aria-hidden="true"></span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <circle cx="10" cy="10" r="7.2" />
+                                <path d="M10 5.8v4.5l3 1.8" />
+                            </svg>
+                            <span>{{ appointment.time }}</span>
+                        </span>
+                        <span class="meta-dot" aria-hidden="true"></span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
+                                <circle cx="10" cy="8" r="1.8" />
+                            </svg>
+                            <span>{{ appointment.clinicAddress }}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="appointment-actions">
+                @if (appointment.isPaid) {
+                <div class="appointment-badges">
+                    <span class="appointment-badge paid">تم الدفع</span>
+                </div>
+                }
+            </div>
+            </article>
+            }
+
+    @if (lastPage() > 1) {
+    <div class="pagination flex items-center justify-center gap-3 pt-2">
+        <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
+            [disabled]="currentPage() === 1" (click)="loadAppointments(currentPage() - 1)">
+            السابق
+        </button>
+        <span class="text-sm text-[#4B5563]">الصفحة {{ currentPage() }} من {{ lastPage() }}</span>
+        <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
+            [disabled]="currentPage() >= lastPage()" (click)="loadAppointments(currentPage() + 1)">
+            التالي
+        </button>
+    </div>
+    }
+</section>

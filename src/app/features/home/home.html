@@ -1,0 +1,337 @@
+@if (bookingActive()) {
+<main class="booking-experience">
+    <header class="booking-header">
+        <a class="brand" routerLink="/home" (click)="closeBooking()" aria-label="MediCare الرئيسية">
+            <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" alt="" />
+            <span>Medi<span class="brand-accent">Care</span></span>
+        </a>
+        <button type="button" class="back-home-button" (click)="closeBooking()">العودة للرئيسية</button>
+    </header>
+
+    <section class="booking-layout" aria-label="حجز موعد">
+        <aside class="booking-sidebar">
+            <a class="back-doctors" routerLink="/home" (click)="closeBooking()"><span aria-hidden="true">‹</span> العودة للأطباء</a>
+            <div class="doctor-summary">
+                <div class="doctor-avatar" aria-hidden="true">أم</div>
+                <div>
+                    <h2>د. أحمد محمد</h2>
+                    <p>استشاري طب الأسرة</p>
+                    <span class="doctor-rating"><span aria-hidden="true">★</span> 4.9 <small>(120 تقييم)</small></span>
+                </div>
+            </div>
+            <ol class="booking-steps">
+                <li [class.active]="bookingStep() === 1" [class.complete]="bookingStep() > 1">
+                    <span class="step-number">1</span>
+                    <span>اختيار الموعد</span>
+                </li>
+                <li [class.active]="bookingStep() === 2" [class.complete]="bookingStep() > 2">
+                    <span class="step-number">2</span>
+                    <span>نوع الزيارة</span>
+                </li>
+                <li [class.active]="bookingStep() === 3">
+                    <span class="step-number">3</span>
+                    <span>الدفع</span>
+                </li>
+            </ol>
+        </aside>
+
+        <div class="booking-panel">
+            @if (bookingStep() === 1) {
+            <div class="booking-panel-heading">
+                <p class="booking-eyebrow">الخطوة 1 من 3</p>
+                <h1>اختار الفرع والموعد</h1>
+                <p>حدد الفرع والتاريخ المناسبين لعرض المواعيد المتاحة.</p>
+            </div>
+            <section class="booking-branch-picker" aria-labelledby="booking-branch-title">
+                <h2 id="booking-branch-title">اختر الفرع</h2>
+                @if (locationsError()) {
+                <p class="booking-data-error" role="alert">
+                        {{ locationsError() }}
+                        <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
+                </p>
+                } @else if (isLoadingLocations()) {
+                <p class="booking-data-message" role="status">جارٍ تحميل الفروع...</p>
+                } @else if (locations().length === 0) {
+                <p class="booking-data-message">لا توجد فروع متاحة حاليًا.</p>
+                } @else {
+                <div class="booking-branch-options">
+                        @for (location of locations(); track location.id) {
+                        <button type="button" class="booking-branch-option"
+                            [class.selected]="selectedClinicLocationId() === location.id"
+                            [attr.aria-pressed]="selectedClinicLocationId() === location.id"
+                            (click)="selectClinicLocation(location.id)">
+                            <span class="branch-pin" aria-hidden="true">●</span>
+                            <span class="branch-details">
+                                <strong>{{ location.name }}</strong>
+                                @if (location.address) {
+                                <small>{{ location.address }}</small>
+                                }
+                            </span>
+                        </button>
+                        }
+                </div>
+                }
+            </section>
+            <section class="booking-date-picker" aria-labelledby="booking-date-title">
+                <h2 id="booking-date-title">اختر اليوم</h2>
+                <div class="booking-date-options">
+                        @for (date of dateOptions; track $index) {
+                        <button type="button" class="booking-date-option"
+                            [class.selected]="isSelectedDate(date)" [attr.aria-pressed]="isSelectedDate(date)"
+                            (click)="selectDate(date)">
+                            <span>{{ formatDateLabel(date) }}</span>
+                            <strong>{{ date.getDate() }}</strong>
+                        </button>
+                        }
+                </div>
+            </section>
+            <section class="booking-slot-picker" aria-labelledby="booking-slot-title">
+                <h2 id="booking-slot-title">اختر الموعد</h2>
+                @if (timeSlotsError()) {
+                <p class="booking-data-error" role="alert">
+                        {{ timeSlotsError() }}
+                        <button type="button" (click)="selectDate(selectedDate())">إعادة المحاولة</button>
+                </p>
+                } @else if (!selectedClinicLocationId() || !selectedDate()) {
+                <p class="booking-data-message">اختر الفرع والتاريخ لعرض المواعيد المتاحة.</p>
+                } @else if (isLoadingTimeSlots()) {
+                <p class="booking-data-message" role="status">جارٍ تحميل المواعيد المتاحة...</p>
+                } @else if (availableTimeSlots().length === 0) {
+                <p class="booking-data-message">لا توجد مواعيد متاحة في هذا اليوم. اختر تاريخًا آخر.</p>
+                } @else {
+                <div class="time-options">
+                        @for (time of availableTimeSlots(); track time.id) {
+                        <button type="button" class="time-option"
+                            [class.selected]="selectedTime()?.id === time.id"
+                            [attr.aria-pressed]="selectedTime()?.id === time.id"
+                            (click)="selectTimeSlot(time)">
+                            {{ time.label }}
+                        </button>
+                        }
+                </div>
+                }
+            </section>
+            <div class="booking-actions">
+                <span class="timezone-note">
+                        {{ selectedDate() ? formatSelectedDate() : 'الأوقات حسب التوقيت المحلي للقاهرة' }}
+                </span>
+                <button type="button" class="booking-primary-button"
+                        [disabled]="!selectedClinicLocationId() || !selectedDate() || !selectedTime()"
+                        (click)="continueBooking()">التالي
+                </button>
+            </div>
+            }
+
+            @if (bookingStep() === 2) {
+            <div class="booking-panel-heading">
+                <p class="booking-eyebrow">الخطوة 2 من 3</p>
+                <h1>نوع الزيارة</h1>
+                <p>اختر نوع الزيارة المناسب لك.</p>
+            </div>
+            @if (visitTypesError()) {
+            <p class="booking-data-error" role="alert">
+                {{ visitTypesError() }}
+                <button type="button" (click)="retryVisitTypes()">إعادة المحاولة</button>
+            </p>
+            } @else if (isLoadingVisitTypes()) {
+            <p class="booking-data-message" role="status">جارٍ تحميل أنواع الزيارة...</p>
+            } @else if (visitTypes().length === 0) {
+            <p class="booking-data-message">لا توجد أنواع زيارة متاحة لهذا الفرع.</p>
+            } @else {
+            <div class="visit-type-options" role="group" aria-label="اختر نوع الزيارة">
+                @for (visitType of visitTypes(); track visitType.key) {
+                <button type="button" class="visit-type-option"
+                    [class.selected]="selectedVisitTypeKey() === visitType.key"
+                    [attr.aria-pressed]="selectedVisitTypeKey() === visitType.key"
+                    (click)="selectVisitType(visitType.key!)">
+                    <span class="visit-type-icon" aria-hidden="true">{{ visitType.key === 'checkup' ? '🩺' : '📋' }}</span>
+                    <strong>{{ visitType.label }}</strong>
+                    <small>{{ visitType.key === 'checkup' ? 'أول زيارة أو حالة جديدة' : 'استشارة طبية' }}</small>
+                    <span class="visit-type-price">
+                        {{ formatVisitTypePrice(visitType) }}
+                    </span>
+                </button>
+                }
+            </div>
+            }
+            <section class="visit-booking-summary" aria-label="ملخص الحجز">
+                <div><span>الفرع</span><strong>{{ selectedLocation()?.name }}</strong></div>
+                <div><span>المعاد</span><strong>{{ formatSelectedDate() }} - {{ selectedTime()?.label }}</strong></div>
+                <div class="visit-booking-total">
+                    <span>الإجمالي</span>
+                    <strong>{{ formatVisitTypePrice(selectedVisitType()) }}</strong>
+                </div>
+            </section>
+            <div class="booking-actions visit-type-actions">
+                <button type="button" class="booking-secondary-button" (click)="bookingStep.set(1)">رجوع</button>
+                <button type="button" class="booking-primary-button"
+                    [disabled]="isLoadingVisitTypes() || !selectedVisitType()"
+                    (click)="continueBooking()">التالي</button>
+            </div>
+            }
+
+            @if (bookingStep() === 3) {
+            <section class="payment-step">
+                <p class="booking-eyebrow">الخطوة 3 من 3</p>
+                @if (paymentComplete()) {
+                <div class="payment-success" role="status">
+                    <span aria-hidden="true">✓</span>
+                    <h1>تم تأكيد الحجز</h1>
+                    <p>اكتملت عملية الدفع وحجز موعدك بنجاح.</p>
+                </div>
+                } @else {
+                <h1>اختر طريقة الدفع</h1>
+                @if (paymentError()) {
+                <p class="payment-error" role="alert">{{ paymentError() }}</p>
+                }
+                <div class="payment-options" role="group" aria-label="اختر طريقة الدفع">
+                    <button type="button" class="payment-option"
+                        [class.selected]="selectedPaymentMethod() === 'card'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'card'"
+                        [disabled]="isSubmittingPayment()"
+                        (click)="selectPaymentMethod('card')">
+                        <span class="payment-option-icon" aria-hidden="true">💳</span>
+                        <strong>بطاقة بنكية</strong>
+                    </button>
+                    <button type="button" class="payment-option"
+                        [class.selected]="selectedPaymentMethod() === 'wallet'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'wallet'"
+                        [disabled]="isSubmittingPayment()"
+                        (click)="selectPaymentMethod('wallet')">
+                        <span class="payment-option-icon" aria-hidden="true">📱</span>
+                        <strong>محفظة إلكترونية</strong>
+                    </button>
+                    <button type="button" class="payment-option"
+                        [class.selected]="selectedPaymentMethod() === 'cash'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'cash'"
+                        [disabled]="isSubmittingPayment()"
+                        (click)="selectPaymentMethod('cash')">
+                        <span class="payment-option-icon" aria-hidden="true">💵</span>
+                        <strong>كاش</strong>
+                    </button>
+                </div>
+                <section class="payment-summary" aria-label="ملخص المبلغ المطلوب">
+                    <div>
+                        <span>{{ selectedVisitType()?.label }}</span>
+                        <strong>{{ formatVisitTypePrice(selectedVisitType()) }}</strong>
+                    </div>
+                    <div class="payment-total">
+                        <span>المطلوب دفعه</span>
+                        <strong>{{ formatVisitTypePrice(selectedVisitType()) }}</strong>
+                    </div>
+                </section>
+                <p class="payment-security-note"><span aria-hidden="true">🔒</span> بياناتك محمية وآمنة بالكامل</p>
+                }
+                <div class="booking-actions payment-actions">
+                    @if (paymentComplete()) {
+                    <button type="button" class="booking-primary-button" (click)="closeBooking()">العودة للرئيسية</button>
+                    } @else {
+                    <button type="button" class="booking-secondary-button"
+                        [disabled]="isSubmittingPayment()" (click)="bookingStep.set(2)">رجوع</button>
+                    @if (paymentError() && appointmentId()) {
+                    <button type="button" class="booking-primary-button"
+                        [disabled]="isSubmittingPayment()" (click)="retryPayment()">
+                        {{ isSubmittingPayment() ? 'جارٍ تأكيد الحجز...' : 'إعادة المحاولة' }}
+                    </button>
+                    } @else {
+                    <button type="button" class="booking-primary-button" disabled>
+                        {{ isSubmittingPayment() ? 'جارٍ تأكيد الحجز...' : 'اختر طريقة الدفع' }}
+                    </button>
+                    }
+                    }
+                </div>
+            </section>
+            }
+        </div>
+    </section>
+</main>
+} @else {
+<main class="home-page">
+    <header class="site-header">
+        <a class="brand" routerLink="/home" aria-label="MediCare الرئيسية">
+            <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" priority alt="" />
+            <span>Medi<span class="brand-accent">Care</span></span>
+        </a>
+
+        <nav class="main-nav" aria-label="التنقل الرئيسي">
+            <a >الرئيسية</a>
+            <a (click)="scrollToServices($event)">خدماتنا</a>
+            <a>تواصل معنا</a>
+        </nav>
+
+        <div class="header-actions">
+            <a class="header-book" href="#booking" (click)="openBooking($event)">احجز موعدك</a>
+            <button class="header-logout" type="button" (click)="logout()">تسجيل الخروج</button>
+        </div>
+    </header>
+
+    <section class="hero" id="home" aria-labelledby="hero-title">
+        <img class="hero-image" ngSrc="/assets/images/banner2.png" fill priority alt="استقبال عيادة MediCare" />
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-content">
+            <p class="eyebrow">رعاية طبية تثق بها</p>
+            <h1 id="hero-title">صحتك أولويتنا،<br />وراحتك تبدأ من هنا</h1>
+            <p class="hero-description">
+                رعاية متكاملة لك ولأسرتك، مع فريق طبي متخصص وتجربة حجز سهلة في كل خطوة.
+            </p>
+            <div class="hero-actions">
+                <a class="primary-action" href="#booking" (click)="openBooking($event)">احجز موعدًا</a>
+                <a class="secondary-action" href="#services" (click)="scrollToServices($event)">اكتشف خدماتنا</a>
+            </div>
+            <div class="trust-note">
+                <span class="trust-mark" aria-hidden="true">✓</span>
+                <span>فريق طبي متخصص ورعاية باهتمام</span>
+            </div>
+        </div>
+        <a class="scroll-cue" href="#services" aria-label="اكتشف خدماتنا" (click)="scrollToServices($event)">
+            <span aria-hidden="true">↓</span>
+        </a>
+    </section>
+
+    <section class="services-section" id="services" aria-labelledby="services-title">
+        <div class="section-heading">
+            <p class="eyebrow">خدماتنا</p>
+            <h2 id="services-title">رعاية شاملة في مكان واحد</h2>
+            <p>خدمات طبية مصممة لتمنحك رعاية موثوقة ومريحة.</p>
+        </div>
+        <div class="service-list">
+            <article class="service-item">
+                <span class="service-symbol" aria-hidden="true">+</span>
+                <h3>طب الأسرة</h3>
+                <p>متابعة صحية ورعاية يومية لك ولأسرتك.</p>
+            </article>
+            <article class="service-item">
+                <span class="service-symbol heart-symbol" aria-hidden="true">♡</span>
+                <h3>القلب والأوعية</h3>
+                <p>تقييم ومتابعة لصحة القلب مع فريق متخصص.</p>
+            </article>
+            <article class="service-item">
+                <span class="service-symbol tooth-symbol" aria-hidden="true">◈</span>
+                <h3>طب الأسنان</h3>
+                <p>فحوصات وعلاجات للحفاظ على صحة ابتسامتك.</p>
+            </article>
+            <article class="service-item">
+                <span class="service-symbol lab-symbol" aria-hidden="true">⌕</span>
+                <h3>الفحوصات</h3>
+                <p>فحوصات دقيقة تساعدك على الاطمئنان لصحتك.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="about-band" id="about">
+        <div>
+            <p class="eyebrow">MediCare</p>
+            <h2>اهتمام حقيقي، في كل زيارة</h2>
+        </div>
+        <a class="primary-action" href="#booking" (click)="openBooking($event)">ابدأ رحلتك الصحية</a>
+    </section>
+
+    <footer class="site-footer" id="contact">
+        <a class="brand" routerLink="/home">
+            <img ngSrc="/assets/images/wajha-logo.png" width="34" height="34" alt="" />
+            <span>Medi<span class="brand-accent">Care</span></span>
+        </a>
+        <p>رعايتك تبدأ بخطوة.</p>
+    </footer>
+</main>
+}

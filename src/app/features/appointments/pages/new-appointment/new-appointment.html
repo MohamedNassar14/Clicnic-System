@@ -1,0 +1,155 @@
+<section class="booking-page flex flex-col gap-6">
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-xl font-bold">حجز موعد من العيادة</h1>
+            <p class="text-[#9F9F9F]">أدخل بيانات الموعد والمريض</p>
+        </div>
+        <a class="text-mainColor font-bold" routerLink="/appointments">العودة للحجوزات</a>
+    </div>
+
+    <form class="booking-form w-full flex flex-col gap-5 bg-white rounded-2xl p-6" (ngSubmit)="submitBooking()">
+        <div class="tabs-container flex bg-[#F7F5F0] rounded-3xl">
+            <button type="button" class="tab-btn w-1/2 rounded-3xl p-2" [class.active]="activeTab === 'existing'"
+                (click)="selectTab('existing')">
+                مريض موجود
+            </button>
+            <button type="button" class="tab-btn w-1/2 rounded-3xl p-2" [class.active]="activeTab === 'new'"
+                (click)="selectTab('new')">
+                مريض جديد
+            </button>
+        </div>
+        @if (locationsError()) {
+        <p class="form-error" role="alert">
+            {{ locationsError() }}
+            <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
+        </p>
+        }
+        @if (visitTypesError()) {
+        <p class="form-error" role="alert">
+            {{ visitTypesError() }}
+            <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
+        </p>
+        }
+        @if (bookingError()) {
+        <p class="form-error" role="alert">{{ bookingError() }}</p>
+        }
+        @if (bookingSuccess()) {
+        <p class="form-success" role="status">{{ bookingSuccess() }}</p>
+        }
+
+        @if (activeTab === 'existing') {
+        <div class="flex flex-col gap-4">
+            <div class="form-field">
+                <label for="existing-phone">رقم تليفون المريض</label>
+                <input id="existing-phone" type="tel" name="existingPhone" [ngModel]="existingPhone"
+                    (ngModelChange)="onExistingPhoneChange($event)"
+                    placeholder="رقم التليفون" />
+                @if (isSearchingPatient()) {
+                <small role="status">جاري البحث عن المريض...</small>
+                } @else if (existingPatientId()) {
+                <small class="patient-found" role="status">تم العثور على المريض</small>
+                } @else if (patientSearchError()) {
+                <small class="patient-search-error" role="alert">{{ patientSearchError() }}</small>
+                }
+            </div>
+            <div class="form-field">
+                <label for="existing-branch">الفرع</label>
+                <p-select inputId="existing-branch" [options]="locations()" optionLabel="name" optionValue="id"
+                    [ngModel]="selectedClinicLocationId()" (ngModelChange)="onClinicLocationChange($event)"
+                    [ngModelOptions]="{ standalone: true }" [loading]="isLoadingLocations()" placeholder="اختر الفرع" />
+            </div>
+            <div class="date-time">
+                <div class="date-time-field">
+                    <label for="existing-date">تاريخ الحجز</label>
+                    <p-datepicker inputId="existing-date" class="w-full" inputStyleClass="w-full"
+                        [ngModel]="selectedAppointmentDate()" (ngModelChange)="onAppointmentDateChange($event)"
+                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true"
+                        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+                </div>
+                <div class="date-time-field">
+                    <label for="existing-time">وقت الحجز</label>
+                    <p-select inputId="existing-time" [options]="availableTimeSlots()" optionLabel="label"
+                        optionValue="id" [ngModel]="selectedTimeSlotId()" (ngModelChange)="onTimeSlotChange($event)"
+                        [ngModelOptions]="{ standalone: true }" [loading]="isLoadingTimeSlots()"
+                        [disabled]="!selectedClinicLocationId() || !selectedAppointmentDate()"
+                        placeholder="اختر الوقت" />
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="existing-visit">نوع الزيارة</label>
+                <p-select inputId="existing-visit" name="existingVisitType" [options]="visitTypes()"
+                    optionLabel="label" optionValue="key" [(ngModel)]="selectedVisitTypeKey"
+                    [loading]="isLoadingVisitTypes()" placeholder="نوع الزيارة" />
+            </div>
+        </div>
+        }
+
+        @if (activeTab === 'new') {
+        <div class="flex flex-col gap-4">
+            <div class="form-field">
+                <label for="new-name">اسم المريض</label>
+                <input id="new-name" type="text" name="name" [(ngModel)]="name"
+                    placeholder="اسم المريض" />
+            </div>
+            <div class="form-field">
+                <label for="new-phone">رقم تليفون المريض</label>
+                <input id="new-phone" type="tel" name="phone" [(ngModel)]="phone"
+                    placeholder="رقم التليفون" />
+            </div>
+            <div class="date-time-field">
+                <label for="new-birth-date">تاريخ ميلاد المريض</label>
+                <p-datepicker inputId="new-birth-date" name="date_of_birth" class="w-full"
+                    inputStyleClass="w-full" [(ngModel)]="date_of_birth" [showIcon]="true"
+                    iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر تاريخ الميلاد" />
+            </div>
+            <div class="form-field">
+                <label for="new-gender">نوع المريض</label>
+                <select id="new-gender" name="gender" [(ngModel)]="gender" required>
+                    <option value="" disabled>اختر النوع</option>
+                    <option value="male">ذكر</option>
+                    <option value="female">أنثى</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="new-address">عنوان المريض</label>
+                <textarea id="new-address" name="address" [(ngModel)]="address" rows="3"
+                    placeholder="عنوان المريض"></textarea>
+            </div>
+            <div class="form-field">
+                <label for="new-branch">الفرع</label>
+                <p-select inputId="new-branch" [options]="locations()" optionLabel="name" optionValue="id"
+                    [ngModel]="selectedClinicLocationId()" (ngModelChange)="onClinicLocationChange($event)"
+                    [ngModelOptions]="{ standalone: true }" [loading]="isLoadingLocations()" placeholder="اختر الفرع" />
+            </div>
+            <div class="date-time">
+                <div class="date-time-field">
+                    <label for="new-date">تاريخ الحجز</label>
+                    <p-datepicker inputId="new-date" class="w-full" inputStyleClass="w-full"
+                        [ngModel]="selectedAppointmentDate()" (ngModelChange)="onAppointmentDateChange($event)"
+                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true"
+                        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+                </div>
+                <div class="date-time-field">
+                    <label for="new-time">وقت الحجز</label>
+                    <p-select inputId="new-time" [options]="availableTimeSlots()" optionLabel="label"
+                        optionValue="id" [ngModel]="selectedTimeSlotId()" (ngModelChange)="onTimeSlotChange($event)"
+                        [ngModelOptions]="{ standalone: true }" [loading]="isLoadingTimeSlots()"
+                        [disabled]="!selectedClinicLocationId() || !selectedAppointmentDate()"
+                        placeholder="اختر الوقت" />
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="new-visit">نوع الزيارة</label>
+                <p-select inputId="new-visit" name="newVisitType" [options]="visitTypes()" optionLabel="label"
+                    optionValue="key" [(ngModel)]="selectedVisitTypeKey" [loading]="isLoadingVisitTypes()"
+                    placeholder="نوع الزيارة" />
+            </div>
+        </div>
+        }
+
+        <button type="submit" class="min-w-[130px] text-white main-color rounded-lg py-2 px-3"
+            [disabled]="isSavingBooking()">
+            {{ isSavingBooking() ? 'جارٍ الحجز...' : 'تأكيد الحجز' }}
+        </button>
+    </form>
+</section>

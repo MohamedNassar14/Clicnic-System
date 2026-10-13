@@ -1,0 +1,250 @@
+/* src/app/layout/header/header.component.scss */
+.app-header-container {
+  padding: 10px 0;
+  // border-bottom: 1px solid #e5e7eb;
+  min-height: 72px; // Ensure minimum height
+  display: flex;
+  align-items: center;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 32px; // Ensure content has minimum height
+  }
+}
+
+// Left section
+.header-left {
+  display: flex;
+  align-items: center;
+
+  .mobile-menu-btn {
+    display: none; // Hidden by default, shown on mobile
+    color: #6b7280 !important;
+
+    &:hover {
+      color: #05628C !important;
+      background: rgba(5, 98, 140, 0.1) !important;
+    }
+  }
+}
+
+// Right section
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  .header-action-btn {
+    color: #6b7280 !important;
+    position: relative;
+
+    &:hover {
+      color: #05628C !important;
+      background: rgba(5, 98, 140, 0.1) !important;
+      border-radius: 20px !important;
+      cursor: pointer !important;
+    }
+  }
+}
+
+// User Profile Section
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(5, 98, 140, 0.1);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: right;
+
+    .user-name {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .dropdown-icon {
+      font-size: 12px;
+      color: #9ca3af;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .user-avatar {
+    .avatar-image {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e5e7eb;
+    }
+  }
+
+  &:hover .dropdown-icon {
+    transform: rotate(180deg);
+  }
+}
+
+// Dropdown Styles
+::ng-deep .user-dropdown {
+  .p-overlaypanel-content {
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e5e7eb;
+    min-width: 220px;
+  }
+}
+
+.dropdown-content {
+  .dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+
+    .dropdown-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .dropdown-user-info {
+      text-align: right;
+
+      .dropdown-user-name {
+        margin: 0;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .dropdown-user-role {
+        margin: 4px 0 0 0;
+        font-size: 14px;
+        color: #6b7280;
+      }
+    }
+  }
+
+  .dropdown-menu {
+    padding: 8px;
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 12px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: right;
+
+      &:hover {
+        background: rgba(5, 98, 140, 0.1);
+        color: #05628C;
+      }
+
+      i {
+        font-size: 14px;
+        color: #6b7280;
+      }
+
+      &:hover i {
+        color: #05628C;
+      }
+
+      &.logout {
+        color: #ef4444;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.1);
+          color: #dc2626;
+        }
+
+        i {
+          color: #ef4444;
+        }
+
+        &:hover i {
+          color: #dc2626;
+        }
+      }
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 8px 0;
+    }
+  }
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .app-header-container {
+    padding: 12px 16px;
+
+    .header-left {
+      .mobile-menu-btn {
+        display: inline-flex; // Show burger menu on mobile
+      }
+    }
+
+    .header-right {
+      gap: 8px;
+
+      .header-action-btn {
+        padding: 8px !important;
+      }
+    }
+
+    .user-profile {
+      padding: 6px 8px;
+
+      .user-info {
+        gap: 6px;
+
+        .user-name {
+          font-size: 13px;
+        }
+      }
+
+      .user-avatar {
+        .avatar-image {
+          width: 28px;
+          height: 28px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header-container {
+    .header-right {
+      .user-info {
+        display: none; // Hide user name on very small screens
+      }
+    }
+  }
+}

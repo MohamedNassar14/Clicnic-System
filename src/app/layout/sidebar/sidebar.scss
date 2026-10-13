@@ -1,0 +1,251 @@
+/* src/app/layout/sidebar/sidebar.component.scss */
+.sidebar {
+  height: 100vh;
+  max-width: 300px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  right: 0;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #111A3A;
+    border-radius: 2px;
+  }
+}
+
+// Logo Section
+.logo-section {
+  padding: 0 10px;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0F172A;
+  }
+  .brand-name span {
+    color: #1A5CFF;
+  }
+// Navigation
+.navigation {
+  flex: 1;
+  padding: 18px 16px;
+
+  .menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu-item {
+    margin-bottom: 4px;
+    color: black;
+    transition: all 0.2s ease;
+    &:hover {
+      color: white !important;
+      background: linear-gradient(
+  to right,
+  #1053fc 0%,
+  #3a76f9 75%,
+  #1053fc 100%
+);
+    }
+
+    //Parent Menu Link
+    // .menu-link {
+    //   display: flex;
+    //   align-items: center;
+    //   padding: 12px 16px;
+    //   color: #9F9F9F;
+    //   text-decoration: none;
+    //   border-radius: 8px;
+    //   transition: all 0.2s ease;
+    //   cursor: pointer;
+    //   position: relative;
+
+    //   &:hover {
+    //     color: black !important;
+    //   }
+
+    //   &.active {
+    //     color: black !important;
+
+    //     .menu-icon {
+    //       color: black !important;
+    //     }
+    //   }
+
+    //   &.expandable {
+
+    //     // justify-content: space-between;
+    //     .expand-icon {
+    //       padding-right: 12px;
+    //     }
+    //   }
+
+    //   .menu-icon {
+    //     font-size: 18px;
+    //     margin-left: 12px;
+    //     color: rgba(255, 255, 255, 0.8);
+    //     transition: color 0.2s ease;
+    //   }
+
+    //   .menu-label {
+    //     font-size: 14px;
+    //     font-weight: 500;
+    //   }
+
+    //   .expand-icon {
+    //     font-size: 12px;
+    //     transition: transform 0.2s ease;
+    //     color: rgba(255, 255, 255, 0.6);
+
+    //     &.rotated {
+    //       transform: rotate(180deg);
+    //     }
+    //   }
+    // }
+
+    // Submenu
+    .submenu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+
+      &.open {
+        max-height: 200px;
+      }
+
+      .submenu-item {
+        margin: 10px 16px;
+
+        .submenu-link {
+          display: flex;
+          align-items: center;
+          padding: 10px 16px;
+          color: rgba(255, 255, 255, 0.7);
+          text-decoration: none;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          margin: 2px 0;
+
+
+          .submenu-icon {
+            font-size: 8px;
+            margin-left: 12px;
+            color: rgba(255, 255, 255, 0.6);
+          }
+
+          .submenu-label {
+            font-size: 13px;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+
+    // Expanded state styling
+    &.has-children.expanded {
+      .menu-link.expandable {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  // .sidebar {
+  //   width: 280px !important;
+  // }
+
+  .logo-section {
+    padding: 20px 16px;
+
+    .logo-container {
+      gap: 10px;
+
+      .logo-image {
+        width: 40px;
+        height: 40px;
+      }
+
+      .logo-text {
+        .company-name {
+          font-size: 16px;
+        }
+
+        .company-subtitle {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+}
+
+
+.active {
+  color: #fff !important;
+  background: linear-gradient(
+  to right,
+  #1053fc 0%,
+  #3a76f9 75%,
+  #1053fc 100%
+);
+}
+
+.logout-button {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px 20px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #b42318;
+  font: inherit;
+  text-align: right;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background: #fff1f0;
+}
+
+.logout-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
