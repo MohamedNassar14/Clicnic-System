@@ -73,18 +73,27 @@ export interface AppointmentBookingResponse {
   status?: boolean;
   msg?: string;
   appointment_id?: number | string;
-  appointment?: { id?: number | string };
+  appointment?: {
+    id?: number | string;
+    data?: { appointment_id?: number | string };
+  };
   data?: { appointment_id?: number | string };
 }
 
 export interface AppointmentPaymentPayload {
   appointment_id: number;
   pay_method: AppointmentPayMethod;
+  wallet_phone?: string;
 }
 
 export interface AppointmentPaymentResponse {
   status?: boolean;
   msg?: string;
+  url?: string;
+  payment?: {
+    type?: string;
+    url?: string;
+  }
 }
 
 export interface AppointmentListPerson {
@@ -171,7 +180,7 @@ export class AppointmentsService {
 
   getVisitTypes(clinicLocationId = 13): Observable<VisitTypeOption[] | VisitTypesResponse> {
     return this.http.get<VisitTypeOption[] | VisitTypesResponse>(
-      `${environment.url}admin/clinics/${clinicLocationId}/visit-types`,
+      `${environment.url}clinics/${clinicLocationId}/visit-types`,
     );
   }
 
@@ -188,7 +197,7 @@ export class AppointmentsService {
   }
 
   createAppointmentPayment(payload: AppointmentPaymentPayload): Observable<AppointmentPaymentResponse> {
-    return this.http.post<AppointmentPaymentResponse>(`${environment.url}payments`, payload);
+    return this.http.post<AppointmentPaymentResponse>(`${environment.url}payments/pay`, payload);
   }
 
   getAppointments(

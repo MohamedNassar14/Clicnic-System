@@ -71,7 +71,7 @@ describe('AppointmentsService', () => {
   it('loads visit types for the selected clinic location', () => {
     service.getVisitTypes(12).subscribe();
 
-    const req = httpMock.expectOne(`${environment.url}admin/clinics/12/visit-types`);
+    const req = httpMock.expectOne(`${environment.url}clinics/12/visit-types`);
     expect(req.request.method).toBe('GET');
     req.flush({ status: true, visit_types: [] });
   });
@@ -88,13 +88,17 @@ describe('AppointmentsService', () => {
   });
 
   it('submits the selected payment method for the created appointment', () => {
-    const payload = { appointment_id: 42, pay_method: 'wallet' as const };
+    const payload = {
+      appointment_id: 42,
+      pay_method: 'wallet' as const,
+      wallet_phone: '01013808583',
+    };
 
     service.createAppointmentPayment(payload).subscribe();
 
-    const req = httpMock.expectOne(`${environment.url}payments`);
+    const req = httpMock.expectOne(`${environment.url}payments/pay`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
-    req.flush({ status: true });
+    req.flush({ status: true, url: 'https://payments.example/checkout' });
   });
 });

@@ -958,6 +958,35 @@ app-home {
     text-align: center;
 }
 
+.wallet-phone-field {
+    display: grid;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.wallet-phone-field label {
+    color: #203333;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.wallet-phone-field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #d8dfdc;
+    border-radius: 8px;
+    background: #fff;
+    color: #203333;
+    font: inherit;
+    text-align: left;
+}
+
+.wallet-phone-field input:focus-visible {
+    border-color: #0c5650;
+    outline: 3px solid rgb(12 86 80 / 18%);
+}
+
 .payment-summary {
     display: grid;
     gap: 0;

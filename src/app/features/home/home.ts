@@ -68,7 +68,10 @@ function formatDate(date: Date): string {
 }
 
 function readAppointmentId(response: AppointmentBookingResponse): number | null {
-  const value = response.appointment_id ?? response.data?.appointment_id ?? response.appointment?.id;
+  const value = response.appointment_id
+    ?? response.data?.appointment_id
+    ?? response.appointment?.id
+    ?? response.appointment?.data?.appointment_id;
   const appointmentId = typeof value === 'number' ? value : Number(value);
   return Number.isSafeInteger(appointmentId) && appointmentId > 0 ? appointmentId : null;
 }
@@ -131,6 +134,7 @@ export class Home {
     () => this.visitTypes().find((visitType) => visitType.key === this.selectedVisitTypeKey()) ?? null,
   );
   readonly selectedPaymentMethod = signal<AppointmentPayMethod | null>(null);
+  readonly walletPhone = signal('');
   readonly isSubmittingPayment = signal(false);
   readonly paymentError = signal('');
   readonly paymentComplete = signal(false);
@@ -236,9 +240,46 @@ export class Home {
     this.selectedPaymentMethod.set(method);
     this.paymentError.set('');
 
-    const existingAppointmentId = this.appointmentId();
-    if (existingAppointmentId !== null) {
-      this.submitPayment(existingAppointmentId, method);
+    if (this.appointmentId() === null) {
+      this.createAppointment();
+    }
+  }
+
+  confirmPayment(): void {
+    console.log("Logggggggggggggggggggggggggggggggggggggg");
+
+    const paymentMethod = this.selectedPaymentMethod();
+    if (paymentMethod === null) {
+      this.paymentError.set('اختر طريقة الدفع أولًا.');
+      return;
+    }
+
+    const walletPhone = this.walletPhone().trim();
+    if (paymentMethod === 'wallet' && !/^01[0125]\d{8}$/.test(walletPhone)) {
+      this.paymentError.set('أدخل رقم موبايل صحيحًا للمحفظة، مثل 01012345678.');
+      return;
+    }
+
+    const appointmentId = this.appointmentId();
+    if (appointmentId === null) {
+      this.paymentError.set(this.isSubmittingPayment()
+        ? 'جارٍ إنشاء الحجز، انتظر اكتمال الطلب ثم حاول مرة أخرى.'
+        : 'لم يصل رقم الحجز من الخادم. حاول إعادة اختيار طريقة الدفع.');
+      return;
+    }
+
+    console.log("id", appointmentId);
+    console.log("paymentMethod", paymentMethod);
+    this.paymentError.set('');
+    this.submitPayment(appointmentId, paymentMethod, walletPhone);
+  }
+
+  retryPayment(): void {
+    this.confirmPayment();
+  }
+
+  private createAppointment(): void {
+    if (this.isSubmittingPayment() || this.appointmentId() !== null) {
       return;
     }
 
@@ -265,27 +306,18 @@ export class Home {
         const appointmentId = readAppointmentId(response);
         if (appointmentId === null) {
           this.isSubmittingPayment.set(false);
-          this.paymentError.set('تم استلام رد غير مكتمل من الخادم، ولم يصل رقم الحجز.');
+          this.paymentError.set('تم إنشاء رد الحجز لكن لم يتم العثور على رقم الموعد فيه.');
           return;
         }
 
         this.appointmentId.set(appointmentId);
-        this.submitPayment(appointmentId, method);
+        this.isSubmittingPayment.set(false);
       },
       error: (error: unknown) => {
         this.isSubmittingPayment.set(false);
         this.paymentError.set(readResponseMessage(error) || 'تعذر إنشاء الحجز. حاول مرة أخرى.');
       },
     });
-  }
-
-  retryPayment(): void {
-    const appointmentId = this.appointmentId();
-    const paymentMethod = this.selectedPaymentMethod();
-    if (appointmentId !== null && paymentMethod !== null && !this.isSubmittingPayment()) {
-      this.paymentError.set('');
-      this.submitPayment(appointmentId, paymentMethod);
-    }
   }
 
   formatVisitTypePrice(visitType: VisitTypeOption | null): string {
@@ -365,11 +397,16 @@ export class Home {
     });
   }
 
-  private submitPayment(appointmentId: number, method: AppointmentPayMethod): void {
+  private submitPayment(
+    appointmentId: number,
+    method: AppointmentPayMethod,
+    walletPhone: string,
+  ): void {
     this.isSubmittingPayment.set(true);
     this.appointmentsService.createAppointmentPayment({
       appointment_id: appointmentId,
       pay_method: method,
+      ...(method === 'wallet' ? { wallet_phone: walletPhone } : {}),
     }).subscribe({
       next: (response) => {
         this.isSubmittingPayment.set(false);
@@ -377,9 +414,8 @@ export class Home {
           this.paymentError.set(readResponseMessage(response) || 'تعذر إتمام الدفع. حاول مرة أخرى.');
           return;
         }
-
         this.paymentError.set('');
-        this.paymentComplete.set(true);
+        this.redirectToPayment(response.payment?.url ?? response.url);
       },
       error: (error: unknown) => {
         this.isSubmittingPayment.set(false);
@@ -388,9 +424,45 @@ export class Home {
     });
   }
 
+  private redirectToPayment(redirectUrl: string | null | undefined): void {
+    if (!redirectUrl?.trim()) {
+      this.paymentComplete.set(true);
+      this.paymentError.set('من فضلك توجه إلى العيادة لدفع رسوم الكشف قبل موعدك بأربع ساعات على الأقل، وإلا سيتم إلغاء الحجز.');
+      return;
+    }
+
+    let destination: URL;
+    try {
+      destination = new URL(redirectUrl.trim(), window.location.origin);
+    } catch {
+      this.paymentError.set('رابط التحويل المستلم من الخادم غير صالح.');
+      return;
+    }
+
+    if (destination.protocol !== 'http:' && destination.protocol !== 'https:') {
+      this.paymentError.set('رابط التحويل المستلم من الخادم غير صالح.');
+      return;
+    }
+
+    if (destination.origin === window.location.origin) {
+      void this.router.navigateByUrl(`${destination.pathname}${destination.search}${destination.hash}`)
+        .then((navigated) => {
+          if (!navigated) {
+            this.paymentError.set('تم تأكيد الدفع، لكن تعذر فتح صفحة التحويل.');
+          }
+        }, () => {
+          this.paymentError.set('تم تأكيد الدفع، لكن تعذر فتح صفحة التحويل.');
+        });
+      return;
+    }
+
+    window.location.assign(destination.toString());
+  }
+
   private resetPaymentSubmission(): void {
     this.appointmentId.set(null);
     this.selectedPaymentMethod.set(null);
+    this.walletPhone.set('');
     this.isSubmittingPayment.set(false);
     this.paymentError.set('');
     this.paymentComplete.set(false);
