@@ -77,17 +77,35 @@ export class Auth {
 
     localStorage.setItem('access_token', response.user.access_token);
     localStorage.setItem('user', JSON.stringify(response.user.user));
+    localStorage.removeItem('patient_token');
   }
 
-  savePatientSession(response: RegisterResponse): void {
+  savePatientSession(response: RegisterResponse | LoginResponse): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    localStorage.setItem('patient_token', response.user.token);
+    const token = 'token' in response.user ? response.user.token : response.user.access_token;
+    localStorage.setItem('patient_token', token);
+    localStorage.setItem('user', JSON.stringify(response.user.user));
     localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
     localStorage.removeItem('register_form');
+  }
+
+  hasAdminSession(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    return Boolean(localStorage.getItem('access_token'));
+  }
+
+  hasPatientSession(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    return Boolean(localStorage.getItem('patient_token'));
   }
 
   getAccessToken(): string | null {

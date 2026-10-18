@@ -18,7 +18,13 @@ describe('Appointments', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
-        { provide: AppointmentsService, useValue: { getAppointments: () => of([]) } },
+        {
+          provide: AppointmentsService,
+          useValue: {
+            getAppointments: () => of([]),
+            getVisitTypes: () => of([]),
+          },
+        },
       ],
     })
     .compileComponents();

@@ -12,10 +12,12 @@ export interface AppointmentPerson {
 export interface AppointmentTime {
   start_time?: string;
   end_time?: string;
+  clinic_location?: AppointmentLocation;
 }
 
 export interface AppointmentLocation {
   name?: string;
+  address?: string;
 }
 
 export interface TodayAppointmentResponse {
@@ -47,14 +49,35 @@ export interface TodayAppointmentsResponse {
   };
 }
 
+export interface TodayAppointmentFilters {
+  date?: string;
+  status?: string;
+  visit_type?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly http = inject(HttpClient);
 
-  getTodayAppointments(page = 1): Observable<TodayAppointmentResponse[] | TodayAppointmentsResponse> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('is_today', 1);
+  getTodayAppointments(
+    page = 1,
+    filters: TodayAppointmentFilters = {},
+  ): Observable<TodayAppointmentResponse[] | TodayAppointmentsResponse> {
+    let params = new HttpParams().set('page', page);
+
+    if (filters.date) {
+      params = params.set('date', filters.date);
+    } else {
+      params = params.set('is_today', 1);
+    }
+
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+
+    if (filters.visit_type) {
+      params = params.set('visit_type', filters.visit_type);
+    }
 
     return this.http.get<TodayAppointmentResponse[] | TodayAppointmentsResponse>(
       `${environment.url}admin/appointments`,

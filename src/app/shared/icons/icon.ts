@@ -99,10 +99,10 @@ export const ICONS: { [key: string]: string } = {
            </svg>
            `,
   noFilter: `<svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.6667 3.16699H5.33333C2.85782 3.16699 1 4.95701 1 7.50033" stroke="#4D0F23" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M1.33333 11.833H8.66667C11.1422 11.833 13 10.043 13 7.49967" stroke="#4D0F23" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M11.333 4.83333L12.6362 3.63807C12.8785 3.41585 12.9997 3.30474 12.9997 3.16667C12.9997 3.0286 12.8785 2.91748 12.6362 2.69526L11.333 1.5" stroke="#4D0F23" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2.66667 10.167L1.36344 11.3623C1.12115 11.5845 1 11.6956 1 11.8337C1 11.9717 1.12115 12.0828 1.36344 12.3051L2.66667 13.5003" stroke="#4D0F23" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12.6667 3.16699H5.33333C2.85782 3.16699 1 4.95701 1 7.50033" stroke="#1053fc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M1.33333 11.833H8.66667C11.1422 11.833 13 10.043 13 7.49967" stroke="#1053fc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M11.333 4.83333L12.6362 3.63807C12.8785 3.41585 12.9997 3.30474 12.9997 3.16667C12.9997 3.0286 12.8785 2.91748 12.6362 2.69526L11.333 1.5" stroke="#1053fc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2.66667 10.167L1.36344 11.3623C1.12115 11.5845 1 11.6956 1 11.8337C1 11.9717 1.12115 12.0828 1.36344 12.3051L2.66667 13.5003" stroke="#1053fc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
              </svg>
              `,
   search: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"
@@ -272,7 +272,5 @@ geo: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://
 <path d="M2.91667 10H1.25" stroke="#05628C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M10 1.24935L10 2.91602" stroke="#05628C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M10 17.0833V18.75" stroke="#05628C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`
-
+</svg>`,
 };

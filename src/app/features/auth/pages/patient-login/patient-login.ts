@@ -39,8 +39,8 @@ export class PatientLogin {
       next: (response) => {
         this.isLoading.set(false);
         if (response.status) {
-          this.authService.saveSession(response);
-          this.router.navigate(['/dashboard']);
+          this.authService.savePatientSession(response);
+          this.router.navigate(['/home']);
         } else {
           this.errorMessage.set(response.msg || 'رقم الهاتف أو كلمة المرور غير صحيحة');
         }

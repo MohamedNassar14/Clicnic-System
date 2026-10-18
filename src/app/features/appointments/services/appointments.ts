@@ -120,6 +120,7 @@ export interface AppointmentListItem {
   patient?: AppointmentListPerson;
   visit_type?: string;
   visit_type_label?: string;
+  status?: string;
   payment_status?: string;
   start_time?: string;
   time_slot?: AppointmentListTimeSlot;
@@ -150,6 +151,32 @@ export interface AppointmentQueryFilters {
   status?: string;
   visit_type?: string;
   is_today?: number | string;
+}
+
+export const APPOINTMENT_STATUS_OPTIONS = [
+  { label: 'تم الحجز', value: 'confirmed' },
+  { label: 'بيكشف حالا', value: 'in_progress' },
+  { label: 'اكتمل', value: 'completed' },
+  { label: 'ملغي', value: 'cancelled' },
+];
+
+export function getAppointmentStatusLabel(status?: string): string {
+  if (!status) {
+    return '';
+  }
+
+  switch (status) {
+    case 'no_show':
+      return '';
+    case 'in_progress':
+      return 'بيكشف حالا';
+    case 'confirmed':
+      return 'تم الحجز';
+    case 'completed':
+      return 'اكتمل';
+    default:
+      return APPOINTMENT_STATUS_OPTIONS.find((option) => option.value === status)?.label ?? status;
+  }
 }
 
 @Injectable({ providedIn: 'root' })

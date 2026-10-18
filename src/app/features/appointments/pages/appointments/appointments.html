@@ -18,6 +18,62 @@
             </button>
         </div>
     </div>
+    <div class="search grid grid-cols-12 gap-x-14">
+        <div class="drop-downs col-span-11 grid grid-cols-12 gap-x-4">
+            <div class="search-input col-span-4">
+                <div class="search relative hidden md:block">
+                    <div class="flex text-black relative cursor-pointer">
+                        <div
+                            class="absolute top-[1px] right-[0.75px] h-[95%] md:px-3 lg:px-3 flex items-center justify-center cursor-pointer">
+                            <app-icons [iconKey]="'search'"></app-icons>
+                        </div>
+                        <input type="text" (input)="onSearchValue($event)"
+                            class="w-full min-h-[40px] md:pr-10 lg:pr-10 pr-4
+                            rounded-md border border-[rgba(0,0,0,0.1)] md:text-[15px] placeholder:text-[14px] placeholder:text-[#4A5254]
+                            focus:outline-none focus:border-mainColor hover:border-mainColor transition-colors duration-500 ease-in-out"
+                            placeholder="ابحث" />
+                    </div>
+                </div>
+            </div>
+            <div class="filter col-span-8">
+                <div class="grid grid-cols-3 gap-x-4">
+                    <div class="card">
+                        <p-datepicker inputId="appointments-date" class="w-full" inputStyleClass="w-full"
+                            [ngModel]="selectedDate()" (ngModelChange)="onDateChange($event)"
+                            [ngModelOptions]="{ standalone: true }" [showIcon]="true" iconDisplay="input"
+                            dateFormat="dd/mm/yy" placeholder="التاريخ" />
+                    </div>
+
+                    <div class="card">
+                        <p-select [ngModel]="selectedVisitType()" (ngModelChange)="onVisitTypeChange($event)"
+                            [ngModelOptions]="{ standalone: true }" [options]="visitTypes()" optionLabel="label"
+                            optionValue="key" [loading]="isLoadingVisitTypes()" placeholder="نوع الزيارة" />
+                    </div>
+
+                    <div class="card">
+                        <p-select [ngModel]="selectedStatus()" (ngModelChange)="onStatusChange($event)"
+                            [ngModelOptions]="{ standalone: true }" [options]="appointmentStatuses"
+                            optionLabel="label" optionValue="value" placeholder="الحالة" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="icons col-span-1 grid grid-cols-1 gap-x-3">
+            <div class="no-search">
+                <button
+                    class="icon w-full flex justify-center items-center min-h-[40px] border border-[#1053fc] rounded-[6px] bg-white text-white shadow-3xl gap-[6px]"
+                    type="button" aria-label="إعادة ضبط الفلاتر" (click)="resetFilter()">
+                    <app-icons [iconKey]="'noFilter'"></app-icons>
+                </button>
+            </div>
+        </div>
+    </div>
+    @if (visitTypesError()) {
+    <p role="alert">
+        {{ visitTypesError() }}
+        <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
+    </p>
+    }
     @if (isLoading()) {
         <p role="status">جاري تحميل الحجوزات...</p>
     } @else if (loadError()) {
@@ -25,11 +81,11 @@
             {{ loadError() }}
             <button type="button" (click)="loadAppointments()">إعادة المحاولة</button>
         </p>
-    } @else if (appointments().length === 0) {
+    } @else if (visibleAppointments().length === 0) {
         <p class="text-center text-gray-500">لا توجد حجوزات .</p>
     }
 
-    @for (appointment of appointments(); track appointment.id) {
+    @for (appointment of visibleAppointments(); track appointment.id) {
         <article class="appointment-card">
             <div class="appointment-details">
                 <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
@@ -68,11 +124,16 @@
             </div>
 
             <div class="appointment-actions">
-                @if (appointment.isPaid) {
                 <div class="appointment-badges">
-                    <span class="appointment-badge paid">تم الدفع</span>
+                    @if (appointment.statusText) {
+                    <span class="appointment-badge status">{{ appointment.statusText }}</span>
+                    }
+                    <span class="appointment-badge"
+                        [class.paid]="appointment.isPaid"
+                        [class.unpaid]="!appointment.isPaid">
+                        {{ appointment.paymentStatusText }}
+                    </span>
                 </div>
-                }
             </div>
             </article>
             }

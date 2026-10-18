@@ -101,6 +101,57 @@
     </div>
     <section class="appointments-section" aria-labelledby="appointments-title">
         <h2 id="appointments-title" class="appointments-title">حجوزات النهاردة</h2>
+        <div class="search grid grid-cols-12 gap-x-10">
+            <div class="drop-downs col-span-11 grid grid-cols-12 gap-x-4">
+                <div class="search-input col-span-4">
+                    <div class="search relative hidden md:block">
+                        <div class="flex text-black relative cursor-pointer">
+                            <div
+                                class="absolute top-[1px] right-[0.75px] h-[95%] md:px-3 lg:px-3 flex items-center justify-center cursor-pointer">
+                                <app-icons [iconKey]="'search'"></app-icons>
+                            </div>
+                            <input type="text" (input)="getSearchValue($event)"
+                                class="w-full min-h-[40px] md:pr-10 lg:pr-10 pr-4
+                rounded-md border border-[rgba(0,0,0,0.1)] md:text-[15px] placeholder:text-[14px] placeholder:text-[#4A5254]
+                focus:outline-none focus:border-mainColor hover:border-mainColor transition-colors duration-500 ease-in-out" placeholder="ابحث" />
+                        </div>
+                    </div>
+                </div>
+                <div class="filter col-span-8">
+                    <div class="grid grid-cols-2 gap-x-4">
+                        <div class="card">
+                            <p-select [ngModel]="selectedVisitType()" (ngModelChange)="onVisitTypeChange($event)"
+                                [ngModelOptions]="{ standalone: true }" [options]="visitTypes()" optionLabel="label"
+                                optionValue="key" [loading]="isLoadingVisitTypes()" placeholder="نوع الزيارة" />
+                        </div>
+
+                        <div class="card">
+                            <p-select [ngModel]="selectedStatus()" (ngModelChange)="onStatusChange($event)"
+                                [ngModelOptions]="{ standalone: true }" [options]="appointmentStatuses"
+                                optionLabel="label" optionValue="value" placeholder="الحالة" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="icons col-span-1 grid grid-cols-1 gap-x-3">
+                <div class="no-search">
+                    <button
+                        class="icon w-full flex justify-center items-center min-h-[40px] border border-[#1053fc] rounded-[6px] bg-white text-white shadow-3xl gap-[6px]"
+                        aria-label="إعادة ضبط الفلاتر"
+                        type="button" (click)="resetFilter()">
+                        <app-icons [iconKey]="'noFilter'"></app-icons>
+
+                    </button>
+                </div>
+            </div>
+        </div>
+        @if (visitTypesError()) {
+        <p role="alert">
+            {{ visitTypesError() }}
+            <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
+        </p>
+        }
         @if (isLoadingAppointments()) {
         <p role="status">جاري تحميل حجوزات اليوم...</p>
         } @else if (appointmentsError()) {
@@ -108,10 +159,10 @@
             {{ appointmentsError() }}
             <button type="button" (click)="loadTodayAppointments()">إعادة المحاولة</button>
         </p>
-        } @else if (todayAppointments().length === 0) {
+        } @else if (visibleAppointments().length === 0) {
         <p class="text-center">لا توجد حجوزات اليوم.</p>
         }
-        @for (appointment of todayAppointments(); track appointment.id) {
+        @for (appointment of visibleAppointments(); track appointment.id) {
         <article class="appointment-card">
             <div class="appointment-details">
                 <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
@@ -144,13 +195,16 @@
                                 <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
                                 <circle cx="10" cy="8" r="1.8" />
                             </svg>
-                            <span>{{ appointment.branchName }}</span>
+                            <span>{{ appointment.clinicAddress }}</span>
                         </span>
                     </div>
                 </div>
             </div>
             <div class="appointment-actions">
                 <div class="appointment-badges">
+                    @if (appointment.statusText) {
+                    <span class="appointment-badge status">{{ appointment.statusText }}</span>
+                    }
                     <span class="appointment-badge"
                         [class.paid]="appointment.isPaid"
                         [class.unpaid]="!appointment.isPaid">

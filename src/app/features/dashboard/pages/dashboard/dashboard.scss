@@ -139,6 +139,11 @@
     color     : #b88747;
 }
 
+.appointment-badge.status {
+    background: #eaf0ff;
+    color     : #3154a0;
+}
+
 .appointment-badge.private {
     background: #f6f3ed;
     color     : #776f60;
@@ -241,3 +246,63 @@
     }
 }
 
+::ng-deep .p-overlay {
+  inset-inline-start: auto !important;
+}
+
+:host::ng-deep .p-icon {
+  width: 12px !important;
+  height: 12px !important;
+  color: #000000 !important;
+}
+
+:host::ng-deep .p-select {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 40px !important;
+  border: 1px solid #0000001A !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+:host::ng-deep .p-select-label.p-placeholder {
+  font-size: 14px !important;
+  line-height: 17px !important;
+  color: #4A5254 !important;
+}
+
+.overlay {
+  background: linear-gradient(150.57deg,
+      rgba(12, 88, 139, 0.162) 15.91%,
+      rgba(21, 90, 138, 0.186) 48.08%,
+      rgba(38, 94, 135, 0.184) 88.94%);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .popup {
+    background-color: #E6E6E6;
+    box-shadow: 0px 2px 5.27px 0px #00000009;
+    box-shadow: 0px 0px 37px 0px #0000000d;
+    border-radius: 8px;
+    width: 500px;
+  }
+
+  .buttons-content {
+    button[disabled] {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.cancelbtn {
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
