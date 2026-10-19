@@ -1,3 +1,3 @@
 export const environment = {
-    url: 'https://api.flexlify.live/api/'
+    url: 'https://api.flexlify.com/api/'
 };
