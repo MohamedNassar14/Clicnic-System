@@ -39,7 +39,8 @@ export interface TodayAppointmentResponse {
 
 export interface TodayAppointmentsResponse {
   appointments?: TodayAppointmentResponse[];
-  data?: TodayAppointmentResponse[] | { data?: TodayAppointmentResponse[] };
+  data?: TodayAppointmentResponse[] | { data?: TodayAppointmentResponse[]; total?: number };
+  total?: number;
   pagination?: {
     current_page?: number;
     last_page?: number;
@@ -55,15 +56,40 @@ export interface TodayAppointmentFilters {
   visit_type?: string;
 }
 
+export interface TodayStats {
+  date: string;
+  today_revenue: number;
+  today_appointments_count: number;
+  unpaid_appointments_count: number;
+  appointments_by_status: {
+    confirmed: number;
+    in_progress: number;
+    completed: number;
+    cancelled: number;
+  };
+}
+
+export interface TodayStatsResponse {
+  status: boolean;
+  errNum: string;
+  msg: string;
+  today_stats: TodayStats;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly http = inject(HttpClient);
 
+  getTodayStats(): Observable<TodayStatsResponse> {
+    return this.http.get<TodayStatsResponse>(`${environment.url}admin/stats/today`);
+  }
+
   getTodayAppointments(
     page = 1,
     filters: TodayAppointmentFilters = {},
+    perPage = 5,
   ): Observable<TodayAppointmentResponse[] | TodayAppointmentsResponse> {
-    let params = new HttpParams().set('page', page);
+    let params = new HttpParams().set('page', page).set('per_page', perPage);
 
     if (filters.date) {
       params = params.set('date', filters.date);

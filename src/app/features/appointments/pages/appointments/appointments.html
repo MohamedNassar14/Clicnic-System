@@ -74,6 +74,9 @@
         <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
     </p>
     }
+    @if (setCurrentError()) {
+    <p role="alert">{{ setCurrentError() }}</p>
+    }
     @if (isLoading()) {
         <p role="status">جاري تحميل الحجوزات...</p>
     } @else if (loadError()) {
@@ -128,6 +131,20 @@
                     @if (appointment.statusText) {
                     <span class="appointment-badge status">{{ appointment.statusText }}</span>
                     }
+                    @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
+                    <button
+                        type="button"
+                        class="set-current-button"
+                        [disabled]="settingCurrentAppointmentId() !== null"
+                        [attr.aria-pressed]="false"
+                        [attr.aria-label]="'تحديد حجز ' + appointment.patientName + ' كالحجز الحالي'"
+                        (click)="setCurrentAppointment(appointment)">
+                        <app-icons [iconKey]="'toggleOff'"></app-icons>
+                        <span>
+                            {{ settingCurrentAppointmentId() === '' + appointment.appointmentId ? 'جاري التحديث...' : 'تحديد كالحجز الحالي' }}
+                        </span>
+                    </button>
+                    }
                     <span class="appointment-badge"
                         [class.paid]="appointment.isPaid"
                         [class.unpaid]="!appointment.isPaid">
@@ -138,17 +155,13 @@
             </article>
             }
 
-    @if (lastPage() > 1) {
-    <div class="pagination flex items-center justify-center gap-3 pt-2">
-        <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
-            [disabled]="currentPage() === 1" (click)="loadAppointments(currentPage() - 1)">
-            السابق
-        </button>
-        <span class="text-sm text-[#4B5563]">الصفحة {{ currentPage() }} من {{ lastPage() }}</span>
-        <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
-            [disabled]="currentPage() >= lastPage()" (click)="loadAppointments(currentPage() + 1)">
-            التالي
-        </button>
-    </div>
+    @if (totalAppointments() > 0) {
+    <p-paginator
+        class="appointments-paginator"
+        [first]="first()"
+        [rows]="rows()"
+        [totalRecords]="totalAppointments()"
+        [showFirstLastIcon]="false"
+        (onPageChange)="onPageChange($event)" />
     }
 </section>

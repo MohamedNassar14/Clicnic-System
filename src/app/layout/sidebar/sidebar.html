@@ -12,7 +12,23 @@
   <!-- Navigation Menu -->
   <nav class="navigation">
     <ul class="menu-list flex flex-col gap-3">
-  
+      @if (isDoctor) {
+      <li routerLink="/dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span><app-icons [iconKey]="'dashboard'"></app-icons></span>
+          <span>الموعد الحالي</span>
+        </a>
+      </li>
+
+      <li routerLink="/appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span><app-icons [iconKey]="'appointments'"></app-icons></span>
+          <span>مواعيد اليوم</span>
+        </a>
+      </li>
+      } @else {
       <li routerLink="/dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
@@ -66,7 +82,7 @@
         </a>
       </li>
     
-
+      }
     </ul>
   </nav>
   <button type="button" class="logout-button" (click)="logout()">

@@ -144,6 +144,28 @@
 	color: #3154a0;
 }
 
+.set-current-button {
+	display: inline-flex;
+	min-height: 36px;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	border: 1px solid #e7e2d9;
+	border-radius: 10px;
+	background: #fff;
+	color: #24545a;
+	font: inherit;
+	font-size: 12px;
+	font-weight: 700;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.set-current-button:disabled {
+	cursor: wait;
+	opacity: 0.6;
+}
+
 .appointment-badge.private {
 	background: #f6f3ed;
 	color: #776f60;
@@ -172,6 +194,29 @@
 {
     background: linear-gradient(to right,#1053fc 0%,#3a76f9 75%,#1053fc 100%);
     color: #ffffff;
+}
+
+:host ::ng-deep .appointments-paginator .p-paginator {
+	background: #f5f5f5;
+	border: 0;
+	border-radius: 0 0 12px 12px;
+	direction: rtl;
+	justify-content: center;
+}
+
+:host ::ng-deep .appointments-paginator .p-paginator-page:focus-visible,
+:host ::ng-deep .appointments-paginator .p-paginator-prev:focus-visible,
+:host ::ng-deep .appointments-paginator .p-paginator-next:focus-visible {
+	outline: 2px solid #1053fc;
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+:host ::ng-deep .appointments-paginator .p-paginator-page.p-paginator-page-selected,
+:host ::ng-deep .appointments-paginator .p-paginator-page:focus-visible {
+	background: #1053fc;
+	border-color: #1053fc;
+	color: #fff;
 }
 
 @media (max-width: 700px) {
@@ -247,6 +292,11 @@
   font-size: 14px !important;
   line-height: 17px !important;
   color: #4A5254 !important;
+}
+
+:host::ng-deep .p-select-label {
+  justify-content: flex-start !important;
+  text-align: right !important;
 }
 
 .overlay {

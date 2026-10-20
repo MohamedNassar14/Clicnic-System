@@ -18,12 +18,22 @@
             </a>
         </div>
     </div>
+    @if (todayStatsError()) {
+    <p role="alert">
+        {{ todayStatsError() }}
+        <button type="button" (click)="loadTodayStats()">إعادة المحاولة</button>
+    </p>
+    }
     <div class="cards bg-white grid grid-cols-4 gap-6 p-6 rounded-2xl">
         <div class="today-appointments flex flex-col gap-5 bg-[#E8F0FF] rounded-2xl p-4">
             <h3 class="text-[#1A5CFF] text-lg font-bold">حجوزات النهاردة</h3>
             <div class="icon-total flex justify-between items-center">
                 <div class="total text-blue-800 text-3xl font-bold">
-                    8
+                    @if (isLoadingTodayStats() || !todayStats()) {
+                    —
+                    } @else {
+                    {{ todayStats()?.today_appointments_count | number }}
+                    }
                 </div>
                 <div class="icon bg-blue-200 p-1.5 rounded-lg">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1A5CFF" stroke-width="1.25"
@@ -41,7 +51,11 @@
             <h3 class="text-[#024938] text-lg font-bold">دخل النهاردة</h3>
             <div class="icon-total flex justify-between items-center">
                 <div class="total text-[#024938] text-3xl font-bold">
-                    12,000
+                    @if (isLoadingTodayStats() || !todayStats()) {
+                    —
+                    } @else {
+                    {{ todayStats()?.today_revenue | number:'1.0-2' }}
+                    }
                 </div>
                 <div class="icon bg-[#7cdcc44a] p-1.5 rounded-lg">
                     <svg width="30" height="30" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +78,11 @@
             <h3 class="text-[#5D4037] text-lg font-bold">دفعات معلّقة</h3>
             <div class="icon-total flex justify-between items-center">
                 <div class="total text-[#5D4037] text-3xl font-bold">
-                    9
+                    @if (isLoadingTodayStats() || !todayStats()) {
+                    —
+                    } @else {
+                    {{ todayStats()?.unpaid_appointments_count | number }}
+                    }
                 </div>
                 <div class="icon bg-[#ebb4523b] p-1.5 rounded-lg">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="#f0751adb" xmlns="http://www.w3.org/2000/svg">
@@ -82,10 +100,14 @@
             </div>
         </div>
         <div class="Total patients flex flex-col gap-5 bg-[#f19a9a57] rounded-2xl p-4">
-            <h3 class="text-[#000] text-lg font-bold">إجمالي المرضى</h3>
+            <h3 class="text-[#000] text-lg font-bold">حجوزات مؤكدة</h3>
             <div class="icon-total flex justify-between items-center">
                 <div class="total text-[#000] text-3xl font-bold">
-                    6
+                    @if (isLoadingTodayStats() || !todayStats()) {
+                    —
+                    } @else {
+                    {{ todayStats()?.appointments_by_status?.confirmed | number }}
+                    }
                 </div>
                 <div class="icon bg-[#ed979766] p-1.5 rounded-lg">
                     <svg width="25" height="25" viewBox="0 0 24 24" fill="#de4b4b91" stroke="#de4b4b91"
@@ -152,6 +174,9 @@
             <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
         </p>
         }
+        @if (setCurrentError()) {
+        <p role="alert">{{ setCurrentError() }}</p>
+        }
         @if (isLoadingAppointments()) {
         <p role="status">جاري تحميل حجوزات اليوم...</p>
         } @else if (appointmentsError()) {
@@ -205,6 +230,20 @@
                     @if (appointment.statusText) {
                     <span class="appointment-badge status">{{ appointment.statusText }}</span>
                     }
+                    @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
+                    <button
+                        type="button"
+                        class="set-current-button"
+                        [disabled]="settingCurrentAppointmentId() !== null"
+                        [attr.aria-pressed]="false"
+                        [attr.aria-label]="'تحديد حجز ' + appointment.patientName + ' كالحجز الحالي'"
+                        (click)="setCurrentAppointment(appointment)">
+                        <app-icons [iconKey]="'toggleOff'"></app-icons>
+                        <span>
+                            {{ settingCurrentAppointmentId() === '' + appointment.appointmentId ? 'جاري التحديث...' : 'تحديد كالحجز الحالي' }}
+                        </span>
+                    </button>
+                    }
                     <span class="appointment-badge"
                         [class.paid]="appointment.isPaid"
                         [class.unpaid]="!appointment.isPaid">
@@ -215,18 +254,14 @@
         </article>
         }
 
-        @if (lastPage() > 1) {
-        <div class="pagination flex items-center justify-center gap-3 pt-3">
-            <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
-                [disabled]="currentPage() === 1" (click)="loadTodayAppointments(currentPage() - 1)">
-                السابق
-            </button>
-            <span class="text-sm text-[#4B5563]">الصفحة {{ currentPage() }} من {{ lastPage() }}</span>
-            <button type="button" class="px-3 py-2 rounded-lg bg-gray-100 disabled:opacity-50"
-                [disabled]="currentPage() >= lastPage()" (click)="loadTodayAppointments(currentPage() + 1)">
-                التالي
-            </button>
-        </div>
+        @if (totalTodayAppointments() > 0) {
+        <p-paginator
+            class="appointments-paginator"
+            [first]="first()"
+            [rows]="rows()"
+            [totalRecords]="totalTodayAppointments()"
+            [showFirstLastIcon]="false"
+            (onPageChange)="onAppointmentsPageChange($event)" />
         }
     </section>
 </section>

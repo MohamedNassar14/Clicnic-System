@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, provideRouter, Router, RouterStateSnapshot, Url
 import { TestBed } from '@angular/core/testing';
 import { Auth } from '../../features/auth/services/auth';
 import { authGuard } from './auth.guard';
+import { guestGuard } from './guest.guard';
 import { patientGuard } from './patient.guard';
 
 describe('route guards', () => {
@@ -54,12 +55,36 @@ describe('route guards', () => {
     expect(router.serializeUrl(result as UrlTree)).toBe('/auth/register');
   });
 
-  it('defers session checks during server rendering', () => {
+  it('redirects authenticated users away from guest routes', () => {
+    hasAdminSession = true;
+    const adminResult = TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
+    expect(adminResult).toBeInstanceOf(UrlTree);
+    expect(router.serializeUrl(adminResult as UrlTree)).toBe('/dashboard');
+
+    hasAdminSession = false;
+    hasPatientSession = true;
+    const patientResult = TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
+    expect(patientResult).toBeInstanceOf(UrlTree);
+    expect(router.serializeUrl(patientResult as UrlTree)).toBe('/home');
+
+    hasPatientSession = false;
+    expect(TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    )).toBe(true);
+  });
+
+  it('defers session checks during server rendering because local storage is unavailable', () => {
     platformId = 'server';
 
     expect(TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)))
       .toBe(true);
     expect(TestBed.runInInjectionContext(() => patientGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)))
+      .toBe(true);
+    expect(TestBed.runInInjectionContext(() => guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)))
       .toBe(true);
   });
 });

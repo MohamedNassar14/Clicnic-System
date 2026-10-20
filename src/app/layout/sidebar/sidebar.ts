@@ -13,6 +13,8 @@ export class Sidebar {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);
 
+  readonly isDoctor = this.auth.getUserRole() === '2';
+
   logout(): void {
     this.auth.logout();
     void this.router.navigate(['/auth/admin-login']);

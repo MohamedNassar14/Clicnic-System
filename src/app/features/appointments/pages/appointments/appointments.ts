@@ -2,6 +2,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DatePickerModule } from 'primeng/datepicker';
+import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorState } from 'primeng/types/paginator';
 import { SelectModule } from 'primeng/select';
 import {
   APPOINTMENT_STATUS_OPTIONS,
@@ -16,12 +18,14 @@ import { Icons } from '../../../../shared/components/icons/icons';
 
 interface AppointmentCard {
   id: number | string;
+  appointmentId?: number | string;
   patientName: string;
   patientInitials: string;
   patientPhone: string;
   visitType: string;
   time: string;
   clinicAddress: string;
+  status: string | undefined;
   statusText: string;
   paymentStatusText: string;
   isPaid: boolean;
@@ -29,23 +33,39 @@ interface AppointmentCard {
 
 function readAppointmentPage(response: AppointmentListItem[] | AppointmentListResponse): {
   items: AppointmentListItem[];
-  total?: number;
+  total: number;
+  currentPage?: number;
+  perPage?: number;
 } {
   if (Array.isArray(response)) {
-    return { items: response };
+    return { items: response, total: response.length };
   }
 
+  const pagination = response.pagination;
   if (Array.isArray(response.appointments)) {
-    return { items: response.appointments, total: response.total ?? response.meta?.total };
+    return {
+      items: response.appointments,
+      total: pagination?.total ?? response.total ?? response.meta?.total ?? response.appointments.length,
+      currentPage: pagination?.current_page,
+      perPage: pagination?.per_page,
+    };
   }
 
   if (Array.isArray(response.data)) {
-    return { items: response.data, total: response.total ?? response.meta?.total };
+    return {
+      items: response.data,
+      total: pagination?.total ?? response.total ?? response.meta?.total ?? response.data.length,
+      currentPage: pagination?.current_page,
+      perPage: pagination?.per_page,
+    };
   }
 
   return {
     items: response.data?.data ?? [],
-    total: response.total ?? response.meta?.total ?? response.data?.total,
+    total: pagination?.total ?? response.total ?? response.meta?.total
+      ?? response.data?.total ?? response.data?.data?.length ?? 0,
+    currentPage: pagination?.current_page,
+    perPage: pagination?.per_page,
   };
 }
 
@@ -76,7 +96,7 @@ function formatDate(date: Date): string {
 
 @Component({
   selector: 'app-appointments',
-  imports: [DatePickerModule, FormsModule, Icons, RouterLink, SelectModule],
+  imports: [DatePickerModule, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule],
   templateUrl: './appointments.html',
   styleUrl: './appointments.scss',
 })
@@ -97,8 +117,11 @@ export class Appointments implements OnInit {
   });
   readonly totalAppointments = signal(0);
   readonly currentPage = signal(1);
-  readonly lastPage = signal(1);
+  readonly first = signal(0);
+  readonly rows = signal(5);
   readonly isLoading = signal(false);
+  readonly settingCurrentAppointmentId = signal<string | null>(null);
+  readonly setCurrentError = signal('');
   readonly loadError = signal('');
   readonly visitTypes = signal<VisitTypeOption[]>([]);
   readonly isLoadingVisitTypes = signal(false);
@@ -135,17 +158,20 @@ export class Appointments implements OnInit {
 
   onDateChange(date: Date | null): void {
     this.selectedDate.set(date);
-    this.loadAppointments();
+    this.first.set(0);
+    this.loadAppointments(1);
   }
 
   onVisitTypeChange(visitType: string | null): void {
     this.selectedVisitType.set(visitType ?? '');
-    this.loadAppointments();
+    this.first.set(0);
+    this.loadAppointments(1);
   }
 
   onStatusChange(status: string | null): void {
     this.selectedStatus.set(status ?? '');
-    this.loadAppointments();
+    this.first.set(0);
+    this.loadAppointments(1);
   }
 
   resetFilter(): void {
@@ -153,10 +179,42 @@ export class Appointments implements OnInit {
     this.selectedDate.set(null);
     this.selectedVisitType.set('');
     this.selectedStatus.set('');
-    this.loadAppointments();
+    this.first.set(0);
+    this.loadAppointments(1);
   }
 
-  loadAppointments(page = 1): void {
+  onPageChange(event: PaginatorState): void {
+    const rows = event.rows ?? this.rows();
+    const first = event.first ?? 0;
+    this.first.set(first);
+    this.rows.set(rows);
+    this.loadAppointments((event.page ?? Math.floor(first / rows)) + 1, rows);
+  }
+
+  setCurrentAppointment(appointment: AppointmentCard): void {
+    if (appointment.appointmentId === undefined || this.settingCurrentAppointmentId()) {
+      return;
+    }
+
+    this.settingCurrentAppointmentId.set(String(appointment.appointmentId));
+    this.setCurrentError.set('');
+    this.appointmentsService.setAppointmentCurrent(appointment.appointmentId).subscribe({
+      next: () => {
+        this.appointments.update((appointments) => appointments.map((item) =>
+          item.id === appointment.id
+            ? { ...item, status: 'in_progress', statusText: getAppointmentStatusLabel('in_progress') }
+            : item,
+        ));
+        this.settingCurrentAppointmentId.set(null);
+      },
+      error: () => {
+        this.settingCurrentAppointmentId.set(null);
+        this.setCurrentError.set('تعذر تحديد الحجز الحالي. حاول مرة أخرى.');
+      },
+    });
+  }
+
+  loadAppointments(page = 1, perPage = this.rows()): void {
     this.isLoading.set(true);
     this.loadError.set('');
     const selectedDate = this.selectedDate();
@@ -164,7 +222,7 @@ export class Appointments implements OnInit {
       date: selectedDate ? formatDate(selectedDate) : undefined,
       status: this.selectedStatus() || undefined,
       visit_type: this.selectedVisitType() || undefined,
-    }).subscribe({
+    }, perPage).subscribe({
       next: (response) => {
         const pageData = readAppointmentPage(response);
         const cards = pageData.items.map((appointment, index) => {
@@ -176,6 +234,7 @@ export class Appointments implements OnInit {
 
           return {
             id: appointment.id ?? `${patientPhone}-${index}`,
+            appointmentId: appointment.id,
             patientName,
             patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
             patientPhone,
@@ -185,20 +244,20 @@ export class Appointments implements OnInit {
               ?? appointment.clinic_location?.address
               ?? appointment.branch?.address
               ?? '',
+            status: appointment.status,
             statusText: getAppointmentStatusLabel(appointment.status),
             isPaid: appointment.payment_status === 'paid',
             paymentStatusText: appointment.payment_status === 'paid' ? 'تم الدفع' : 'لم يتم الدفع',
           };
         });
 
-        this.currentPage.set(page);
-        this.lastPage.set(
-          response && typeof response === 'object' && 'pagination' in response && response.pagination
-            ? response.pagination.last_page ?? 1
-            : 1,
-        );
+        const currentPage = pageData.currentPage ?? page;
+        const rows = pageData.perPage ?? perPage;
+        this.currentPage.set(currentPage);
+        this.rows.set(rows);
+        this.first.set((currentPage - 1) * rows);
         this.appointments.set(cards);
-        this.totalAppointments.set(pageData.total ?? cards.length);
+        this.totalAppointments.set(pageData.total);
         this.isLoading.set(false);
       },
       error: () => {

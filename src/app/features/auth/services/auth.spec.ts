@@ -21,6 +21,8 @@ describe('Auth', () => {
   afterEach(() => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('patient_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('user_role');
   });
 
   it('should be created', () => {
@@ -31,5 +33,18 @@ describe('Auth', () => {
     localStorage.setItem('patient_token', 'patient-token-value');
 
     expect(service.getAccessToken()).toBe('patient-token-value');
+  });
+
+  it('reads the role saved with the user session', () => {
+    localStorage.setItem('user', JSON.stringify({ role: '2' }));
+
+    expect(service.getUserRole()).toBe('2');
+  });
+
+  it('prefers the explicitly stored role', () => {
+    localStorage.setItem('user', JSON.stringify({ role: '1' }));
+    localStorage.setItem('user_role', '2');
+
+    expect(service.getUserRole()).toBe('2');
   });
 });

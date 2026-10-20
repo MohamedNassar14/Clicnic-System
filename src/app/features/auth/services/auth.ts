@@ -45,7 +45,8 @@ export interface LoginResponse {
       name: string;
       email: string;
       phone: string;
-      created_at: string;
+      created_at?: string;
+      role?: string | number;
     };
     access_token: string;
   };
@@ -77,6 +78,11 @@ export class Auth {
 
     localStorage.setItem('access_token', response.user.access_token);
     localStorage.setItem('user', JSON.stringify(response.user.user));
+    if (response.user.user.role !== undefined) {
+      localStorage.setItem('user_role', String(response.user.user.role));
+    } else {
+      localStorage.removeItem('user_role');
+    }
     localStorage.removeItem('patient_token');
   }
 
@@ -89,6 +95,7 @@ export class Auth {
     localStorage.setItem('patient_token', token);
     localStorage.setItem('user', JSON.stringify(response.user.user));
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
     localStorage.removeItem('register_form');
   }
 
@@ -108,6 +115,35 @@ export class Auth {
     return Boolean(localStorage.getItem('patient_token'));
   }
 
+  getUserRole(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    const storedRole = localStorage.getItem('user_role');
+    if (storedRole) {
+      return storedRole;
+    }
+
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      const user: unknown = JSON.parse(storedUser);
+      if (typeof user !== 'object' || user === null || !('role' in user)) {
+        return null;
+      }
+
+      const role = user.role;
+      return typeof role === 'string' || typeof role === 'number' ? String(role) : null;
+    } catch (error) {
+      console.error('Unable to read the role from the stored user.', error);
+      return null;
+    }
+  }
+
   getAccessToken(): string | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
@@ -124,5 +160,6 @@ export class Auth {
     localStorage.removeItem('access_token');
     localStorage.removeItem('patient_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('user_role');
   }
 }

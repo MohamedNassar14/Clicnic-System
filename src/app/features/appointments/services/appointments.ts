@@ -144,6 +144,7 @@ export interface AppointmentListResponse {
     total?: number;
     has_more?: boolean;
   };
+  links?: unknown;
 }
 
 export interface AppointmentQueryFilters {
@@ -230,8 +231,9 @@ export class AppointmentsService {
   getAppointments(
     page = 1,
     filters: AppointmentQueryFilters = {},
+    perPage = 5,
   ): Observable<AppointmentListItem[] | AppointmentListResponse> {
-    let params = new HttpParams().set('page', page);
+    let params = new HttpParams().set('page', page).set('per_page', perPage);
 
     if (filters.date) {
       params = params.set('date', filters.date);
@@ -252,6 +254,13 @@ export class AppointmentsService {
     return this.http.get<AppointmentListItem[] | AppointmentListResponse>(
       `${environment.url}admin/appointments`,
       { params },
+    );
+  }
+
+  setAppointmentCurrent(appointmentId: number | string): Observable<void> {
+    return this.http.put<void>(
+      `${environment.url}admin/appointments/${appointmentId}/set-current`,
+      {},
     );
   }
 }

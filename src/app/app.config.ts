@@ -18,6 +18,16 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes), 
     provideAnimationsAsync(),
     provideClientHydration(withEventReplay()),
-    providePrimeNG({theme: { preset: Aura}}),
+    providePrimeNG({
+      theme: { preset: Aura },
+      translation: {
+        aria: {
+          firstPageLabel: 'الصفحة الأولى',
+          lastPageLabel: 'الصفحة الأخيرة',
+          nextPageLabel: 'التالي',
+          prevPageLabel: 'السابق',
+        },
+      },
+    }),
   ]
 };

@@ -70,8 +70,18 @@ describe('AppointmentsService', () => {
     expect(req.request.params.get('visit_type')).toBe('consultation');
     expect(req.request.params.get('page')).toBe('1');
     expect(req.request.params.get('is_today')).toBe('1');
+    expect(req.request.params.get('per_page')).toBe('5');
 
     req.flush([]);
+  });
+
+  it('sets the selected appointment as current with a PUT request', () => {
+    service.setAppointmentCurrent(42).subscribe();
+
+    const req = httpMock.expectOne(`${environment.url}admin/appointments/42/set-current`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({});
+    req.flush({});
   });
 
   it('loads visit types for the selected clinic location', () => {

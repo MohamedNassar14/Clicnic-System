@@ -1,7 +1,10 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DatePickerModule } from 'primeng/datepicker';
+import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorState } from 'primeng/types/paginator';
 import { SelectModule } from 'primeng/select';
 import {
   APPOINTMENT_STATUS_OPTIONS,
@@ -16,16 +19,19 @@ import {
   TodayAppointmentFilters,
   TodayAppointmentResponse,
   TodayAppointmentsResponse,
+  TodayStats,
 } from '../../services/dashboard';
 
 interface TodayAppointment {
   id: number | string;
+  appointmentId?: number | string;
   patientName: string;
   patientPhone: string;
   patientInitials: string;
   visitType: string;
   time: string;
   clinicAddress: string;
+  status: string | undefined;
   statusText: string;
   paymentStatusText: string;
   isPaid: boolean;
@@ -33,16 +39,16 @@ interface TodayAppointment {
 
 function readAppointments(
   response: TodayAppointmentResponse[] | TodayAppointmentsResponse,
-): { items: TodayAppointmentResponse[]; currentPage: number; lastPage: number; total: number } {
+): { items: TodayAppointmentResponse[]; currentPage?: number; perPage?: number; total: number } {
   if (Array.isArray(response)) {
-    return { items: response, currentPage: 1, lastPage: 1, total: response.length };
+    return { items: response, currentPage: 1, total: response.length };
   }
 
   if (Array.isArray(response.appointments)) {
     return {
       items: response.appointments,
       currentPage: response.pagination?.current_page ?? 1,
-      lastPage: response.pagination?.last_page ?? 1,
+      perPage: response.pagination?.per_page,
       total: response.pagination?.total ?? response.appointments.length,
     };
   }
@@ -51,7 +57,7 @@ function readAppointments(
     return {
       items: response.data,
       currentPage: response.pagination?.current_page ?? 1,
-      lastPage: response.pagination?.last_page ?? 1,
+      perPage: response.pagination?.per_page,
       total: response.pagination?.total ?? response.data.length,
     };
   }
@@ -59,8 +65,9 @@ function readAppointments(
   return {
     items: response.data?.data ?? [],
     currentPage: response.pagination?.current_page ?? 1,
-    lastPage: response.pagination?.last_page ?? 1,
-    total: response.pagination?.total ?? response.data?.data?.length ?? 0,
+    perPage: response.pagination?.per_page,
+    total: response.pagination?.total ?? response.total ?? response.data?.total
+      ?? response.data?.data?.length ?? 0,
   };
 }
 
@@ -84,7 +91,7 @@ function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): Visit
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePickerModule, FormsModule, Icons, RouterLink, SelectModule],
+  imports: [DatePickerModule, DecimalPipe, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -92,6 +99,9 @@ export class Dashboard implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly appointmentsService = inject(AppointmentsService);
 
+  readonly todayStats = signal<TodayStats | null>(null);
+  readonly isLoadingTodayStats = signal(false);
+  readonly todayStatsError = signal('');
   readonly todayAppointments = signal<TodayAppointment[]>([]);
   readonly visibleAppointments = computed(() => {
     const searchValue = this.searchValue().trim().toLocaleLowerCase();
@@ -105,8 +115,12 @@ export class Dashboard implements OnInit {
     );
   });
   readonly currentPage = signal(1);
-  readonly lastPage = signal(1);
+  readonly first = signal(0);
+  readonly rows = signal(5);
+  readonly totalTodayAppointments = signal(0);
   readonly isLoadingAppointments = signal(false);
+  readonly settingCurrentAppointmentId = signal<string | null>(null);
+  readonly setCurrentError = signal('');
   readonly appointmentsError = signal('');
   readonly visitTypes = signal<VisitTypeOption[]>([]);
   readonly isLoadingVisitTypes = signal(false);
@@ -118,8 +132,31 @@ export class Dashboard implements OnInit {
   readonly appointmentStatuses = APPOINTMENT_STATUS_OPTIONS;
 
   ngOnInit(): void {
+    this.loadTodayStats();
     this.loadTodayAppointments();
     this.loadVisitTypes();
+  }
+
+  loadTodayStats(): void {
+    this.isLoadingTodayStats.set(true);
+    this.todayStatsError.set('');
+    this.dashboardService.getTodayStats().subscribe({
+      next: (response) => {
+        this.isLoadingTodayStats.set(false);
+        if (!response.status) {
+          this.todayStats.set(null);
+          this.todayStatsError.set(response.msg || 'تعذر تحميل إحصائيات اليوم.');
+          return;
+        }
+
+        this.todayStats.set(response.today_stats);
+      },
+      error: () => {
+        this.isLoadingTodayStats.set(false);
+        this.todayStats.set(null);
+        this.todayStatsError.set('تعذر تحميل إحصائيات اليوم. حاول مرة أخرى.');
+      },
+    });
   }
 
   loadVisitTypes(): void {
@@ -139,17 +176,20 @@ export class Dashboard implements OnInit {
 
   onVisitTypeChange(visitType: string | null): void {
     this.selectedVisitType.set(visitType ?? '');
-    this.loadTodayAppointments();
+    this.first.set(0);
+    this.loadTodayAppointments(1);
   }
 
   onStatusChange(status: string | null): void {
     this.selectedStatus.set(status ?? '');
-    this.loadTodayAppointments();
+    this.first.set(0);
+    this.loadTodayAppointments(1);
   }
 
   onDateChange(date: Date | null): void {
     this.selectedDate.set(date);
-    this.loadTodayAppointments();
+    this.first.set(0);
+    this.loadTodayAppointments(1);
   }
 
   getSearchValue(event: Event): void {
@@ -161,10 +201,42 @@ export class Dashboard implements OnInit {
     this.selectedDate.set(null);
     this.selectedVisitType.set('');
     this.selectedStatus.set('');
-    this.loadTodayAppointments();
+    this.first.set(0);
+    this.loadTodayAppointments(1);
   }
 
-  loadTodayAppointments(page = 1): void {
+  onAppointmentsPageChange(event: PaginatorState): void {
+    const rows = event.rows ?? this.rows();
+    const first = event.first ?? 0;
+    this.first.set(first);
+    this.rows.set(rows);
+    this.loadTodayAppointments((event.page ?? Math.floor(first / rows)) + 1, rows);
+  }
+
+  setCurrentAppointment(appointment: TodayAppointment): void {
+    if (appointment.appointmentId === undefined || this.settingCurrentAppointmentId()) {
+      return;
+    }
+
+    this.settingCurrentAppointmentId.set(String(appointment.appointmentId));
+    this.setCurrentError.set('');
+    this.appointmentsService.setAppointmentCurrent(appointment.appointmentId).subscribe({
+      next: () => {
+        this.todayAppointments.update((appointments) => appointments.map((item) =>
+          item.id === appointment.id
+            ? { ...item, status: 'in_progress', statusText: getAppointmentStatusLabel('in_progress') }
+            : item,
+        ));
+        this.settingCurrentAppointmentId.set(null);
+      },
+      error: () => {
+        this.settingCurrentAppointmentId.set(null);
+        this.setCurrentError.set('تعذر تحديد الحجز الحالي. حاول مرة أخرى.');
+      },
+    });
+  }
+
+  loadTodayAppointments(page = 1, perPage = this.rows()): void {
     this.isLoadingAppointments.set(true);
     this.appointmentsError.set('');
     const selectedDate = this.selectedDate();
@@ -173,12 +245,16 @@ export class Dashboard implements OnInit {
       status: this.selectedStatus() || undefined,
       visit_type: this.selectedVisitType() || undefined,
     };
-    this.dashboardService.getTodayAppointments(page, filters).subscribe({
+    this.dashboardService.getTodayAppointments(page, filters, perPage).subscribe({
       next: (response) => {
         const pageData = readAppointments(response);
 
-        this.currentPage.set(pageData.currentPage);
-        this.lastPage.set(pageData.lastPage);
+        const currentPage = pageData.currentPage ?? page;
+        const rows = pageData.perPage ?? perPage;
+        this.currentPage.set(currentPage);
+        this.rows.set(rows);
+        this.first.set((currentPage - 1) * rows);
+        this.totalTodayAppointments.set(pageData.total);
 
         this.todayAppointments.set(pageData.items.map((appointment, index) => {
           const patientName = appointment.patient_name
@@ -192,11 +268,13 @@ export class Dashboard implements OnInit {
 
           return {
             id: appointment.id ?? `${patientPhone}-${index}`,
+            appointmentId: appointment.id,
             patientName,
             patientPhone,
             patientInitials: initials,
             visitType: appointment.visit_type_label ?? appointment.visit_type ?? '',
             time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
+            status: appointment.status,
             statusText: getAppointmentStatusLabel(appointment.status),
             clinicAddress: appointment.time_slot?.clinic_location?.address
               ?? appointment.time_slot?.clinic_location?.name
