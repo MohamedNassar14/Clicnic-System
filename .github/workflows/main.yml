@@ -24,13 +24,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Angular Project
+            - name: Build Angular Project
         run: npm run build -- --configuration production
+
+      - name: Prepare index.html
+        run: |
+          if [ -f dist/clinic-demo/browser/index.csr.html ]; then
+            cp dist/clinic-demo/browser/index.csr.html dist/clinic-demo/browser/index.html
+            rm dist/clinic-demo/browser/index.csr.html
+          fi
 
       - name: Verify build output
         run: ls -la dist/clinic-demo/browser/
 
       - name: Deploy to Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: dist/clinic-demo/browser/
+          server-dir: /public_html/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
