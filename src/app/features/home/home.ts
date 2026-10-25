@@ -1,5 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -99,9 +99,10 @@ function readResponseMessage(response: unknown): string | null {
   imports: [DatePickerModule, FormsModule, NgOptimizedImage, RouterLink],
   templateUrl: './home.html',
 })
-export class Home {
+export class Home implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly authService = inject(Auth);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly router = inject(Router);
   private timeSlotsRequestId = 0;
   private visitTypesRequestId = 0;
@@ -139,6 +140,12 @@ export class Home {
   readonly paymentError = signal('');
   readonly paymentComplete = signal(false);
   readonly appointmentId = signal<number | null>(null);
+
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadClinicLocations();
+    }
+  }
 
   openBooking(event: Event): void {
     event.preventDefault();
@@ -195,9 +202,9 @@ export class Home {
     this.loadAvailableTimeSlots();
   }
 
-  scrollToServices(event: Event): void {
+  scrollToSection(event: Event, sectionId: string): void {
     event.preventDefault();
-    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   selectDate(date: Date | null): void {

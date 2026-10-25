@@ -20,6 +20,10 @@
         </div>
     </header>
 
+    @if (actionError()) {
+    <p class="branch-form-error mb-4" role="alert">{{ actionError() }}</p>
+    }
+
     <section class="grid grid-cols-4 gap-4" aria-label="قائمة الفروع">
         @if(branches().length === 0){
         <p class="col-span-full text-center text-gray-500">لا توجد فروع</p>
@@ -47,14 +51,27 @@
                     <dd>{{ branch.consultationPrice }} ج.م</dd>
                 </div>
             </dl>
+            <div class="branch-card-actions" aria-label="إجراءات الفرع">
+                <button type="button" class="branch-action edit-action" [attr.aria-label]="'تعديل ' + branch.name"
+                    [disabled]="deletingBranchId() !== null" (click)="editBranch(branch)">
+                    <app-icons [iconKey]="'edit'"></app-icons>
+                    <span>تعديل</span>
+                </button>
+                <button type="button" class="branch-action delete-action" [attr.aria-label]="'حذف ' + branch.name"
+                    [disabled]="deletingBranchId() !== null" (click)="deleteBranch(branch)">
+                    <app-icons [iconKey]="'delete'"></app-icons>
+                    <span>{{ deletingBranchId() === branch.id ? 'جارٍ الحذف...' : 'حذف' }}</span>
+                </button>
+            </div>
         </div>
         }
         }
     </section>
 </main>
 
-<p-dialog header="إضافة فرع" [modal]="true" [visible]="isAddDialogVisible()"
-    (visibleChange)="isAddDialogVisible.set($event)" [style]="{ width: 'min(30rem, calc(100vw - 2rem))' }">
+<p-dialog [header]="editingBranchId() === null ? 'إضافة فرع' : 'تعديل الفرع'" [modal]="true"
+    [visible]="isAddDialogVisible()" (visibleChange)="!$event && closeBranchDialog()"
+    [style]="{ width: 'min(30rem, calc(100vw - 2rem))' }">
     <form class="branch-form" [formGroup]="branchForm" (ngSubmit)="saveBranch()">
         <div class="branch-form-field">
             <label for="branch-name">اسم الفرع</label>
@@ -78,10 +95,10 @@
         <p class="branch-form-error" role="alert">{{ requestError() }}</p>
         }
         <div class="branch-form-actions">
-            <button type="button" class="cancel-button" (click)="isAddDialogVisible.set(false)">إلغاء</button>
+            <button type="button" class="cancel-button" (click)="closeBranchDialog()">إلغاء</button>
             <button type="submit" [disabled]="isSaving()"
                 class="min-w-[130px] text-white main-color rounded-lg py-2 px-3">
-                {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ الفرع' }}
+                {{ isSaving() ? 'جارٍ الحفظ...' : editingBranchId() === null ? 'إضافة الفرع' : 'تعديل' }}
             </button>
         </div>
     </form>

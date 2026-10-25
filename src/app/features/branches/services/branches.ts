@@ -10,6 +10,8 @@ export interface CreateClinicLocationPayload {
   checkup_price: number;
 }
 
+export type UpdateClinicLocationPayload = CreateClinicLocationPayload;
+
 export interface ClinicLocation {
   id: number;
   name: string;
@@ -26,6 +28,7 @@ export interface ClinicLocationsResponse {
 @Injectable({ providedIn: 'root' })
 export class BranchesService {
   private readonly http = inject(HttpClient);
+  private readonly clinicLocationsUrl = 'https://api.flexlify.live/api/admin/clinic-locations';
 
   getClinicLocations(): Observable<ClinicLocation[] | ClinicLocationsResponse> {
     return this.http.get<ClinicLocation[] | ClinicLocationsResponse>(`${environment.url}admin/get-clinic-locations`);
@@ -33,5 +36,16 @@ export class BranchesService {
 
   createClinicLocation(payload: CreateClinicLocationPayload): Observable<unknown> {
     return this.http.post(`${environment.url}admin/clinic-locations`, payload);
+  }
+
+  updateClinicLocation(
+    locationId: number,
+    payload: UpdateClinicLocationPayload,
+  ): Observable<unknown> {
+    return this.http.put(`${this.clinicLocationsUrl}/${locationId}`, payload);
+  }
+
+  deleteClinicLocation(locationId: number): Observable<unknown> {
+    return this.http.delete(`${this.clinicLocationsUrl}/${locationId}`);
   }
 }

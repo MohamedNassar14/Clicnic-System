@@ -261,7 +261,7 @@
     </section>
 </main>
 } @else {
-<main class="home-page">
+<main class="home-page" id="top">
     <header class="site-header">
         <a class="brand" routerLink="/home" aria-label="MediCare الرئيسية">
             <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" priority alt="" />
@@ -269,13 +269,21 @@
         </a>
 
         <nav class="main-nav" aria-label="التنقل الرئيسي">
-            <a >الرئيسية</a>
-            <a (click)="scrollToServices($event)">خدماتنا</a>
-            <a>تواصل معنا</a>
+            <a href="#top" (click)="scrollToSection($event, 'top')">الرئيسية</a>
+            <a href="#branches" (click)="scrollToSection($event, 'branches')">فروعنا</a>
+            <a href="#services" (click)="scrollToSection($event, 'services')">خدماتنا</a>
+            <a href="#contact" (click)="scrollToSection($event, 'contact')">تواصل معنا</a>
         </nav>
 
         <div class="header-actions">
             <a class="header-book" href="#booking" (click)="openBooking($event)">احجز موعدك</a>
+            <a class="header-profile" routerLink="/my-profile" aria-label="ملفي الشخصي" title="ملفي الشخصي">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                    <circle cx="12" cy="8" r="4"></circle>
+                </svg>
+                <span>ملفي الشخصي</span>
+            </a>
             <button class="header-logout" type="button" (click)="logout()">تسجيل الخروج</button>
         </div>
     </header>
@@ -291,16 +299,49 @@
             </p>
             <div class="hero-actions">
                 <a class="primary-action" href="#booking" (click)="openBooking($event)">احجز موعدًا</a>
-                <a class="secondary-action" href="#services" (click)="scrollToServices($event)">اكتشف خدماتنا</a>
+                <a class="secondary-action" href="#services" (click)="scrollToSection($event, 'services')">اكتشف خدماتنا</a>
             </div>
             <div class="trust-note">
                 <span class="trust-mark" aria-hidden="true">✓</span>
                 <span>فريق طبي متخصص ورعاية باهتمام</span>
             </div>
         </div>
-        <a class="scroll-cue" href="#services" aria-label="اكتشف خدماتنا" (click)="scrollToServices($event)">
+        <a class="scroll-cue" href="#services" aria-label="اكتشف خدماتنا" (click)="scrollToSection($event, 'services')">
             <span aria-hidden="true">↓</span>
         </a>
+    </section>
+
+    <section class="branches-section" id="branches" aria-labelledby="branches-title">
+        <div class="section-heading">
+            <h2 id="eyebrow branches-title">فروعنا</h2>
+            <p>اختر الفرع الأقرب إليك واحجز موعدك بسهولة.</p>
+        </div>
+        @if (locationsError()) {
+        <div class="branches-state branches-error" role="alert">
+            <p>{{ locationsError() }}</p>
+            <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
+        </div>
+        } @else if (isLoadingLocations()) {
+        <p class="branches-state" role="status">جارٍ تحميل الفروع...</p>
+        } @else if (locations().length === 0) {
+        <p class="branches-state">لا توجد فروع متاحة حاليًا.</p>
+        } @else {
+        <div class="branch-list">
+            @for (location of locations(); track location.id) {
+            <article class="branch-card">
+                <span class="branch-card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="2.5"></circle>
+                    </svg>
+                </span>
+                <h3>{{ location.name }}</h3>
+                <p>{{ location.address || 'العنوان غير متوفر' }}</p>
+                <a href="#booking" (click)="openBooking($event)">احجز موعدك</a>
+            </article>
+            }
+        </div>
+        }
     </section>
 
     <section class="services-section" id="services" aria-labelledby="services-title">
@@ -342,11 +383,54 @@
     </section>
 
     <footer class="site-footer" id="contact">
-        <a class="brand" routerLink="/home">
-            <img ngSrc="/assets/images/wajha-logo.png" width="34" height="34" alt="" />
-            <span>Medi<span class="brand-accent">Care</span></span>
-        </a>
-        <p>رعايتك تبدأ بخطوة.</p>
+        <div class="footer-content">
+            <section class="footer-about" aria-labelledby="footer-about-title">
+                <a class="brand" routerLink="/home" aria-label="MediCare الرئيسية">
+                    <img ngSrc="/assets/images/wajha-logo.png" width="38" height="38" alt="" />
+                    <span>Medi<span class="brand-accent">Care</span></span>
+                </a>
+                <h2 id="footer-about-title">معلومات عنا</h2>
+                <p>
+                    في MediCare نهتم بتقديم رعاية طبية متكاملة لك ولأسرتك، مع فريق متخصص
+                    وتجربة سهلة تساعدك في كل خطوة.
+                </p>
+            </section>
+
+            <nav class="footer-links" aria-label="روابط سريعة">
+                <h2>روابط سريعة</h2>
+                <a href="#top">الرئيسية</a>
+                <a href="#branches" (click)="scrollToSection($event, 'branches')">فروعنا</a>
+                <a href="#services" (click)="scrollToSection($event, 'services')">خدماتنا</a>
+            </nav>
+
+            <section class="footer-addresses" aria-labelledby="footer-addresses-title">
+                <h2 id="footer-addresses-title">عناوين الفروع</h2>
+                @if (locations().length > 0) {
+                <ul>
+                    @for (location of locations(); track location.id) {
+                    <li>
+                        <strong>{{ location.name }}</strong>
+                        <span>{{ location.address || 'العنوان غير متوفر' }}</span>
+                    </li>
+                    }
+                </ul>
+                } @else if (isLoadingLocations()) {
+                <p>جارٍ تحميل عناوين الفروع...</p>
+                } @else {
+                <p>عناوين الفروع غير متاحة حاليًا.</p>
+                }
+            </section>
+
+            <section class="footer-contact" aria-labelledby="footer-contact-title">
+                <h2 id="footer-contact-title">تواصل معنا</h2>
+                <p>يسعدنا استقبال زيارتك. اختر الفرع المناسب واحجز موعدك بسهولة.</p>
+                <p class="footer-phone">رقم الهاتف: 201013808583+  </p>
+                <a class="footer-book-link" href="#booking" (click)="openBooking($event)">احجز موعدك</a>
+            </section>
+        </div>
+        <div class="footer-bottom">
+            <p>© MediCare — رعايتك تبدأ بخطوة.</p>
+        </div>
     </footer>
 </main>
 }

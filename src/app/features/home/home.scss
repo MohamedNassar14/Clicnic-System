@@ -82,6 +82,32 @@ app-home {
     transition: background-color 160ms ease, transform 160ms ease;
 }
 
+.header-profile {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--clinic-ink);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.header-profile svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.header-profile:hover {
+    color: var(--clinic-blue);
+}
+
 .header-logout {
     border: 1px solid #d7deea;
     background: #fff;
@@ -222,6 +248,11 @@ app-home {
     background: #fff;
 }
 
+.branches-section {
+    padding: 66px 7vw 72px;
+    background: #f5f8fc;
+}
+
 .section-heading {
     max-width: 590px;
     margin: 0 auto 36px;
@@ -253,6 +284,110 @@ app-home {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin: 0 auto;
+}
+
+.branch-list {
+    display: grid;
+    max-width: 1180px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 auto;
+}
+
+.branch-card {
+    display: flex;
+    min-height: 210px;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 22px;
+    border: 1px solid #e5ebf2;
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.branch-card:hover {
+    transform: translateY(-3px);
+    border-color: #b9cef9;
+}
+
+.branch-card-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 8px;
+    background: #eaf1ff;
+    color: #1a5cff;
+}
+
+.branch-card-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.branch-card h3 {
+    margin: 15px 0 6px;
+    color: #27364b;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.branch-card p {
+    flex: 1;
+    margin: 0 0 16px;
+    color: var(--clinic-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.branch-card a {
+    color: var(--clinic-blue);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.branch-card a:hover {
+    text-decoration: underline;
+}
+
+.branches-state {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 22px;
+    border: 1px solid #e5ebf2;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--clinic-muted);
+    font-size: 14px;
+    text-align: center;
+}
+
+.branches-error {
+    color: #a8322a;
+}
+
+.branches-error p {
+    margin: 0;
+}
+
+.branches-error button {
+    min-height: 38px;
+    margin-top: 12px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--clinic-blue);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .service-item {
@@ -324,23 +459,138 @@ app-home {
 }
 
 .site-footer {
-    display: flex;
-    min-height: 78px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 14px 7vw;
-    background: #fff;
+    padding: 46px 7vw 18px;
+    background: #17243a;
+    color: #fff;
 }
 
-.site-footer .brand {
-    font-size: 18px;
+.footer-content {
+    display: grid;
+    max-width: 1180px;
+    grid-template-columns: 1.3fr 0.65fr 1.2fr 1fr;
+    gap: 48px;
+    margin: 0 auto;
 }
 
-.site-footer p {
+.footer-about .brand {
+    color: #fff;
+    font-size: 19px;
+}
+
+.footer-about .brand-accent {
+    color: #8fb0ff;
+}
+
+.footer-about h2,
+.footer-links h2,
+.footer-addresses h2,
+.footer-contact h2 {
+    margin: 22px 0 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.footer-about p,
+.footer-addresses p,
+.footer-contact p {
+    max-width: 390px;
     margin: 0;
-    color: var(--clinic-muted);
+    color: #c0cada;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.footer-links {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-links h2 {
+    margin-bottom: 4px;
+}
+
+.footer-addresses h2 {
+    margin-top: 0;
+}
+
+.footer-addresses ul {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.footer-addresses li {
+    display: grid;
+    gap: 4px;
+    color: #c0cada;
     font-size: 12px;
+    line-height: 1.7;
+}
+
+.footer-addresses li strong {
+    color: #fff;
+    font-size: 13px;
+}
+
+.footer-addresses li span {
+    overflow-wrap: anywhere;
+}
+
+.footer-links a,
+.footer-book-link {
+    color: #c0cada;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.footer-links a:hover,
+.footer-book-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer-contact h2 {
+    margin-top: 0;
+}
+
+.footer-contact .footer-phone {
+    margin-top: 12px;
+}
+
+.footer-book-link {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    margin-top: 16px;
+    padding: 0 16px;
+    border-radius: 7px;
+    background: #1a5cff;
+    color: #fff;
+    font-weight: 800;
+}
+
+.footer-book-link:hover {
+    background: #124bd5;
+    text-decoration: none;
+}
+
+.footer-bottom {
+    max-width: 1180px;
+    margin: 32px auto 0;
+    padding-top: 16px;
+    border-top: 1px solid rgb(255 255 255 / 14%);
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: #aeb9cb;
+    font-size: 12px;
+    text-align: center;
 }
 
 .booking-experience {
@@ -1103,7 +1353,16 @@ app-home {
         gap: 16px;
     }
 
+    .footer-content {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 32px;
+    }
+
     .service-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .branch-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -1147,6 +1406,17 @@ app-home {
         font-size: 11px;
     }
 
+    .header-profile {
+        min-height: 38px;
+        gap: 4px;
+        font-size: 11px;
+    }
+
+    .header-profile svg {
+        width: 20px;
+        height: 20px;
+    }
+
     .hero {
         min-height: 610px;
         align-items: flex-start;
@@ -1174,12 +1444,21 @@ app-home {
         padding: 54px 20px 60px;
     }
 
+    .branches-section {
+        padding: 52px 20px 58px;
+    }
+
     .section-heading h2,
     .about-band h2 {
         font-size: 24px;
     }
 
     .service-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .branch-list {
         grid-template-columns: minmax(0, 1fr);
         gap: 10px;
     }
@@ -1195,7 +1474,20 @@ app-home {
     }
 
     .site-footer {
-        padding-inline: 20px;
+        padding: 34px 22px 16px;
+    }
+
+    .footer-content {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 28px;
+    }
+
+    .footer-about h2 {
+        margin-top: 18px;
+    }
+
+    .footer-links {
+        gap: 10px;
     }
 }
 

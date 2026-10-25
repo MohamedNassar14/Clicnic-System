@@ -1,0 +1,190 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f8fc;
+}
+
+.patient-profile-page {
+  display: grid;
+  width: min(100% - 40px, 960px);
+  gap: 22px;
+  margin: 0 auto;
+  padding: 40px 0 56px;
+  direction: rtl;
+  color: #17243a;
+}
+
+.patient-profile-header {
+  position: relative;
+  padding: 16px 4px 8px;
+}
+
+.patient-profile-header > p {
+  margin: 0 0 8px;
+  color: #1a5cff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.patient-profile-header h1 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 900;
+}
+
+.patient-profile-header > span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #667386;
+  font-size: 14px;
+}
+
+.profile-back-link {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  color: #1a5cff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.profile-back-link:hover {
+  text-decoration: underline;
+}
+
+.profile-card {
+  padding: 24px;
+  border: 1px solid #e5ebf2;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgb(23 36 58 / 4%);
+}
+
+.profile-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.profile-section-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: #eaf1ff;
+  color: #1a5cff;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.medical-icon {
+  background: #e7f7f3;
+  color: #188a77;
+}
+
+.profile-card-heading h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profile-card-heading p {
+  margin: 5px 0 0;
+  color: #7b8799;
+  font-size: 12px;
+}
+
+.profile-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.profile-details > div {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.profile-details dt {
+  margin-bottom: 7px;
+  color: #7b8799;
+  font-size: 12px;
+}
+
+.profile-details dd {
+  overflow-wrap: anywhere;
+  margin: 0;
+  color: #26364e;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.profile-state {
+  margin: 0;
+  padding: 24px;
+  border: 1px solid #e5ebf2;
+  border-radius: 12px;
+  background: #fff;
+  color: #667386;
+  text-align: center;
+}
+
+.profile-error {
+  color: #a8322a;
+}
+
+.profile-error p {
+  margin: 0;
+}
+
+.profile-error button {
+  min-height: 40px;
+  margin-top: 16px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 7px;
+  background: #1a5cff;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-error button:focus-visible,
+.profile-back-link:focus-visible {
+  outline: 3px solid rgb(26 92 255 / 30%);
+  outline-offset: 3px;
+}
+
+@media (max-width: 620px) {
+  .patient-profile-page {
+    width: min(100% - 28px, 960px);
+    gap: 16px;
+    padding-top: 24px;
+  }
+
+  .patient-profile-header {
+    padding-top: 54px;
+  }
+
+  .profile-back-link {
+    top: 12px;
+  }
+
+  .profile-card {
+    padding: 18px 14px;
+  }
+
+  .profile-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+}

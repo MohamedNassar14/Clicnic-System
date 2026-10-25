@@ -1,0 +1,89 @@
+<main class="patient-profile-page" aria-labelledby="patient-profile-title">
+  <header class="patient-profile-header">
+    <a class="profile-back-link" routerLink="/home">العودة للرئيسية</a>
+    <p>حسابي</p>
+    <h1 id="patient-profile-title">ملفي الشخصي</h1>
+    <span>بياناتك الشخصية والطبية في مكان واحد</span>
+  </header>
+
+  @if (isLoading()) {
+    <p class="profile-state" role="status">جارٍ تحميل بياناتك...</p>
+  } @else if (errorMessage()) {
+    <div class="profile-state profile-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="loadProfile()">إعادة المحاولة</button>
+    </div>
+  } @else if (profile(); as patient) {
+    <section class="profile-card" aria-labelledby="personal-information-title">
+      <div class="profile-card-heading">
+        <span class="profile-section-icon" aria-hidden="true">◉</span>
+        <div>
+          <h2 id="personal-information-title">البيانات الشخصية</h2>
+          <p>رقم الملف: {{ patient.id }}</p>
+        </div>
+      </div>
+      <dl class="profile-details">
+        <div>
+          <dt>الاسم</dt>
+          <dd>{{ patient.personal_information.name }}</dd>
+        </div>
+        <div>
+          <dt>البريد الإلكتروني</dt>
+          <dd dir="ltr">{{ patient.personal_information.email }}</dd>
+        </div>
+        <div>
+          <dt>رقم الهاتف</dt>
+          <dd dir="ltr">{{ patient.personal_information.phone }}</dd>
+        </div>
+        <div>
+          <dt>تاريخ الميلاد</dt>
+          <dd>{{ formatDate(patient.personal_information.date_of_birth) }}</dd>
+        </div>
+        <div>
+          <dt>النوع</dt>
+          <dd>{{ formatGender(patient.personal_information.gender) }}</dd>
+        </div>
+        <div>
+          <dt>العنوان</dt>
+          <dd>{{ patient.personal_information.address }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="profile-card" aria-labelledby="medical-information-title">
+      <div class="profile-card-heading">
+        <span class="profile-section-icon medical-icon" aria-hidden="true">+</span>
+        <div>
+          <h2 id="medical-information-title">البيانات الطبية</h2>
+          <p>المعلومات الصحية المسجلة في ملفك</p>
+        </div>
+      </div>
+      <dl class="profile-details medical-details">
+        <div>
+          <dt>فصيلة الدم</dt>
+          <dd>{{ patient.medical_information.blood_type || 'غير محدد' }}</dd>
+        </div>
+        <div>
+          <dt>ارتفاع ضغط الدم</dt>
+          <dd>{{ formatYesNo(patient.medical_information.has_hypertension) }}</dd>
+        </div>
+        <div>
+          <dt>مرض السكري</dt>
+          <dd>{{ formatYesNo(patient.medical_information.has_diabetes) }}</dd>
+        </div>
+        <div>
+          <dt>أمراض القلب</dt>
+          <dd>{{ formatYesNo(patient.medical_information.has_heart_disease) }}</dd>
+        </div>
+        <div>
+          <dt>جلطة سابقة</dt>
+          <dd>{{ formatYesNo(patient.medical_information.has_previous_stroke) }}</dd>
+        </div>
+        <div>
+          <dt>ملاحظات طبية</dt>
+          <dd>{{ patient.medical_information.medical_notes || 'لا توجد ملاحظات مسجلة' }}</dd>
+        </div>
+      </dl>
+    </section>
+  }
+</main>
