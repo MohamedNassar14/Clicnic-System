@@ -37,4 +37,8 @@ export class PatientProfileService {
   getPatientProfile(): Observable<PatientProfileResponse> {
     return this.http.get<PatientProfileResponse>(`${environment.url}patient/profile`);
   }
+
+  getPatientAppointments(): Observable<unknown> {
+    return this.http.get<unknown>(`${environment.url}appointments/my`);
+  }
 }

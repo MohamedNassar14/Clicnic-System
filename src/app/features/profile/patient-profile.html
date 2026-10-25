@@ -86,4 +86,47 @@
       </dl>
     </section>
   }
+
+  <section class="profile-card" aria-labelledby="diagnosis-history-title">
+    <div class="profile-card-heading">
+      <span class="profile-section-icon history-icon" aria-hidden="true">▤</span>
+      <div>
+        <h2 id="diagnosis-history-title">سجل التشخيص</h2>
+        <p>التشخيصات المسجلة خلال مواعيدك السابقة</p>
+      </div>
+    </div>
+
+    @if (isLoadingDiagnosisHistory()) {
+      <p class="profile-state" role="status">جارٍ تحميل سجل التشخيص...</p>
+    } @else if (diagnosisHistoryError()) {
+      <div class="profile-state profile-error" role="alert">
+        <p>{{ diagnosisHistoryError() }}</p>
+        <button type="button" (click)="loadDiagnosisHistory()">إعادة المحاولة</button>
+      </div>
+    } @else if (diagnosisHistory().length === 0) {
+      <p class="profile-state">لا توجد تشخيصات مسجلة حتى الآن.</p>
+    } @else {
+      <div class="diagnosis-history-list">
+        @for (record of diagnosisHistory(); track record.id) {
+          <article class="diagnosis-history-item">
+            <div class="diagnosis-history-heading">
+              <h3>{{ record.diagnosis }}</h3>
+              @if (record.date) {
+                <time>{{ formatDateTime(record.date) }}</time>
+              }
+            </div>
+            @if (record.type) {
+              <p><strong>نوع الزيارة:</strong> {{ record.type }}</p>
+            }
+            @if (record.treatment) {
+              <p><strong>العلاج:</strong> {{ record.treatment }}</p>
+            }
+            @if (record.notes) {
+              <p><strong>ملاحظات:</strong> {{ record.notes }}</p>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
 </main>

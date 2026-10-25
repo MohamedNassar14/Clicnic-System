@@ -86,6 +86,11 @@
   color: #188a77;
 }
 
+.history-icon {
+  background: #f1edff;
+  color: #7060b6;
+}
+
 .profile-card-heading h2 {
   margin: 0;
   font-size: 18px;
@@ -125,6 +130,51 @@
   color: #26364e;
   font-size: 14px;
   font-weight: 700;
+}
+
+.diagnosis-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.diagnosis-history-item {
+  padding: 16px;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.diagnosis-history-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.diagnosis-history-heading h3 {
+  margin: 0;
+  color: #26364e;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.diagnosis-history-heading time {
+  flex: 0 0 auto;
+  color: #7b8799;
+  font-size: 12px;
+}
+
+.diagnosis-history-item > p {
+  margin: 7px 0 0;
+  color: #667386;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.diagnosis-history-item > p strong {
+  color: #26364e;
 }
 
 .profile-state {
