@@ -1,0 +1,25 @@
+<section class="doctor-profile" aria-labelledby="profile-title">
+  <header>
+    <h1 id="profile-title">ملفي الشخصي</h1>
+    <p>بيانات الحساب المسجلة</p>
+  </header>
+
+  @if (user; as profile) {
+    <dl class="profile-details">
+      <div>
+        <dt>الاسم</dt>
+        <dd>د. {{ profile.name }}</dd>
+      </div>
+      <div>
+        <dt>البريد الإلكتروني</dt>
+        <dd>{{ profile.email }}</dd>
+      </div>
+      <div>
+        <dt>رقم الهاتف</dt>
+        <dd>{{ profile.phone }}</dd>
+      </div>
+    </dl>
+  } @else {
+    <p role="alert">تعذر تحميل بيانات الملف الشخصي.</p>
+  }
+</section>

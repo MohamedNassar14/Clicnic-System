@@ -1,4 +1,78 @@
 <section class="dashboard flex flex-col gap-6">
+    @if (isDoctor) {
+    <section class="doctor-dashboard" aria-labelledby="doctor-welcome-title">
+        <header class="doctor-welcome">
+            <div>
+                <h1 id="doctor-welcome-title">أهلاً دكتور {{ currentUser?.name ?? '' }} 👋</h1>
+            </div>
+            <span class="doctor-date">{{ doctorDate }}</span>
+        </header>
+
+        @if (currentAppointmentError()) {
+        <p class="doctor-error" role="alert">
+            {{ currentAppointmentError() }}
+            <button type="button" (click)="loadCurrentAppointment()">إعادة المحاولة</button>
+        </p>
+        } @else if (isLoadingCurrentAppointment()) {
+        <p class="doctor-empty" role="status">جاري تحميل الموعد الحالي...</p>
+        } @else if (currentDoctorAppointment(); as appointment) {
+        <article class="current-doctor-appointment">
+            <div class="current-label"><span aria-hidden="true"></span> الموعد الحالي</div>
+            <h2>{{ appointment.patientName }}</h2>
+            <p>
+                {{ appointment.time }}
+                @if (appointment.clinicAddress) {
+                <span> - {{ appointment.clinicAddress }}</span>
+                }
+                @if (appointment.visitType) {
+                <span> · {{ appointment.visitType }}</span>
+                }
+            </p>
+        </article>
+        } @else {
+        <p class="doctor-empty">لا يوجد موعد حالي الآن.</p>
+        }
+
+        @if (appointmentsError()) {
+        <p class="doctor-error" role="alert">
+            {{ appointmentsError() }}
+            <button type="button" (click)="loadTodayAppointments(1, 50)">إعادة المحاولة</button>
+        </p>
+        }
+
+        <section class="remaining-appointments" aria-labelledby="remaining-appointments-title">
+            <h2 id="remaining-appointments-title">باقي مواعيد اليوم</h2>
+            @if (isLoadingAppointments()) {
+            <p class="doctor-empty" role="status">جاري تحميل مواعيد اليوم...</p>
+            } @else if (!appointmentsError() && remainingDoctorAppointments().length === 0) {
+            <p class="doctor-empty">لا توجد مواعيد أخرى اليوم.</p>
+            }
+            @for (appointment of remainingDoctorAppointments(); track appointment.id) {
+            <article class="doctor-appointment-card">
+                <div class="doctor-patient-avatar" aria-hidden="true">{{ appointment.patientInitials || '؟' }}</div>
+                <div class="doctor-patient-info">
+                    <h3>{{ appointment.patientName }}</h3>
+                    <p>{{ appointment.time }} · {{ appointment.clinicAddress }}</p>
+                </div>
+                <span class="doctor-appointment-status">{{ appointment.statusText || 'في الانتظار' }}</span>
+                @if (appointment.appointmentId !== undefined) {
+                <a
+                    class="doctor-record-link"
+                    [routerLink]="['/appointments', appointment.appointmentId, 'medical-record']"
+                    [state]="{ patientName: appointment.patientName, patientPhone: appointment.patientPhone }"
+                    [attr.aria-label]="'فتح السجل الطبي للمريض ' + appointment.patientName"
+                    title="فتح السجل الطبي">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" />
+                        <path d="M14 3.75v4h4M8.5 13h7M12 9.5v7" />
+                    </svg>
+                </a>
+                }
+            </article>
+            }
+        </section>
+    </section>
+    } @else {
     <div class="header bg-white flex justify-between items-center p-6 rounded-2xl">
         <div class="welcome-msg">
             <h2 class="text-xl font-bold">أهلاً سارة 👋</h2>
@@ -264,4 +338,5 @@
             (onPageChange)="onAppointmentsPageChange($event)" />
         }
     </section>
+    }
 </section>

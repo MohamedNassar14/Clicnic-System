@@ -47,4 +47,23 @@ describe('Auth', () => {
 
     expect(service.getUserRole()).toBe('2');
   });
+
+  it('reads the current user details saved from the login response', () => {
+    localStorage.setItem('user', JSON.stringify({
+      id: 19,
+      name: 'Omar',
+      email: 'omar123@gmail.com',
+      phone: '01013141516',
+      role: '2',
+    }));
+
+    expect(service.getCurrentUser()).toEqual({
+      id: 19,
+      name: 'Omar',
+      email: 'omar123@gmail.com',
+      phone: '01013141516',
+      role: '2',
+      created_at: undefined,
+    });
+  });
 });

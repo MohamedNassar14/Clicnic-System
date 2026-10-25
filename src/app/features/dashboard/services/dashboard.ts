@@ -22,6 +22,7 @@ export interface AppointmentLocation {
 
 export interface TodayAppointmentResponse {
   id?: number | string;
+  appointment_id?: number | string;
   patient_name?: string;
   patient_phone?: string;
   patient?: AppointmentPerson;
@@ -48,6 +49,19 @@ export interface TodayAppointmentsResponse {
     total?: number;
     has_more?: boolean;
   };
+}
+
+export interface DoctorCurrentAppointmentResponse {
+  status?: boolean;
+  errNum?: string;
+  msg?: string;
+  current_appointment?: TodayAppointmentResponse | null;
+  appointment?: TodayAppointmentResponse | null;
+  data?: TodayAppointmentResponse | {
+    current_appointment?: TodayAppointmentResponse | null;
+    appointment?: TodayAppointmentResponse | null;
+    data?: TodayAppointmentResponse | null;
+  } | null;
 }
 
 export interface TodayAppointmentFilters {
@@ -79,6 +93,12 @@ export interface TodayStatsResponse {
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly http = inject(HttpClient);
+
+  getDoctorCurrentAppointment(): Observable<DoctorCurrentAppointmentResponse> {
+    return this.http.get<DoctorCurrentAppointmentResponse>(
+      `${environment.url}doctor/current-appointment`,
+    );
+  }
 
   getTodayStats(): Observable<TodayStatsResponse> {
     return this.http.get<TodayStatsResponse>(`${environment.url}admin/stats/today`);

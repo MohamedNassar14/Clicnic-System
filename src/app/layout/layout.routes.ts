@@ -10,6 +10,7 @@ export const routes: Routes =
            { path: 'appointments', loadChildren: () => import('../features/appointments/appointments.routes').then(m => m.routes) },
            { path: 'weekly-schedule', loadChildren: () => import('../features/weekly-schedule/weekly-schedule.routes').then(m => m.routes) },
               { path: 'branches', loadChildren: () => import('../features/branches/branches.routes').then(m => m.routes) },
+           { path: 'profile', loadComponent: () => import('../features/profile/doctor-profile').then(c => c.DoctorProfile) },
         ]   
     },
 ];

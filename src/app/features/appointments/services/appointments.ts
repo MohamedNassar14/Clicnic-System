@@ -96,6 +96,18 @@ export interface AppointmentPaymentResponse {
   }
 }
 
+export interface MedicalRecordPayload {
+  record_type: string;
+  diagnosis: string;
+  treatment: string;
+  notes: string;
+}
+
+export interface MedicalRecordResponse {
+  status?: boolean;
+  msg?: string;
+}
+
 export interface AppointmentListPerson {
   name?: string;
   full_name?: string;
@@ -261,6 +273,16 @@ export class AppointmentsService {
     return this.http.put<void>(
       `${environment.url}admin/appointments/${appointmentId}/set-current`,
       {},
+    );
+  }
+
+  createMedicalRecord(
+    appointmentId: number | string,
+    payload: MedicalRecordPayload,
+  ): Observable<MedicalRecordResponse> {
+    return this.http.post<MedicalRecordResponse>(
+      `${environment.url}doctor/appointments/${appointmentId}/medical-record`,
+      payload,
     );
   }
 }

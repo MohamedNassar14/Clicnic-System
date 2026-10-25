@@ -14,8 +14,10 @@ import {
   VisitTypesResponse,
 } from '../../../appointments/services/appointments';
 import { Icons } from '../../../../shared/components/icons/icons';
+import { Auth } from '../../../auth/services/auth';
 import {
   DashboardService,
+  DoctorCurrentAppointmentResponse,
   TodayAppointmentFilters,
   TodayAppointmentResponse,
   TodayAppointmentsResponse,
@@ -89,6 +91,67 @@ function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): Visit
   });
 }
 
+function toTodayAppointment(appointment: TodayAppointmentResponse, index: number): TodayAppointment {
+  const patientName = appointment.patient_name
+    ?? appointment.patient?.name
+    ?? appointment.patient?.full_name
+    ?? '';
+  const patientPhone = appointment.patient_phone ?? appointment.patient?.phone ?? '';
+  const isPaid = appointment.payment_status === 'paid';
+
+  return {
+    id: appointment.id ?? appointment.appointment_id ?? `${patientPhone}-${index}`,
+    appointmentId: appointment.id ?? appointment.appointment_id,
+    patientName,
+    patientPhone,
+    patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
+    visitType: appointment.visit_type_label ?? appointment.visit_type ?? '',
+    time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
+    status: appointment.status,
+    statusText: getAppointmentStatusLabel(appointment.status),
+    clinicAddress: appointment.time_slot?.clinic_location?.address
+      ?? appointment.time_slot?.clinic_location?.name
+      ?? appointment.clinic_location?.address
+      ?? appointment.branch?.address
+      ?? appointment.clinic_location?.name
+      ?? appointment.branch?.name
+      ?? appointment.clinic_location_name
+      ?? 'العنوان غير متوفر',
+    paymentStatusText: isPaid ? 'تم الدفع' : 'لم يتم الدفع',
+    isPaid,
+  };
+}
+
+function readCurrentAppointment(
+  response: DoctorCurrentAppointmentResponse,
+): TodayAppointmentResponse | null {
+  const data = response.data;
+
+  if (data && 'current_appointment' in data) {
+    return data.current_appointment ?? data.appointment ?? data.data ?? null;
+  }
+
+  if (data && 'appointment' in data) {
+    return data.appointment ?? null;
+  }
+
+  if (data && 'data' in data) {
+    return data.data ?? null;
+  }
+
+  if (data && (
+    'id' in data ||
+    'patient_name' in data ||
+    'patient' in data ||
+    'start_time' in data ||
+    'time_slot' in data
+  )) {
+    return data;
+  }
+
+  return response.current_appointment ?? response.appointment ?? null;
+}
+
 @Component({
   selector: 'app-dashboard',
   imports: [DatePickerModule, DecimalPipe, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule],
@@ -98,11 +161,41 @@ function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): Visit
 export class Dashboard implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly appointmentsService = inject(AppointmentsService);
+  private readonly auth = inject(Auth);
 
+  readonly isDoctor = this.auth.getUserRole() === '2';
+  readonly currentUser = this.auth.getCurrentUser();
   readonly todayStats = signal<TodayStats | null>(null);
   readonly isLoadingTodayStats = signal(false);
   readonly todayStatsError = signal('');
   readonly todayAppointments = signal<TodayAppointment[]>([]);
+  readonly currentDoctorAppointment = signal<TodayAppointment | null>(null);
+  readonly isLoadingCurrentAppointment = signal(false);
+  readonly currentAppointmentError = signal('');
+  readonly doctorDate = new Intl.DateTimeFormat('ar-EG', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
+  readonly remainingDoctorAppointments = computed(() => {
+    const currentAppointment = this.currentDoctorAppointment();
+
+    return this.todayAppointments().filter((appointment) => {
+      const isCurrentAppointment = currentAppointment?.appointmentId !== undefined
+        ? appointment.appointmentId === currentAppointment.appointmentId
+        : Boolean(
+          currentAppointment?.patientName &&
+          currentAppointment.patientName === appointment.patientName &&
+          currentAppointment.time === appointment.time,
+        );
+
+      return !isCurrentAppointment &&
+        appointment.status !== 'in_progress' &&
+        appointment.status !== 'completed' &&
+        appointment.status !== 'cancelled' &&
+        appointment.status !== 'no_show';
+    });
+  });
   readonly visibleAppointments = computed(() => {
     const searchValue = this.searchValue().trim().toLocaleLowerCase();
     if (!searchValue) {
@@ -132,9 +225,38 @@ export class Dashboard implements OnInit {
   readonly appointmentStatuses = APPOINTMENT_STATUS_OPTIONS;
 
   ngOnInit(): void {
+    if (this.isDoctor) {
+      this.loadCurrentAppointment();
+      this.loadTodayAppointments(1, 50);
+      return;
+    }
+
     this.loadTodayStats();
     this.loadTodayAppointments();
     this.loadVisitTypes();
+  }
+
+  loadCurrentAppointment(): void {
+    this.isLoadingCurrentAppointment.set(true);
+    this.currentAppointmentError.set('');
+    this.dashboardService.getDoctorCurrentAppointment().subscribe({
+      next: (response) => {
+        this.isLoadingCurrentAppointment.set(false);
+        if (response.status === false) {
+          this.currentDoctorAppointment.set(null);
+          this.currentAppointmentError.set(response.msg || 'تعذر تحميل الموعد الحالي.');
+          return;
+        }
+
+        const appointment = readCurrentAppointment(response);
+        this.currentDoctorAppointment.set(appointment ? toTodayAppointment(appointment, 0) : null);
+      },
+      error: () => {
+        this.isLoadingCurrentAppointment.set(false);
+        this.currentDoctorAppointment.set(null);
+        this.currentAppointmentError.set('تعذر تحميل الموعد الحالي. حاول مرة أخرى.');
+      },
+    });
   }
 
   loadTodayStats(): void {
@@ -256,38 +378,7 @@ export class Dashboard implements OnInit {
         this.first.set((currentPage - 1) * rows);
         this.totalTodayAppointments.set(pageData.total);
 
-        this.todayAppointments.set(pageData.items.map((appointment, index) => {
-          const patientName = appointment.patient_name
-            ?? appointment.patient?.name
-            ?? appointment.patient?.full_name
-            ?? '';
-          const patientPhone = appointment.patient_phone ?? appointment.patient?.phone ?? '';
-          const initials = patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('');
-          const isPaid = appointment.payment_status === 'paid';
-          const paymentStatusText = isPaid ? 'تم الدفع' : 'لم يتم الدفع';
-
-          return {
-            id: appointment.id ?? `${patientPhone}-${index}`,
-            appointmentId: appointment.id,
-            patientName,
-            patientPhone,
-            patientInitials: initials,
-            visitType: appointment.visit_type_label ?? appointment.visit_type ?? '',
-            time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
-            status: appointment.status,
-            statusText: getAppointmentStatusLabel(appointment.status),
-            clinicAddress: appointment.time_slot?.clinic_location?.address
-              ?? appointment.time_slot?.clinic_location?.name
-              ?? appointment.clinic_location?.address
-              ?? appointment.branch?.address
-              ?? appointment.clinic_location?.name
-              ?? appointment.branch?.name
-              ?? appointment.clinic_location_name
-              ?? 'العنوان غير متوفر',
-            paymentStatusText,
-            isPaid,
-          };
-        }));
+        this.todayAppointments.set(pageData.items.map(toTodayAppointment));
         this.isLoadingAppointments.set(false);
       },
       error: () => {

@@ -1,3 +1,198 @@
+.doctor-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 100%;
+    padding: 12px;
+    color: #172226;
+    direction: rtl;
+}
+
+.doctor-welcome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.doctor-welcome h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.doctor-welcome p,
+.doctor-date {
+    margin: 6px 0 0;
+    color: #8a918f;
+    font-size: 13px;
+}
+
+.doctor-date {
+    white-space: nowrap;
+}
+
+.current-doctor-appointment {
+    min-height: 120px;
+    padding: 22px 26px;
+    border-radius: 18px;
+    background: linear-gradient(110deg, #1053fc 0%, #3a76f9 75%, #1053fc 100%);
+    box-shadow: 0 12px 24px #1053fc25;
+    color: #fff;
+}
+
+.current-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e8efff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.current-label span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #24cf43;
+}
+
+.current-doctor-appointment h2 {
+    margin: 12px 0 6px;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.current-doctor-appointment p {
+    margin: 0;
+    color: #e0e9ff;
+    font-size: 13px;
+}
+
+.remaining-appointments {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.remaining-appointments > h2 {
+    margin: 0 0 2px;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.doctor-appointment-card {
+    display: flex;
+    min-height: 68px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #e8e2d7;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.doctor-patient-avatar {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8f0ff;
+    color: #1a5cff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.doctor-patient-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.doctor-patient-info h3 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.doctor-patient-info p {
+    overflow: hidden;
+    margin: 0;
+    color: #77817f;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.doctor-appointment-status {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #f4f0e7;
+    color: #8a806b;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.doctor-record-link {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    place-items: center;
+    border: 1px solid #dce6e2;
+    border-radius: 10px;
+    color: #1a5cff;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.doctor-record-link:hover,
+.doctor-record-link:focus-visible {
+    background: #1053fc;
+    color: #fff;
+}
+
+.doctor-record-link svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.doctor-empty,
+.doctor-error {
+    margin: 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: #fff;
+    color: #697371;
+}
+
+.doctor-error {
+    color: #b42318;
+}
+
+@media (max-width: 600px) {
+    .doctor-dashboard {
+        padding: 4px;
+    }
+
+    .doctor-welcome h1 {
+        font-size: 19px;
+    }
+
+    .doctor-appointment-card {
+        align-items: flex-start;
+    }
+
+    .doctor-appointment-status {
+        margin-inline-start: auto;
+    }
+}
+
 .appointments-section {
     display       : flex;
     flex-direction: column;
@@ -64,7 +259,7 @@
 .visit-type {
     padding      : 6px 12px;
     border-radius: 999px;
-    background   : #f7f5f0;
+    background: #f1f1f1;
     color        : #24545a;
     font-size    : 13px;
     font-weight  : 700;

@@ -52,6 +52,15 @@ export interface LoginResponse {
   };
 }
 
+export interface SessionUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  created_at?: string;
+  role?: string | number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -140,6 +149,51 @@ export class Auth {
       return typeof role === 'string' || typeof role === 'number' ? String(role) : null;
     } catch (error) {
       console.error('Unable to read the role from the stored user.', error);
+      return null;
+    }
+  }
+
+  getCurrentUser(): SessionUser | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    const storedUser = localStorage.getItem('user');
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      const user: unknown = JSON.parse(storedUser);
+      if (
+        typeof user !== 'object' ||
+        user === null ||
+        !('id' in user) ||
+        !('name' in user) ||
+        !('email' in user) ||
+        !('phone' in user) ||
+        typeof user.id !== 'number' ||
+        typeof user.name !== 'string' ||
+        typeof user.email !== 'string' ||
+        typeof user.phone !== 'string'
+      ) {
+        return null;
+      }
+
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: 'role' in user && (typeof user.role === 'string' || typeof user.role === 'number')
+          ? user.role
+          : undefined,
+        created_at: 'created_at' in user && typeof user.created_at === 'string'
+          ? user.created_at
+          : undefined,
+      };
+    } catch (error) {
+      console.error('Unable to read the stored user.', error);
       return null;
     }
   }

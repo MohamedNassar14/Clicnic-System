@@ -49,7 +49,8 @@
   .brand-name span {
     color: #1A5CFF;
   }
-// Navigation
+
+  // Navigation
 .navigation {
   flex: 1;
   padding: 18px 16px;
@@ -218,6 +219,16 @@
   #3a76f9 75%,
   #1053fc 100%
 );
+}
+
+.doctor-sidebar .menu-item:hover,
+.doctor-sidebar .menu-item.active {
+  background: linear-gradient(
+    to right,
+    #1053fc 0%,
+    #3a76f9 75%,
+    #1053fc 100%
+  );
 }
 
 .logout-button {

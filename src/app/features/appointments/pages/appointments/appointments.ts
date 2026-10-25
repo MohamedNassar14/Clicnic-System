@@ -15,6 +15,7 @@ import {
   VisitTypesResponse,
 } from '../../services/appointments';
 import { Icons } from '../../../../shared/components/icons/icons';
+import { Auth } from '../../../auth/services/auth';
 
 interface AppointmentCard {
   id: number | string;
@@ -102,6 +103,7 @@ function formatDate(date: Date): string {
 })
 export class Appointments implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
+  readonly isDoctor = inject(Auth).getUserRole() === '2';
 
   readonly appointments = signal<AppointmentCard[]>([]);
   readonly visibleAppointments = computed(() => {
@@ -222,6 +224,7 @@ export class Appointments implements OnInit {
       date: selectedDate ? formatDate(selectedDate) : undefined,
       status: this.selectedStatus() || undefined,
       visit_type: this.selectedVisitType() || undefined,
+      is_today: this.isDoctor && !selectedDate ? 1 : undefined,
     }, perPage).subscribe({
       next: (response) => {
         const pageData = readAppointmentPage(response);

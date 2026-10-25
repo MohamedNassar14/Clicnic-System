@@ -17,6 +17,14 @@
     display: none;
   }
 
+  &.doctor-layout {
+    background: #f1f1f1;
+
+    .main-content {
+      background: #f1f1f1;
+    }
+  }
+
   .app-sidebar {
     width: 280px;
     flex-shrink: 0;
@@ -93,6 +101,4 @@
     }
   }
 }
-
-
 

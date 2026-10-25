@@ -3,6 +3,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { Auth } from '../../../auth/services/auth';
 import { AppointmentsService } from '../../services/appointments';
 import { environment } from '../../../../../environments/environment';
 
@@ -11,6 +12,8 @@ import { Appointments } from './appointments';
 describe('Appointments', () => {
   let component: Appointments;
   let fixture: ComponentFixture<Appointments>;
+  let userRole = '1';
+  let getAppointments: jasmine.Spy;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -19,9 +22,13 @@ describe('Appointments', () => {
         provideZonelessChangeDetection(),
         provideRouter([]),
         {
+          provide: Auth,
+          useValue: { getUserRole: () => userRole },
+        },
+        {
           provide: AppointmentsService,
           useValue: {
-            getAppointments: () => of([]),
+            getAppointments: jasmine.createSpy('getAppointments').and.returnValue(of([])),
             getVisitTypes: () => of([]),
           },
         },
@@ -31,11 +38,24 @@ describe('Appointments', () => {
 
     fixture = TestBed.createComponent(Appointments);
     component = fixture.componentInstance;
+    getAppointments = TestBed.inject(AppointmentsService).getAppointments as jasmine.Spy;
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('loads only today appointments for doctor role 2', () => {
+    fixture.destroy();
+    userRole = '2';
+    fixture = TestBed.createComponent(Appointments);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(getAppointments).toHaveBeenCalledWith(1, jasmine.objectContaining({ is_today: 1 }), 5);
+    expect(fixture.nativeElement.textContent).toContain('مواعيد اليوم');
+    expect(fixture.nativeElement.textContent).not.toContain('حجز موعد من العيادة');
   });
 });
 

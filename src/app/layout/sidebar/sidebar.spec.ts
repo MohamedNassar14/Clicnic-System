@@ -21,6 +21,7 @@ describe('Sidebar', () => {
           provide: Auth,
           useValue: {
             getUserRole: () => userRole,
+            getCurrentUser: () => ({ name: 'Omar' }),
             logout: () => undefined,
           },
         },
@@ -52,6 +53,8 @@ describe('Sidebar', () => {
 
     expect(fixture.nativeElement.textContent).toContain('الموعد الحالي');
     expect(fixture.nativeElement.textContent).toContain('مواعيد اليوم');
+    expect(fixture.nativeElement.textContent).toContain('ملفي الشخصي');
+    expect(fixture.nativeElement.textContent).not.toContain('الطبيب المعالج');
     expect(fixture.nativeElement.textContent).not.toContain('نظرة عامة');
     expect(fixture.nativeElement.textContent).not.toContain('الجدول الأسبوعي');
   });

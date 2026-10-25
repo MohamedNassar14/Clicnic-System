@@ -1,9 +1,10 @@
 <section class="appointments-page flex flex-col gap-6">
     <div class="header flex justify-between items-center">
         <div class="welcome-msg">
-            <h2 class="text-xl font-bold">كل الحجوزات</h2>
+            <h2 class="text-xl font-bold">{{ isDoctor ? 'مواعيد اليوم' : 'كل الحجوزات' }}</h2>
             <p class="text-[#9F9F9F]">{{ totalAppointments() }} حجز إجمالاً</p>
         </div>
+        @if (!isDoctor) {
         <div class="appointment">
             <button
                 class="min-w-[153px] flex items-center justify-center gap-2 text-white main-color rounded-lg py-2.5 px-4"
@@ -17,6 +18,7 @@
                 <span class="text-sm font-bold">حجز موعد من العيادة</span>
             </button>
         </div>
+        }
     </div>
     <div class="search grid grid-cols-12 gap-x-14">
         <div class="drop-downs col-span-11 grid grid-cols-12 gap-x-4">

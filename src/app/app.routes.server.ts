@@ -18,6 +18,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
+    path: 'appointments/:id/medical-record',
+    renderMode: RenderMode.Client
+  },
+  {
     path: 'weekly-schedule',
     renderMode: RenderMode.Client
   },

@@ -1,0 +1,99 @@
+<section class="medical-record-page" aria-labelledby="medical-record-title">
+  <a class="back-button" routerLink="/appointments">← رجوع</a>
+
+  <header class="patient-header">
+    <div class="patient-avatar" aria-hidden="true">{{ patientName.slice(0, 2) }}</div>
+    <div class="patient-details">
+      <h1>{{ patientName }}</h1>
+      <p>
+        @if (patientPhone) {
+          <span class="phone-icon" aria-hidden="true">☎</span>
+          {{ patientPhone }} ·
+        }
+        رقم الزيارة {{ appointmentId }}
+      </p>
+    </div>
+    <button class="add-diagnosis-button" type="button" (click)="openDiagnosisPopup()">
+      + إضافة تشخيص
+    </button>
+  </header>
+
+  <section class="record-list" aria-labelledby="medical-record-title">
+    <h2 id="medical-record-title">السجل الطبي</h2>
+    @if (saveSuccess()) {
+      <p class="save-success" role="status">{{ saveSuccess() }}</p>
+    }
+    @if (saveError()) {
+      <p class="save-error" role="alert">{{ saveError() }}</p>
+    }
+    @if (medicalRecords().length === 0) {
+      <div class="empty-records">لسه مفيش تشخيصات مسجلة لهذا المريض.</div>
+    } @else {
+      @for (record of medicalRecords(); track $index) {
+        <article class="medical-record-card">
+          <div>
+            <span class="record-type">كشف</span>
+            <h3>{{ record.diagnosis }}</h3>
+          </div>
+          <p><strong>العلاج:</strong> {{ record.treatment }}</p>
+          @if (record.notes) {
+            <p><strong>ملاحظات الطبيب:</strong> {{ record.notes }}</p>
+          }
+        </article>
+      }
+    }
+  </section>
+
+  @if (isDiagnosisPopupOpen()) {
+    <div class="modal-backdrop" (click)="closeDiagnosisPopup()">
+      <section
+        class="diagnosis-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="diagnosis-modal-title"
+        (click)="$event.stopPropagation()">
+        <button
+          class="close-modal-button"
+          type="button"
+          aria-label="إغلاق"
+          [disabled]="isSaving()"
+          (click)="closeDiagnosisPopup()">×</button>
+        <h2 id="diagnosis-modal-title">إضافة تشخيص جديد</h2>
+
+        <form [formGroup]="diagnosisForm" (ngSubmit)="saveDiagnosis()">
+          <label for="record-type">نوع الزيارة</label>
+          <select id="record-type" formControlName="record_type">
+            <option value="checkup">كشف</option>
+          </select>
+
+          <label for="diagnosis">التشخيص</label>
+          <input
+            id="diagnosis"
+            type="text"
+            formControlName="diagnosis"
+            placeholder="مثال: التهاب في الحلق" />
+          @if (diagnosisForm.controls.diagnosis.invalid && diagnosisForm.controls.diagnosis.touched) {
+            <span class="field-error">اكتب التشخيص.</span>
+          }
+
+          <label for="treatment">العلاج</label>
+          <textarea id="treatment" rows="3" formControlName="treatment"></textarea>
+          @if (diagnosisForm.controls.treatment.invalid && diagnosisForm.controls.treatment.touched) {
+            <span class="field-error">اكتب العلاج.</span>
+          }
+
+          <label for="notes">ملاحظات الطبيب</label>
+          <textarea id="notes" rows="3" formControlName="notes"></textarea>
+
+          @if (saveError()) {
+            <p class="save-error" role="alert">{{ saveError() }}</p>
+          }
+
+          <button class="save-diagnosis-button" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التشخيص' }}
+          </button>
+        </form>
+      </section>
+    </div>
+  }
+</section>

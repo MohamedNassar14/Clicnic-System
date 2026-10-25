@@ -1,5 +1,5 @@
 <!-- src/app/layout/sidebar/sidebar.component.html -->
-<aside class="sidebar bg-white rounded-[20px]">
+<aside class="sidebar bg-white rounded-[20px]" [class.doctor-sidebar]="isDoctor">
   <!-- Logo Section -->
     <div class="logo py-10">
   <span class="brand-name">Medi<span>Care</span></span>
@@ -26,6 +26,13 @@
         <a class="flex items-center gap-3">
           <span><app-icons [iconKey]="'appointments'"></app-icons></span>
           <span>مواعيد اليوم</span>
+        </a>
+      </li>
+      <li routerLink="/profile" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+        routerLinkActive="active">
+        <a class="flex items-center gap-3">
+          <span><app-icons [iconKey]="'staff'"></app-icons></span>
+          <span>ملفي الشخصي</span>
         </a>
       </li>
       } @else {

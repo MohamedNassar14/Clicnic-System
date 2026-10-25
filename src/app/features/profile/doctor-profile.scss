@@ -1,0 +1,46 @@
+.doctor-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100%;
+  padding: 12px;
+  direction: rtl;
+  color: #172226;
+}
+
+.doctor-profile header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.doctor-profile header p {
+  margin: 6px 0 0;
+  color: #8a918f;
+  font-size: 13px;
+}
+
+.profile-details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.profile-details > div {
+  padding: 18px;
+  border: 1px solid #e8e2d7;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.profile-details dt {
+  margin-bottom: 7px;
+  color: #77817f;
+  font-size: 12px;
+}
+
+.profile-details dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
