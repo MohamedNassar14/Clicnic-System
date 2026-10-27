@@ -36,7 +36,9 @@
 .register-title {
   text-align: center;
 }
-
+ .brand-name span {
+    color: #1A5CFF;
+  }
 .register-title h1 {
   margin: 0;
   color: #202124;
@@ -215,4 +217,47 @@
   .register-title h1 {
     font-size: 24px;
   }
+}
+
+
+::ng-deep .p-overlay {
+  inset-inline-start: auto !important;
+}
+
+:host::ng-deep .p-select {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 48px !important;
+  border: 1px solid #F1F1F1 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+:host::ng-deep .p-select-label.p-placeholder {
+  color: #B3B3B3 !important;
+}
+
+:host::ng-deep .p-icon {
+  width: 11px !important;
+  height: 11px !important;
+  color: #000000 !important;
+}
+
+button[disabled] {
+  cursor: not-allowed;
+  opacity: .8;
+}
+
+.fa-cloud-arrow-up{
+    font-size: 30px;
+}
+
+
+:host::ng-deep .p-inputtext {
+    width: 100% !important;
+  padding: 0 !important;
+  height: 48px !important;
+  border: 1px solid #F1F1F1 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
 }

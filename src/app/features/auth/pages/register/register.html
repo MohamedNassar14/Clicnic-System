@@ -1,81 +1,100 @@
-<section class="register-page">
-    <div class="register-image">
-        <img src="assets/images/banner2.png" alt="" />
-    </div>
-    <div class="register-info">
-        <div class="register-content">
-            <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmitData()">
-                <div class="register-title">
-                    <h1>إنشاء حساب جديد</h1>
-                    <p>أدخل بياناتك للمتابعة</p>
-                </div>
-
-                <div class="register-fields">
-                    <div class="form-field">
-                        <label for="register-name">الاسم بالكامل</label>
-                        <input id="register-name" type="text" formControlName="name" placeholder="الاسم بالكامل" />
-                        @if (isInvalid('name')) {
-                        <small>يرجى إدخال الاسم بالكامل</small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="register-email">البريد الإلكتروني</label>
-                        <input id="register-email" type="email" formControlName="email" placeholder="البريد الإلكتروني" />
-                        @if (isInvalid('email')) {
-                        <small>يرجى إدخال بريد إلكتروني صحيح</small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="register-phone">رقم الهاتف</label>
-                        <input id="register-phone" type="tel" formControlName="phone" placeholder="رقم الهاتف" />
-                        @if (isInvalid('phone')) {
-                        <small>يرجى إدخال رقم الهاتف</small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="register-password">كلمة المرور</label>
-                        <input id="register-password" type="password" formControlName="password" placeholder="كلمة المرور" />
-                        @if (isInvalid('password')) {
-                        <small>كلمة المرور مطلوبة وبحد أدنى 8 أحرف</small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="register-birth-date">تاريخ الميلاد</label>
-                        <input id="register-birth-date" type="date" formControlName="date_of_birth" />
-                        @if (isInvalid('date_of_birth')) {
-                        <small>يرجى اختيار تاريخ الميلاد</small>
-                        }
-                    </div>
-
-                    <div class="form-field">
-                        <label for="register-gender">النوع</label>
-                        <select id="register-gender" formControlName="gender">
-                            <option value="female">أنثى</option>
-                            <option value="male">ذكر</option>
-                        </select>
-                    </div>
-
-                    <div class="form-field address-field">
-                        <label for="register-address">العنوان</label>
-                        <input id="register-address" type="text" formControlName="address" placeholder="العنوان بالتفصيل" />
-                        @if (isInvalid('address')) {
-                        <small>يرجى إدخال العنوان</small>
-                        }
+<section class="flex justify-center items-center gap-14 bg-[#F2F2F2] px-14 py-6 h-[100vh]">
+    <div class="absolute top-9 right-9 w-[340px] h-[340px] bg-[rgba(5,98,140,0.4)] blur-3xl rounded-bl-full"></div>
+    <div class="info w-1/2 flex justify-center relative z-10">
+        <div class="content w-5/6 flex flex-col">
+            <form class="flex flex-col gap-8" [formGroup]="registerForm" (ngSubmit)="onSubmitData()">
+                <div class="head flex justify-center items-center gap-4 mt-3">
+                    <h2 class="text-[32px] font-bold text-black">مرحبا بك في </h2>
+                    <div class="flex items-center gap-x-2 mt-1">
+                        <span class="text-3xl font-bold text-[#0f172a]">Flow<span
+                                class="text-[#1A5CFF]">Care</span></span>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1A5CFF" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                            <path d="M3.5 12h4l2-4 3 8 2-5 1.5 3h4.5"></path>
+                        </svg>
                     </div>
                 </div>
-
-                @if (successMessage()) {
-                <p class="form-message success-message" role="status">{{ successMessage() }}</p>
-                }
-                @if (errorMessage()) {
-                <p class="form-message error-message" role="alert">{{ errorMessage() }}</p>
-                }
-
-                <button class="register-submit" type="submit" [disabled]="registerForm.invalid || isLoading()">
+                <div class="form-content flex flex-col gap-6">
+                    <div class="name-mobile w-full flex gap-6">
+                        <div class="name w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">الاسم بالكامل</label>
+                            <input type="text" formControlName="name"
+                                class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                                placeholder="الاسم بالكامل" />
+                            @if (isInvalid('name')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال الاسم بالكامل</p>
+                            }
+                        </div>
+                        <div class="mobile w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">رقم الهاتف</label>
+                            <input type="number" formControlName="phone" min="0"
+                                class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                                placeholder="رقم الهاتف" />
+                            @if (isInvalid('phone')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال رقم الهاتف</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="email-address w-full flex gap-6">
+                        <div class="email w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">البريد الإلكتروني</label>
+                            <input type="email" formControlName="email"
+                                class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                                placeholder="البريد الإلكتروني" />
+                            @if (isInvalid('email')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال بريد إلكتروني صحيح</p>
+                            }
+                        </div>
+                        <div class="address w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">العنوان</label>
+                            <input type="text" formControlName="address"
+                                class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                                placeholder="العنوان" />
+                            @if (isInvalid('address')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال العنوان</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="gender-date w-full flex gap-6">
+                        <div class="gender w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">النوع</label>
+                            <p-select formControlName="gender" [options]="allGender" optionLabel="name" optionValue="id"
+                                placeholder="اختر النوع" />
+                            @if (isInvalid('gender')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال نوع الجنس</p>
+                            }
+                        </div>
+                        <div class="date-of-birth w-1/2 flex flex-col gap-2">
+                            <label class="text-sm text-[#333333] font-normal">تاريخ الميلاد</label>
+                            <p-datepicker formControlName="date_of_birth" [iconDisplay]="'input'" [showIcon]="true"
+                                inputId="icondisplay" styleClass="w-full"
+                                panelStyleClass="custom-calendar-panel"></p-datepicker>
+                            @if (isInvalid('date_of_birth')) {
+                            <p class="text-red-500 text-sm">يرجى إدخال تاريخ الميلاد</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="password relative flex flex-col gap-2">
+                        <label class="text-sm text-[#333333] font-normal">كلمة المرور</label>
+                        <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                            class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                            placeholder="كلمةالمرور" />
+                        <button type="button"
+                            class="absolute left-3 top-10 z-10 pt-0.5 transform  text-gray-500 focus:outline-none"
+                            (click)="togglePasswordVisibility()">
+                            @if(!showPassword) {
+                            <app-icons [iconKey]="'show'"></app-icons>
+                            }
+                            @if(showPassword) {
+                            <app-icons [iconKey]="'unShow'"></app-icons>
+                            }
+                        </button>
+                    </div>
+                </div>
+                <button class="w-full rounded-lg py-2.5 px-3 bg-[#1053fc] text-white" type="submit" [disabled]="registerForm.invalid || isLoading()">
                     @if (!isLoading()) {
                     <span>إنشاء الحساب</span>
                     } @else {
@@ -88,5 +107,7 @@
             </form>
         </div>
     </div>
-    
+    <div class="image w-1/2 relative z-10">
+        <img src="assets/images/banner2.jpg" alt="Wajha banner" class="logo-image w-full rounded-full" />
+    </div>
 </section>

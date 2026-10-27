@@ -2,12 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth, RegisterPayload } from '../../services/auth';
+import { Icons } from '../../../../shared/components/icons/icons';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 
 type Gender = 'female' | 'male';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, Icons, SelectModule, DatePickerModule],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -15,7 +18,7 @@ export class Register {
   private readonly formBuilder = inject(FormBuilder);
   private readonly authService = inject(Auth);
   private readonly router = inject(Router);
-
+showPassword: boolean = false;
   readonly isLoading = signal(false);
   readonly successMessage = signal('');
   readonly errorMessage = signal('');
@@ -29,10 +32,19 @@ export class Register {
     address: ['', Validators.required],
   });
 
+  allGender = [
+    { id: 'male', name: 'ذكر' },
+    { id: 'female', name: 'أنثى' },  
+  ];
   isInvalid(controlName: keyof RegisterPayload): boolean {
     const control = this.registerForm.controls[controlName];
     return control.invalid && (control.touched || control.dirty);
   }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
 
   onSubmitData(): void {
     if (this.registerForm.invalid) {

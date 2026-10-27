@@ -40,11 +40,11 @@
         <article class="medical-record-card">
           <div>
             <span class="record-type">{{ record.record_type === 'checkup' ? 'كشف' : record.record_type }}</span>
-            <h3>{{ record.diagnosis }}</h3>
+            <h3 class="text-xl font-semibold">{{ record.diagnosis }}</h3>
           </div>
-          <p><strong>العلاج:</strong> {{ record.treatment }}</p>
+          <p>العلاج: <span class="text-black">{{ record.treatment }}</span></p>
           @if (record.notes) {
-            <p><strong>ملاحظات الطبيب:</strong> {{ record.notes }}</p>
+            <p>ملاحظات الطبيب: <span class="text-black">{{ record.notes }}</span></p>
           }
           @for (prescription of record.prescriptions; track prescription.id ?? $index) {
             <section class="prescription-details" aria-label="الروشتة">
@@ -72,7 +72,7 @@
                 إضافة روشتة
               </button>
             }
-            <button
+            <!-- <button
               class="record-action-button"
               type="button"
               disabled
@@ -81,7 +81,7 @@
                 <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
               </svg>
               رفع صور
-            </button>
+            </button> -->
           </div>
         </article>
       }
