@@ -16,6 +16,7 @@ export class AdminLogin implements OnInit {
 
   loginForm!: FormGroup;
   isLoading = signal<boolean>(false);
+  showPassword: boolean = false;
 
   ngOnInit(): void {
     // if(this.authService.getToken()) {
@@ -24,6 +25,11 @@ export class AdminLogin implements OnInit {
     this.initialForm();
   }
 
+    togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  
   initialForm() {
     this.loginForm = this.fb.group({
       email: ['', Validators.required],

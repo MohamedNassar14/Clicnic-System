@@ -1,4 +1,64 @@
-<section class="flex justify-center gap-0 h-[100vh]">
+<section class="flex justify-center items-center gap-14 bg-[#F2F2F2] px-14 py-6 h-[100vh]">
+    <div class="absolute top-9 right-9 w-[340px] h-[340px] bg-[rgba(5,98,140,0.4)] blur-3xl rounded-bl-full"></div>
+    <div class="info w-1/2 flex justify-center relative z-10">
+        <div class="content w-5/6 flex flex-col">
+            <form class="flex flex-col gap-8" [formGroup]="loginForm" (ngSubmit)="onSubmitData()">
+                <div class="head flex justify-center items-center gap-4 mt-3">
+                    <h2 class="text-[32px] font-bold text-black">مرحبا بك في </h2>
+                    <div class="flex items-center gap-x-2 mt-1">
+                        <span class="text-3xl font-bold text-[#0f172a]">Flow<span
+                                class="text-[#1A5CFF]">Care</span></span>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1A5CFF" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                            <path d="M3.5 12h4l2-4 3 8 2-5 1.5 3h4.5"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="form-content flex flex-col gap-6">
+                       <div class="user-name flex flex-col gap-2">
+                        <label class="text-sm text-[#333333] font-normal">البريد الإلكتروني</label>
+                        <input type="email" formControlName="email"
+                            class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                            placeholder="البريد الإلكتروني" />
+                    </div>
+                    <div class="password relative flex flex-col gap-2">
+                        <label class="text-sm text-[#333333] font-normal">كلمة المرور</label>
+                        <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                            class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                            placeholder="كلمةالمرور" />
+                        <button type="button"
+                            class="absolute left-3 top-10 z-10 pt-0.5 transform  text-gray-500 focus:outline-none"
+                            (click)="togglePasswordVisibility()">
+                            @if(!showPassword) {
+                            <app-icons [iconKey]="'show'"></app-icons>
+                            }
+                            @if(showPassword) {
+                            <app-icons [iconKey]="'unShow'"></app-icons>
+                            }
+                        </button>
+                    </div>
+                </div>
+                <button class="w-full rounded-lg py-2.5 px-3 bg-[#1053fc] text-white" type="submit" [disabled]="loginForm.invalid || isLoading()">
+                    @if (!isLoading()) {
+                    <span>تسجيل الدخول</span>
+                    } @else {
+                    <span class="loading-content">
+                        <span>جارٍ تسجيل الدخول...</span>
+                        <span class="loading-spinner" aria-hidden="true"></span>
+                    </span>
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="image w-1/2 relative z-10">
+        <img src="assets/images/banner2.jpg" alt="Wajha banner" class="logo-image w-full rounded-full" />
+    </div>
+</section>
+<!-- <section class="flex justify-center gap-0 h-[100vh]">
     <div class="info w-1/2 flex justify-center items-center px-8">
         <div class="content w-4/6 flex flex-col gap-5">
             <form class="flex flex-col gap-8" [formGroup]="loginForm" (ngSubmit)="onSubmitData()">
@@ -54,4 +114,4 @@
         <img src="assets/images/banner2.png" alt="tdamon banner" class="tdamon-image w-full" />
     </div>
 </section>
-
+ -->
