@@ -33,6 +33,7 @@
 }
 
 .current-doctor-appointment {
+    position: relative;
     min-height: 120px;
     padding: 22px 26px;
     border-radius: 18px;
@@ -146,10 +147,36 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.doctor-record-link--current {
+    position: absolute;
+    bottom: 22px;
+    left: 26px;
+    display: inline-flex;
+    width: auto;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-color: rgb(255 255 255 / 55%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
 .doctor-record-link:hover,
 .doctor-record-link:focus-visible {
     background: #1053fc;
     color: #fff;
+}
+
+.doctor-record-link--current:hover,
+.doctor-record-link--current:focus-visible {
+    border-color: #fff;
+    background: #fff;
+    color: #1053fc;
 }
 
 .doctor-record-link svg {
@@ -186,6 +213,11 @@
 
     .doctor-appointment-card {
         align-items: flex-start;
+    }
+
+    .doctor-record-link--current {
+        position: static;
+        margin-top: 14px;
     }
 
     .doctor-appointment-status {

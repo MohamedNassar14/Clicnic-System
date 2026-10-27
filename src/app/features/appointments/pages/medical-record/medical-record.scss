@@ -108,6 +108,37 @@
   text-align: center;
 }
 
+.history-state {
+  margin: 0;
+  padding: 20px;
+  border: 1px solid #e8e2d7;
+  border-radius: 14px;
+  background: #fff;
+  color: #77817f;
+  text-align: center;
+}
+
+.history-error {
+  color: #a8322a;
+}
+
+.history-error p {
+  margin: 0;
+}
+
+.history-error button {
+  min-height: 38px;
+  margin-top: 12px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #1053fc;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .medical-record-card {
   display: flex;
   flex-direction: column;
@@ -116,6 +147,69 @@
   border: 1px solid #e8e2d7;
   border-radius: 14px;
   background: #fff;
+}
+
+.record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.prescription-details {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f7f5f0;
+  color: #172226;
+}
+
+.prescription-details h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.prescription-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+.prescription-line + .prescription-line {
+  border-top: 1px dashed #e2ddd3;
+}
+
+.prescription-notes {
+  margin: 8px 0 0;
+}
+
+.record-action-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 13px;
+  border: 1px solid #e8e2d7;
+  border-radius: 11px;
+  background: #f8f6f1;
+  color: #68716e;
+  font: inherit;
+  font-weight: 700;
+}
+
+.record-action-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
 }
 
 .medical-record-card h3,
@@ -176,6 +270,96 @@
   font-weight: 800;
 }
 
+.prescription-modal {
+  width: min(100%, 820px);
+}
+
+.prescription-modal form {
+  gap: 12px;
+}
+
+.prescription-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prescription-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prescription-item-fields {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.prescription-item-fields label {
+  min-width: 0;
+  margin: 0;
+}
+
+.prescription-item-fields input {
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 2px;
+  background: #fff;
+  text-align: right;
+}
+
+.remove-prescription-item {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #fcebea;
+  color: #d34b42;
+  font: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.remove-prescription-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.add-prescription-item {
+  min-height: 40px;
+  border: 1px dashed #e4ded3;
+  border-radius: 10px;
+  background: #f8f6f1;
+  color: #697371;
+  font: inherit;
+  cursor: pointer;
+}
+
+.save-prescription-button {
+  min-height: 46px;
+  margin-top: 2px;
+  border: 0;
+  border-radius: 11px;
+  background: #07584f;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.save-prescription-button:hover:not(:disabled) {
+  background: #064a43;
+}
+
+.save-prescription-button:disabled,
+.add-prescription-item:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .close-modal-button {
   position: absolute;
   top: 22px;
@@ -198,14 +382,14 @@
   gap: 9px;
 }
 
-.diagnosis-modal label {
+.diagnosis-modal label,
+.form-field-label {
   margin-top: 4px;
   color: #77827e;
   font-size: 13px;
 }
 
 .diagnosis-modal input,
-.diagnosis-modal select,
 .diagnosis-modal textarea {
   width: 100%;
   min-height: 48px;
@@ -219,13 +403,25 @@
   font-size: 14px;
 }
 
+.visit-type-value {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  margin: 0;
+  padding: 10px 13px;
+  border: 1px solid #e4ded3;
+  border-radius: 12px;
+  background: #f7f5f0;
+  color: #26332f;
+  font-size: 14px;
+}
+
 .diagnosis-modal textarea {
   min-height: 68px;
   resize: vertical;
 }
 
 .diagnosis-modal input:focus,
-.diagnosis-modal select:focus,
 .diagnosis-modal textarea:focus {
   border-color: #1a5cff;
   box-shadow: 0 0 0 3px rgb(26 92 255 / 12%);
@@ -261,5 +457,9 @@
 
   .diagnosis-modal {
     padding: 25px 20px;
+  }
+
+  .prescription-item-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

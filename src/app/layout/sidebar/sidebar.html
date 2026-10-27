@@ -22,7 +22,8 @@
       </li>
 
       <li routerLink="/appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
-        routerLinkActive="active">
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
         <a class="flex items-center gap-3">
           <span><app-icons [iconKey]="'appointments'"></app-icons></span>
           <span>مواعيد اليوم</span>

@@ -28,6 +28,25 @@
                 <span> · {{ appointment.visitType }}</span>
                 }
             </p>
+            @if (appointment.appointmentId !== undefined) {
+            <a
+                class="doctor-record-link doctor-record-link--current"
+                [routerLink]="['/appointments', appointment.appointmentId, 'medical-record']"
+                [queryParams]="{ patientId: appointment.patientId ?? null }"
+                [state]="{
+                    patientId: appointment.patientId,
+                    patientName: appointment.patientName,
+                    patientPhone: appointment.patientPhone
+                }"
+                [attr.aria-label]="'فتح السجل الطبي للمريض ' + appointment.patientName"
+                title="فتح السجل الطبي">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" />
+                    <path d="M14 3.75v4h4M8.5 13h7M12 9.5v7" />
+                </svg>
+                <span>فتح السجل الطبي</span>
+            </a>
+            }
         </article>
         } @else {
         <p class="doctor-empty">لا يوجد موعد حالي الآن.</p>
@@ -55,19 +74,6 @@
                     <p>{{ appointment.time }} · {{ appointment.clinicAddress }}</p>
                 </div>
                 <span class="doctor-appointment-status">{{ appointment.statusText || 'في الانتظار' }}</span>
-                @if (appointment.appointmentId !== undefined) {
-                <a
-                    class="doctor-record-link"
-                    [routerLink]="['/appointments', appointment.appointmentId, 'medical-record']"
-                    [state]="{ patientName: appointment.patientName, patientPhone: appointment.patientPhone }"
-                    [attr.aria-label]="'فتح السجل الطبي للمريض ' + appointment.patientName"
-                    title="فتح السجل الطبي">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M7 3.75h7l4 4v12.5H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" />
-                        <path d="M14 3.75v4h4M8.5 13h7M12 9.5v7" />
-                    </svg>
-                </a>
-                }
             </article>
             }
         </section>

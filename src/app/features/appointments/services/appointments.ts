@@ -108,7 +108,20 @@ export interface MedicalRecordResponse {
   msg?: string;
 }
 
+export interface PrescriptionItemPayload {
+  medicine_name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+}
+
+export interface PrescriptionPayload {
+  notes: string;
+  items: PrescriptionItemPayload[];
+}
+
 export interface AppointmentListPerson {
+  id?: number | string;
   name?: string;
   full_name?: string;
   phone?: string;
@@ -127,6 +140,7 @@ export interface AppointmentListLocation {
 
 export interface AppointmentListItem {
   id?: number | string;
+  patient_id?: number | string;
   patient_name?: string;
   patient_phone?: string;
   patient?: AppointmentListPerson;
@@ -282,6 +296,20 @@ export class AppointmentsService {
   ): Observable<MedicalRecordResponse> {
     return this.http.post<MedicalRecordResponse>(
       `${environment.url}doctor/appointments/${appointmentId}/medical-record`,
+      payload,
+    );
+  }
+
+  getPatientHistory(patientId: number | string): Observable<unknown> {
+    return this.http.get<unknown>(`${environment.url}doctor/patients/${patientId}/history`);
+  }
+
+  createPrescription(
+    medicalRecordId: number | string,
+    payload: PrescriptionPayload,
+  ): Observable<unknown> {
+    return this.http.post<unknown>(
+      `${environment.url}doctor/medical-records/${medicalRecordId}/prescription`,
       payload,
     );
   }

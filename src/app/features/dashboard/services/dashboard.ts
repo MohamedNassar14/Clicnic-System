@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface AppointmentPerson {
+  id?: number | string;
   name?: string;
   full_name?: string;
   phone?: string;
@@ -23,6 +24,7 @@ export interface AppointmentLocation {
 export interface TodayAppointmentResponse {
   id?: number | string;
   appointment_id?: number | string;
+  patient_id?: number | string;
   patient_name?: string;
   patient_phone?: string;
   patient?: AppointmentPerson;

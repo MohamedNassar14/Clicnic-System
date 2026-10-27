@@ -1,5 +1,5 @@
 <section class="medical-record-page" aria-labelledby="medical-record-title">
-  <a class="back-button" routerLink="/appointments">← رجوع</a>
+  <a class="back-button" routerLink="/dashboard">← رجوع</a>
 
   <header class="patient-header">
     <div class="patient-avatar" aria-hidden="true">{{ patientName.slice(0, 2) }}</div>
@@ -23,24 +23,71 @@
     @if (saveSuccess()) {
       <p class="save-success" role="status">{{ saveSuccess() }}</p>
     }
-    @if (saveError()) {
-      <p class="save-error" role="alert">{{ saveError() }}</p>
+    @if (prescriptionSuccess()) {
+      <p class="save-success" role="status">{{ prescriptionSuccess() }}</p>
     }
-    @if (medicalRecords().length === 0) {
+    @if (isLoadingHistory()) {
+      <p class="history-state" role="status">جارٍ تحميل التشخيصات السابقة...</p>
+    } @else if (historyError()) {
+      <div class="history-state history-error" role="alert">
+        <p>{{ historyError() }}</p>
+        <button type="button" (click)="loadPatientHistory()">إعادة المحاولة</button>
+      </div>
+    } @else if (medicalRecords().length === 0) {
       <div class="empty-records">لسه مفيش تشخيصات مسجلة لهذا المريض.</div>
     } @else {
-      @for (record of medicalRecords(); track $index) {
+      @for (record of medicalRecords(); track record.id ?? $index) {
         <article class="medical-record-card">
           <div>
-            <span class="record-type">كشف</span>
+            <span class="record-type">{{ record.record_type === 'checkup' ? 'كشف' : record.record_type }}</span>
             <h3>{{ record.diagnosis }}</h3>
           </div>
           <p><strong>العلاج:</strong> {{ record.treatment }}</p>
           @if (record.notes) {
             <p><strong>ملاحظات الطبيب:</strong> {{ record.notes }}</p>
           }
+          @for (prescription of record.prescriptions; track prescription.id ?? $index) {
+            <section class="prescription-details" aria-label="الروشتة">
+              <h4><span aria-hidden="true">💊</span> الروشتة</h4>
+              @for (item of prescription.items; track $index) {
+                <div class="prescription-line">
+                  <span>{{ item.medicine_name }}</span>
+                  <span>{{ item.dosage }} – {{ item.frequency }} – {{ item.duration }}</span>
+                </div>
+              }
+              @if (prescription.notes) {
+                <p class="prescription-notes"><strong>ملاحظات عامة:</strong> {{ prescription.notes }}</p>
+              }
+            </section>
+          }
+          <div class="record-actions" aria-label="إجراءات التشخيص">
+            @if (record.prescriptions.length === 0) {
+              <button
+                class="record-action-button"
+                type="button"
+                [disabled]="record.id === undefined"
+                [attr.title]="record.id === undefined ? 'معرّف التشخيص غير متوفر' : null"
+                (click)="openPrescriptionPopup(record)">
+                <span aria-hidden="true">＋</span>
+                إضافة روشتة
+              </button>
+            }
+            <button
+              class="record-action-button"
+              type="button"
+              disabled
+              title="ستتوفر هذه الخاصية لاحقًا">
+              <svg viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
+              </svg>
+              رفع صور
+            </button>
+          </div>
         </article>
       }
+    }
+    @if (saveError()) {
+      <p class="save-error" role="alert">{{ saveError() }}</p>
     }
   </section>
 
@@ -61,10 +108,8 @@
         <h2 id="diagnosis-modal-title">إضافة تشخيص جديد</h2>
 
         <form [formGroup]="diagnosisForm" (ngSubmit)="saveDiagnosis()">
-          <label for="record-type">نوع الزيارة</label>
-          <select id="record-type" formControlName="record_type">
-            <option value="checkup">كشف</option>
-          </select>
+          <span class="form-field-label" id="record-type-label">نوع الزيارة</span>
+          <p class="visit-type-value" aria-labelledby="record-type-label">كشف</p>
 
           <label for="diagnosis">التشخيص</label>
           <input
@@ -91,6 +136,75 @@
 
           <button class="save-diagnosis-button" type="submit" [disabled]="isSaving()">
             {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التشخيص' }}
+          </button>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (isPrescriptionPopupOpen()) {
+    <div class="modal-backdrop" (click)="closePrescriptionPopup()">
+      <section
+        class="diagnosis-modal prescription-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="prescription-modal-title"
+        (click)="$event.stopPropagation()">
+        <button
+          class="close-modal-button"
+          type="button"
+          aria-label="إغلاق"
+          [disabled]="isSavingPrescription()"
+          (click)="closePrescriptionPopup()">×</button>
+        <h2 id="prescription-modal-title">كتابة روشتة</h2>
+
+        <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()">
+          <div formArrayName="items" class="prescription-items">
+            @for (item of prescriptionItems.controls; track $index; let index = $index) {
+              <div class="prescription-item" [formGroupName]="index">
+                <div class="prescription-item-fields">
+                  <label>
+                    <span class="sr-only">اسم الدواء</span>
+                    <input type="text" formControlName="medicine_name" placeholder="اسم الدواء" />
+                  </label>
+                  <label>
+                    <span class="sr-only">الجرعة</span>
+                    <input type="text" formControlName="dosage" placeholder="الجرعة" />
+                  </label>
+                  <label>
+                    <span class="sr-only">عدد المرات</span>
+                    <input type="text" formControlName="frequency" placeholder="عدد المرات" />
+                  </label>
+                  <label>
+                    <span class="sr-only">المدة</span>
+                    <input type="text" formControlName="duration" placeholder="المدة" />
+                  </label>
+                </div>
+                <button
+                  class="remove-prescription-item"
+                  type="button"
+                  [disabled]="prescriptionItems.length === 1 || isSavingPrescription()"
+                  [attr.aria-label]="'حذف الدواء رقم ' + (index + 1)"
+                  (click)="removePrescriptionItem(index)">×</button>
+              </div>
+            }
+          </div>
+
+          <button
+            class="add-prescription-item"
+            type="button"
+            [disabled]="isSavingPrescription()"
+            (click)="addPrescriptionItem()">+ إضافة دواء</button>
+
+          <label for="prescription-notes">ملاحظات عامة</label>
+          <textarea id="prescription-notes" rows="3" formControlName="notes"></textarea>
+
+          @if (prescriptionError()) {
+            <p class="save-error" role="alert">{{ prescriptionError() }}</p>
+          }
+
+          <button class="save-prescription-button" type="submit" [disabled]="isSavingPrescription()">
+            {{ isSavingPrescription() ? 'جارٍ الحفظ...' : 'حفظ الروشتة' }}
           </button>
         </form>
       </section>

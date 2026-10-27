@@ -91,20 +91,20 @@
     <div class="profile-card-heading">
       <span class="profile-section-icon history-icon" aria-hidden="true">▤</span>
       <div>
-        <h2 id="diagnosis-history-title">سجل التشخيص</h2>
-        <p>التشخيصات المسجلة خلال مواعيدك السابقة</p>
+        <h2 id="diagnosis-history-title">سجل الكشوفات</h2>
+        <p>الكشوفات المسجلة خلال مواعيدك السابقة</p>
       </div>
     </div>
 
     @if (isLoadingDiagnosisHistory()) {
-      <p class="profile-state" role="status">جارٍ تحميل سجل التشخيص...</p>
+      <p class="profile-state" role="status">جارٍ تحميل سجل الكشوفات...</p>
     } @else if (diagnosisHistoryError()) {
       <div class="profile-state profile-error" role="alert">
         <p>{{ diagnosisHistoryError() }}</p>
         <button type="button" (click)="loadDiagnosisHistory()">إعادة المحاولة</button>
       </div>
     } @else if (diagnosisHistory().length === 0) {
-      <p class="profile-state">لا توجد تشخيصات مسجلة حتى الآن.</p>
+      <p class="profile-state">لا توجد كشوفات مسجلة حتى الآن.</p>
     } @else {
       <div class="diagnosis-history-list">
         @for (record of diagnosisHistory(); track record.id) {

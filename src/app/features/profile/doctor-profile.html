@@ -1,25 +1,123 @@
 <section class="doctor-profile" aria-labelledby="profile-title">
   <header>
     <h1 id="profile-title">ملفي الشخصي</h1>
-    <p>بيانات الحساب المسجلة</p>
+    <p>بيانات ملفك الشخصي المسجلة</p>
   </header>
 
-  @if (user; as profile) {
-    <dl class="profile-details">
-      <div>
-        <dt>الاسم</dt>
-        <dd>د. {{ profile.name }}</dd>
-      </div>
-      <div>
-        <dt>البريد الإلكتروني</dt>
-        <dd>{{ profile.email }}</dd>
-      </div>
-      <div>
-        <dt>رقم الهاتف</dt>
-        <dd>{{ profile.phone }}</dd>
-      </div>
-    </dl>
+  @if (isLoading()) {
+    <p class="profile-state" role="status">جارٍ تحميل بيانات الملف الشخصي...</p>
+  } @else if (errorMessage()) {
+    <div class="profile-state profile-error" role="alert">
+      <p>{{ errorMessage() }}</p>
+      <button type="button" (click)="loadProfile()">إعادة المحاولة</button>
+    </div>
   } @else {
-    <p role="alert">تعذر تحميل بيانات الملف الشخصي.</p>
+    @if (saveSuccess()) {
+      <p class="profile-success" role="status">{{ saveSuccess() }}</p>
+    }
+    <div class="profile-actions">
+      <button type="button" class="edit-profile-button" (click)="openEditDialog()">تعديل البيانات</button>
+    </div>
+    <dl class="profile-details">
+      @for (field of profileFields(); track field.label) {
+        <div>
+          <dt>{{ field.label }}</dt>
+          <dd [dir]="field.label === 'البريد الإلكتروني' || field.label === 'رقم الهاتف' ? 'ltr' : null">
+            {{ field.value }}
+          </dd>
+        </div>
+      }
+    </dl>
   }
 </section>
+
+<p-dialog
+  header="تعديل بيانات الطبيب"
+  [modal]="true"
+  [visible]="isEditDialogVisible()"
+  (visibleChange)="!$event && closeEditDialog()"
+  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }"
+>
+  <form class="profile-form" [formGroup]="doctorForm" (ngSubmit)="saveProfile()">
+    <div class="profile-form-field">
+      <label for="doctor-specialty">التخصص</label>
+      <input id="doctor-specialty" type="text" formControlName="specialty" />
+    </div>
+    <div class="profile-form-field">
+      <label for="doctor-title">اللقب المهني</label>
+      <input id="doctor-title" type="text" formControlName="title" />
+    </div>
+    <div class="profile-form-field">
+      <label for="doctor-experience-years">سنوات الخبرة</label>
+      <input id="doctor-experience-years" type="number" min="0" formControlName="years_of_experience" />
+    </div>
+    <div class="profile-form-field">
+      <label for="doctor-bio">نبذة</label>
+      <textarea id="doctor-bio" rows="4" formControlName="bio"></textarea>
+    </div>
+
+    <fieldset class="profile-form-group">
+      <legend>المؤهلات العلمية</legend>
+      <div formArrayName="qualifications">
+        @for (qualification of qualifications.controls; track $index; let index = $index) {
+          <div class="profile-array-row">
+            <label class="sr-only" [for]="'doctor-qualification-' + index">المؤهل العلمي {{ index + 1 }}</label>
+            <input
+              [id]="'doctor-qualification-' + index"
+              type="text"
+              [formControlName]="index"
+              placeholder="مثال: بكالوريوس الطب والجراحة - جامعة القاهرة"
+            />
+            <button type="button" class="remove-row-button" (click)="removeQualification(index)">
+              حذف
+            </button>
+          </div>
+        }
+      </div>
+      <button type="button" class="add-row-button" (click)="addQualification()">إضافة مؤهل</button>
+    </fieldset>
+
+    <fieldset class="profile-form-group">
+      <legend>الخبرات العملية</legend>
+      <div formArrayName="experiences">
+        @for (experience of experiences.controls; track $index; let index = $index) {
+          <div class="experience-form-row" [formGroupName]="index">
+            <div class="profile-form-field">
+              <label [for]="'doctor-experience-place-' + index">مكان العمل</label>
+              <input [id]="'doctor-experience-place-' + index" type="text" formControlName="place" />
+            </div>
+            <div class="profile-form-field">
+              <label [for]="'doctor-experience-position-' + index">الوظيفة</label>
+              <input [id]="'doctor-experience-position-' + index" type="text" formControlName="position" />
+            </div>
+            <div class="profile-form-field">
+              <label [for]="'doctor-experience-from-' + index">من سنة</label>
+              <input [id]="'doctor-experience-from-' + index" type="number" formControlName="from" />
+            </div>
+            <div class="profile-form-field">
+              <label [for]="'doctor-experience-to-' + index">إلى سنة</label>
+              <input [id]="'doctor-experience-to-' + index" type="number" formControlName="to" />
+            </div>
+            <button type="button" class="remove-row-button" (click)="removeExperience(index)">
+              حذف الخبرة
+            </button>
+          </div>
+        }
+      </div>
+      <button type="button" class="add-row-button" (click)="addExperience()">إضافة خبرة</button>
+    </fieldset>
+
+    @if (saveError()) {
+      <p class="profile-form-error" role="alert">{{ saveError() }}</p>
+    }
+
+    <div class="profile-form-actions">
+      <button type="button" class="cancel-button" [disabled]="isSaving()" (click)="closeEditDialog()">
+        إلغاء
+      </button>
+      <button type="submit" class="edit-profile-button" [disabled]="isSaving()">
+        {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التعديلات' }}
+      </button>
+    </div>
+  </form>
+</p-dialog>

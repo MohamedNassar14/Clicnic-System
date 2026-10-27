@@ -33,7 +33,10 @@ describe('Dashboard', () => {
             getDoctorCurrentAppointment: () => of({
               status: true,
               data: {
+                id: 19,
+                patient_id: 3,
                 patient_name: 'سارة عادل',
+                visit_type: 'checkup',
                 start_time: '05:00',
                 branch: { name: 'فرع المعادي' },
               },
@@ -82,6 +85,8 @@ describe('Dashboard', () => {
     expect(fixture.nativeElement.textContent).toContain('أهلاً دكتور Omar');
     expect(fixture.nativeElement.textContent).toContain('سارة عادل');
     expect(fixture.nativeElement.textContent).toContain('05:00');
+    expect(fixture.nativeElement.textContent).toContain('كشف');
+    expect(fixture.nativeElement.textContent).toContain('فتح السجل الطبي');
     expect(fixture.nativeElement.textContent).toContain('باقي مواعيد اليوم');
     expect(fixture.nativeElement.textContent).not.toContain('حجوزات النهاردة');
   });

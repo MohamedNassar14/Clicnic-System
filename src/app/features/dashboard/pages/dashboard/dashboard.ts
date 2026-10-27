@@ -27,6 +27,7 @@ import {
 interface TodayAppointment {
   id: number | string;
   appointmentId?: number | string;
+  patientId?: number | string;
   patientName: string;
   patientPhone: string;
   patientInitials: string;
@@ -91,6 +92,17 @@ function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): Visit
   });
 }
 
+function formatVisitType(visitType: string | undefined): string {
+  const normalizedType = visitType?.trim().toLocaleLowerCase();
+  if (normalizedType === 'checkup') {
+    return 'كشف';
+  }
+  if (normalizedType === 'consultation' || normalizedType === 'consulatation') {
+    return 'استشارة';
+  }
+  return visitType ?? '';
+}
+
 function toTodayAppointment(appointment: TodayAppointmentResponse, index: number): TodayAppointment {
   const patientName = appointment.patient_name
     ?? appointment.patient?.name
@@ -102,10 +114,11 @@ function toTodayAppointment(appointment: TodayAppointmentResponse, index: number
   return {
     id: appointment.id ?? appointment.appointment_id ?? `${patientPhone}-${index}`,
     appointmentId: appointment.id ?? appointment.appointment_id,
+    patientId: appointment.patient_id ?? appointment.patient?.id,
     patientName,
     patientPhone,
     patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
-    visitType: appointment.visit_type_label ?? appointment.visit_type ?? '',
+    visitType: formatVisitType(appointment.visit_type_label ?? appointment.visit_type),
     time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
     status: appointment.status,
     statusText: getAppointmentStatusLabel(appointment.status),
