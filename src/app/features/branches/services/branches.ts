@@ -31,7 +31,7 @@ export class BranchesService {
   private readonly clinicLocationsUrl = 'https://api.flexlify.com/api/admin/clinic-locations';
 
   getClinicLocations(): Observable<ClinicLocation[] | ClinicLocationsResponse> {
-    return this.http.get<ClinicLocation[] | ClinicLocationsResponse>(`${environment.url}admin/get-clinic-locations`);
+    return this.http.get<ClinicLocation[] | ClinicLocationsResponse>(`${environment.url}get-clinic-locations`);
   }
 
   createClinicLocation(payload: CreateClinicLocationPayload): Observable<unknown> {

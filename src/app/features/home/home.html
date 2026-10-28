@@ -258,7 +258,7 @@
     <header class="site-header">
         <a class="brand" routerLink="/home" aria-label="FlowCare الرئيسية">
             <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" priority alt="" />
-            <span>Medi<span class="brand-accent">Care</span></span>
+            <span>Flow<span class="brand-accent">Care</span></span>
         </a>
 
         <nav class="main-nav" aria-label="التنقل الرئيسي">
@@ -294,6 +294,8 @@
                 <a class="primary-action" href="#booking" (click)="openBooking($event)">احجز موعدًا</a>
                 <a class="secondary-action" href="#services" (click)="scrollToSection($event, 'services')">اكتشف
                     خدماتنا</a>
+                    <a class="text-[#17243a] font-bold secondary-action" href="#doctor" (click)="scrollToSection($event, 'doctor')">اعرف اكتر عن الدكتور</a>
+                    
             </div>
             <div class="trust-note">
                 <span class="trust-mark" aria-hidden="true">✓</span>
@@ -306,7 +308,7 @@
     </section>
 
     <!-- Doctor Profile Section -->
-    <section class="doctor-profile-section" dir="rtl">
+    <section class="doctor-profile-section" id="doctor" dir="rtl">
         <div class="doctor-container">
 
             <!-- Section Heading -->

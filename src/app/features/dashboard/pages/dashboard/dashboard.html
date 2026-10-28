@@ -45,7 +45,7 @@
             </div>
             @if (appointment.appointmentId !== undefined) {
             <a class="doctor-record-link doctor-record-link--current"
-                [routerLink]="['/appointments', appointment.appointmentId, 'medical-record']"
+               [routerLink]="['/admin/appointments',appointment.appointmentId,'medical-record']"
                 [queryParams]="{ patientId: appointment.patientId ?? null }" [state]="{
                     patientId: appointment.patientId,
                     patientName: appointment.patientName,
@@ -113,7 +113,7 @@
         </div>
         <div class="appointment">
             <a class="min-w-[153px] flex items-center justify-center gap-2 text-white main-color rounded-lg py-2.5 px-4"
-                [routerLink]="['/appointments/new']">
+                [routerLink]="['/admin/appointments/new']">
                 <div class="icon">
                     <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7.00008 1.16675V12.8334M1.16675 7.00008H12.8334" stroke="white" stroke-width="2"

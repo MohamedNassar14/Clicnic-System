@@ -13,7 +13,7 @@
   <nav class="navigation">
     <ul class="menu-list flex flex-col gap-3">
       @if (isDoctor) {
-      <li routerLink="/dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
           <span><app-icons [iconKey]="'dashboard'"></app-icons></span>
@@ -21,7 +21,7 @@
         </a>
       </li>
 
-      <li routerLink="/appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }">
         <a class="flex items-center gap-3">
@@ -29,7 +29,7 @@
           <span>مواعيد اليوم</span>
         </a>
       </li>
-      <li routerLink="/profile" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="profile" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
           <span><app-icons [iconKey]="'staff'"></app-icons></span>
@@ -37,7 +37,7 @@
         </a>
       </li>
       } @else {
-      <li routerLink="/dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="dashboard" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
           <span> <app-icons [iconKey]="'dashboard'"></app-icons></span>
@@ -45,7 +45,7 @@
         </a>
       </li>
      
-      <li routerLink="/appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="appointments" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
           <span> <app-icons [iconKey]="'appointments'"></app-icons> </span>
@@ -54,7 +54,7 @@
       </li>
       
         
-      <li routerLink="/weekly-schedule" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="weekly-schedule" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
           <span> <app-icons [iconKey]="'calendar'"></app-icons> </span>
@@ -68,7 +68,7 @@
           <span>المرضى</span>
         </a>
       </li> -->
-      <li routerLink="/branches" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <li routerLink="branches" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
             <span> <app-icons [iconKey]="'branches'"></app-icons> </span>
@@ -82,13 +82,13 @@
           <span>المدفوعات</span>
         </a>
       </li> -->
-      <li routerLink="/notes-location" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
+      <!-- <li routerLink="notes-location" class="h-[40px] flex items-center rounded-lg px-3 cursor-pointer menu-item"
         routerLinkActive="active">
         <a class="flex items-center gap-3">
             <span> <app-icons [iconKey]="'staff'"></app-icons> </span>
           <span>الموظفين</span>
         </a>
-      </li>
+      </li> -->
     
       }
     </ul>

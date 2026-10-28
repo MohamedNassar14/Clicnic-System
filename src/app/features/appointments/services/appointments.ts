@@ -213,7 +213,7 @@ export class AppointmentsService {
 
   getClinicLocations(): Observable<ClinicLocationOption[] | ClinicLocationsResponse> {
     return this.http.get<ClinicLocationOption[] | ClinicLocationsResponse>(
-      `${environment.url}clinic-locations`,
+      `${environment.url}get-clinic-locations`,
     );
   }
 

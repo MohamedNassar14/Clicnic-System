@@ -6,27 +6,27 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
-    path: 'dashboard',
+    path: 'admin/dashboard',
     renderMode: RenderMode.Client
   },
   {
-    path: 'appointments',
+    path: 'admin/appointments',
     renderMode: RenderMode.Client
   },
   {
-    path: 'appointments/new',
+    path: 'admin/appointments/new',
     renderMode: RenderMode.Client
   },
   {
-    path: 'appointments/:id/medical-record',
+    path: 'admin/appointments/:id/medical-record',
     renderMode: RenderMode.Client
   },
   {
-    path: 'weekly-schedule',
+    path: 'admin/weekly-schedule',
     renderMode: RenderMode.Client
   },
   {
-    path: 'branches',
+    path: 'admin/branches',
     renderMode: RenderMode.Client
   },
   {
