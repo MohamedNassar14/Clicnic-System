@@ -12,11 +12,11 @@ export const guestGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (auth.hasAdminSession()) {
-    return router.createUrlTree(['/dashboard']);
+    return router.createUrlTree(['dashboard']);
   }
 
   if (auth.hasPatientSession()) {
-    return router.createUrlTree(['/home']);
+    return router.createUrlTree(['home']);
   }
 
   return true;
