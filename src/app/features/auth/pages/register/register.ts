@@ -6,7 +6,6 @@ import { Icons } from '../../../../shared/components/icons/icons';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 
-type Gender = 'female' | 'male';
 
 @Component({
   selector: 'app-register',
@@ -28,7 +27,7 @@ showPassword: boolean = false;
     phone: ['', Validators.required],
     password: ['', [Validators.required, Validators.minLength(8)]],
     date_of_birth: ['', Validators.required],
-    gender: ['female' as Gender, Validators.required],
+    gender: ['', Validators.required],
     address: ['', Validators.required],
   });
 

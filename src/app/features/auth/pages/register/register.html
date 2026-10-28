@@ -30,7 +30,7 @@
                         </div>
                         <div class="mobile w-1/2 flex flex-col gap-2">
                             <label class="text-sm text-[#333333] font-normal">رقم الهاتف</label>
-                            <input type="number" formControlName="phone" min="0"
+                            <input type="text" formControlName="phone" min="0"
                                 class="w-full p-3 border border-[#F1F1F1] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
                                 placeholder="رقم الهاتف" />
                             @if (isInvalid('phone')) {
@@ -62,7 +62,7 @@
                         <div class="gender w-1/2 flex flex-col gap-2">
                             <label class="text-sm text-[#333333] font-normal">النوع</label>
                             <p-select formControlName="gender" [options]="allGender" optionLabel="name" optionValue="id"
-                                placeholder="اختر النوع" />
+                                placeholder="اختر النوع"/>
                             @if (isInvalid('gender')) {
                             <p class="text-red-500 text-sm">يرجى إدخال نوع الجنس</p>
                             }
@@ -71,7 +71,7 @@
                             <label class="text-sm text-[#333333] font-normal">تاريخ الميلاد</label>
                             <p-datepicker formControlName="date_of_birth" [iconDisplay]="'input'" [showIcon]="true"
                                 inputId="icondisplay" styleClass="w-full"
-                                panelStyleClass="custom-calendar-panel"></p-datepicker>
+                                panelStyleClass="custom-calendar-panel" placeholder="تاريخ الميلاد"></p-datepicker>
                             @if (isInvalid('date_of_birth')) {
                             <p class="text-red-500 text-sm">يرجى إدخال تاريخ الميلاد</p>
                             }

@@ -41,9 +41,10 @@
         <div class="flex flex-col gap-4">
             <div class="form-field">
                 <label for="existing-phone">رقم تليفون المريض</label>
-                <input id="existing-phone" type="tel" name="existingPhone" [ngModel]="existingPhone"
-                    (ngModelChange)="onExistingPhoneChange($event)"
-                    placeholder="رقم التليفون" />
+                <input id="existing-phone"
+                    class="w-full p-3 border border-[#D3D3D3] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                    type="tel" name="existingPhone" [ngModel]="existingPhone"
+                    (ngModelChange)="onExistingPhoneChange($event)" placeholder="رقم التليفون" />
                 @if (isSearchingPatient()) {
                 <small role="status">جاري البحث عن المريض...</small>
                 } @else if (existingPatientId()) {
@@ -63,8 +64,8 @@
                     <label for="existing-date">تاريخ الحجز</label>
                     <p-datepicker inputId="existing-date" class="w-full" inputStyleClass="w-full"
                         [ngModel]="selectedAppointmentDate()" (ngModelChange)="onAppointmentDateChange($event)"
-                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true"
-                        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true" iconDisplay="input"
+                        dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
                 </div>
                 <div class="date-time-field">
                     <label for="existing-time">وقت الحجز</label>
@@ -77,62 +78,76 @@
             </div>
             <div class="form-field">
                 <label for="existing-visit">نوع الزيارة</label>
-                <p-select inputId="existing-visit" name="existingVisitType" [options]="visitTypes()"
-                    optionLabel="label" optionValue="key" [(ngModel)]="selectedVisitTypeKey"
-                    [loading]="isLoadingVisitTypes()" placeholder="نوع الزيارة" />
+                <p-select inputId="existing-visit" name="existingVisitType" [options]="visitTypes()" optionLabel="label"
+                    optionValue="key" [(ngModel)]="selectedVisitTypeKey" [loading]="isLoadingVisitTypes()"
+                    placeholder="نوع الزيارة" />
             </div>
         </div>
         }
 
         @if (activeTab === 'new') {
         <div class="flex flex-col gap-4">
-            <div class="form-field">
-                <label for="new-name">اسم المريض</label>
-                <input id="new-name" type="text" name="name" [(ngModel)]="name"
-                    placeholder="اسم المريض" />
+
+            <div class="name-mobile w-full flex gap-6">
+                <div class="name w-1/2 flex flex-col gap-2">
+                    <label for="new-name">اسم المريض</label>
+                    <input id="new-name"
+                        class="w-full p-3 border border-[#D3D3D3] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                        type="text" name="name" [(ngModel)]="name" placeholder="اسم المريض" />
+                </div>
+                <div class="mobile w-1/2 flex flex-col gap-2">
+                    <label for="new-phone">رقم تليفون المريض</label>
+                    <input id="new-phone"
+                        class="w-full p-3 border border-[#D3D3D3] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                        type="text" name="phone" [(ngModel)]="phone" placeholder="رقم التليفون" />
+                </div>
             </div>
-            <div class="form-field">
-                <label for="new-phone">رقم تليفون المريض</label>
-                <input id="new-phone" type="tel" name="phone" [(ngModel)]="phone"
-                    placeholder="رقم التليفون" />
+
+            <div class="date-gender w-full flex gap-6">
+                <div class="date-time-field w-1/2 flex flex-col gap-2">
+                    <label for="new-birth-date">تاريخ ميلاد المريض</label>
+                    <p-datepicker inputId="new-birth-date" name="date_of_birth" class="w-full" inputStyleClass="w-full"
+                        [(ngModel)]="date_of_birth" [showIcon]="true" iconDisplay="input" dateFormat="dd/mm/yy"
+                        placeholder="اختر تاريخ الميلاد" />
+                </div>
+                <div class="form-field w-1/2 flex flex-col gap-2">
+                    <label for="new-gender">نوع المريض</label>
+                    <p-select id="new-gender" name="gender" [(ngModel)]="gender" [options]="allGender" optionLabel="name" optionValue="id"
+                        placeholder="اختر النوع" >
+                    </p-select>
+                </div>
             </div>
-            <div class="date-time-field">
-                <label for="new-birth-date">تاريخ ميلاد المريض</label>
-                <p-datepicker inputId="new-birth-date" name="date_of_birth" class="w-full"
-                    inputStyleClass="w-full" [(ngModel)]="date_of_birth" [showIcon]="true"
-                    iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر تاريخ الميلاد" />
-            </div>
-            <div class="form-field">
-                <label for="new-gender">نوع المريض</label>
-                <select id="new-gender" name="gender" [(ngModel)]="gender" required>
-                    <option value="" disabled>اختر النوع</option>
-                    <option value="male">ذكر</option>
-                    <option value="female">أنثى</option>
-                </select>
-            </div>
-            <div class="form-field">
+
+
+            <div class="address-location w-full flex gap-6">
+                <div class="form-field w-1/2 flex flex-col gap-2">
                 <label for="new-address">عنوان المريض</label>
-                <textarea id="new-address" name="address" [(ngModel)]="address" rows="3"
-                    placeholder="عنوان المريض"></textarea>
+                <input id="new-address"
+                        class="w-full p-3.5 border border-[#D3D3D3] rounded-lg placeholder:text-base placeholder:text-[#B3B3B3] placeholder:font-normal focus:outline-none"
+                        type="text" name="address" [(ngModel)]="address" placeholder="عنوان المريض" />
             </div>
-            <div class="form-field">
+            <div class="form-field w-1/2 flex flex-col gap-2">
                 <label for="new-branch">الفرع</label>
                 <p-select inputId="new-branch" [options]="locations()" optionLabel="name" optionValue="id"
                     [ngModel]="selectedClinicLocationId()" (ngModelChange)="onClinicLocationChange($event)"
                     [ngModelOptions]="{ standalone: true }" [loading]="isLoadingLocations()" placeholder="اختر الفرع" />
             </div>
+
+            </div>
+
+
             <div class="date-time">
                 <div class="date-time-field">
                     <label for="new-date">تاريخ الحجز</label>
                     <p-datepicker inputId="new-date" class="w-full" inputStyleClass="w-full"
                         [ngModel]="selectedAppointmentDate()" (ngModelChange)="onAppointmentDateChange($event)"
-                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true"
-                        iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+                        [ngModelOptions]="{ standalone: true }" [minDate]="today" [showIcon]="true" iconDisplay="input"
+                        dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
                 </div>
                 <div class="date-time-field">
                     <label for="new-time">وقت الحجز</label>
-                    <p-select inputId="new-time" [options]="availableTimeSlots()" optionLabel="label"
-                        optionValue="id" [ngModel]="selectedTimeSlotId()" (ngModelChange)="onTimeSlotChange($event)"
+                    <p-select inputId="new-time" [options]="availableTimeSlots()" optionLabel="label" optionValue="id"
+                        [ngModel]="selectedTimeSlotId()" (ngModelChange)="onTimeSlotChange($event)"
                         [ngModelOptions]="{ standalone: true }" [loading]="isLoadingTimeSlots()"
                         [disabled]="!selectedClinicLocationId() || !selectedAppointmentDate()"
                         placeholder="اختر الوقت" />

@@ -255,9 +255,13 @@ button[disabled] {
 
 :host::ng-deep .p-inputtext {
     width: 100% !important;
-  padding: 0 !important;
+  padding: 0 12px !important;
   height: 48px !important;
   border: 1px solid #F1F1F1 !important;
   border-radius: 8px !important;
   box-shadow: none !important;
+}
+
+:host::ng-deep .p-inputtext::placeholder {
+  color: #B3B3B3 !important;
 }

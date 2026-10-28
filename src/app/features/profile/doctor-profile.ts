@@ -265,7 +265,6 @@ export class DoctorProfile implements OnInit {
 
         this.profileFields.update((fields) => this.applyFormValues(fields, payload));
         this.isEditDialogVisible.set(false);
-        this.saveSuccess.set('تم تحديث بيانات الملف الشخصي بنجاح.');
       },
       error: () => {
         this.isSaving.set(false);

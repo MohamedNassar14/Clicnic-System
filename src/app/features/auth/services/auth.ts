@@ -10,7 +10,7 @@ export interface RegisterPayload {
   phone: string;
   password: string;
   date_of_birth: string;
-  gender: 'female' | 'male';
+  gender: string;
   address: string;
 }
 

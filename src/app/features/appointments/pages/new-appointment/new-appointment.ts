@@ -15,7 +15,8 @@ import {
   VisitTypeOption,
   VisitTypesResponse,
 } from '../../services/appointments';
-
+import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 function readClinicLocations(
   response: ClinicLocationOption[] | ClinicLocationsResponse,
 ): ClinicLocationOption[] {
@@ -130,6 +131,7 @@ export class NewAppointment implements OnInit {
   readonly existingPatientId = signal<number | null>(null);
   readonly isSearchingPatient = signal(false);
   readonly patientSearchError = signal('');
+  private router = inject(Router);
   existingPhone = '';
   name = '';
   phone = '';
@@ -137,6 +139,11 @@ export class NewAppointment implements OnInit {
   gender: 'male' | 'female' | '' = '';
   address = '';
   selectedVisitTypeKey = '';
+
+    allGender = [
+    { id: 'male', name: 'ذكر' },
+    { id: 'female', name: 'أنثى' },  
+  ];
 
   ngOnInit(): void {
     this.loadClinicLocations();
@@ -229,6 +236,7 @@ export class NewAppointment implements OnInit {
   }
 
   submitBooking(): void {
+    console.log('Submitting booking with the following details:');
     this.bookingError.set('');
     this.bookingSuccess.set('');
 
@@ -251,7 +259,23 @@ export class NewAppointment implements OnInit {
       this.appointmentsService.createExistingPatientAppointment(payload).subscribe({
         next: () => {
           this.isSavingBooking.set(false);
-          this.bookingSuccess.set('تم حجز الموعد بنجاح.');
+          Swal.fire({
+            title: 'تم الحجز بنجاح!',
+            text: 'تم تأكيد حجز موعدك بنجاح. تقدر تتابع تفاصيل الحجز من لوحة التحكم.',
+            icon: 'success',
+            confirmButtonText: 'الذهاب إلى لوحة التحكم',
+            confirmButtonColor: '#1A5CFF',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            customClass: {
+              popup: 'clinic-swal-popup',
+              confirmButton: 'clinic-swal-button'
+            }
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigate(['/dashboard']);
+            }
+          });
         },
         error: () => {
           this.isSavingBooking.set(false);
@@ -289,7 +313,23 @@ export class NewAppointment implements OnInit {
     this.appointmentsService.createNewPatientAppointment(payload).subscribe({
       next: () => {
         this.isSavingBooking.set(false);
-        this.bookingSuccess.set('تم حجز الموعد بنجاح.');
+        Swal.fire({
+          title: 'تم الحجز بنجاح!',
+          text: 'تم تأكيد حجز موعدك بنجاح. تقدر تتابع تفاصيل الحجز من لوحة التحكم.',
+          icon: 'success',
+          confirmButtonText: 'الذهاب إلى لوحة التحكم',
+          confirmButtonColor: '#1A5CFF',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          customClass: {
+            popup: 'clinic-swal-popup',
+            confirmButton: 'clinic-swal-button'
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.router.navigate(['/dashboard']);
+          }
+        });
       },
       error: () => {
         this.isSavingBooking.set(false);

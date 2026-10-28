@@ -47,7 +47,7 @@
     align-items: center;
     gap: 8px;
     color: #e8efff;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -84,10 +84,10 @@
 
 .doctor-appointment-card {
     display: flex;
-    min-height: 68px;
+    min-height: 60px;
     align-items: center;
     gap: 12px;
-    padding: 12px 14px;
+    padding: 10px 14px;
     border: 1px solid #e8e2d7;
     border-radius: 14px;
     background: #fff;
@@ -131,7 +131,7 @@
     border-radius: 999px;
     background: #f4f0e7;
     color: #8a806b;
-    font-size: 10px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -240,11 +240,11 @@
 
 .appointment-card {
     display        : flex;
-    min-height     : 152px;
+    min-height     : 125px;
     align-items    : center;
     justify-content: space-between;
     gap            : 24px;
-    padding        : 24px;
+    padding: 0 22px;
     border         : 1px solid #e7e2d9;
     border-radius  : 18px;
     background     : #fff;
@@ -298,6 +298,16 @@
     white-space  : nowrap;
 }
 
+.appointments-meta {
+    display    : flex;
+    flex-wrap  : wrap;
+    align-items: center;
+    gap        : 10px;
+    margin-top : 4px;
+    color      : #687477;
+    font-size  : 13px;
+}
+
 .appointment-meta {
     display    : flex;
     flex-wrap  : wrap;
@@ -307,7 +317,27 @@
     color      : #687477;
     font-size  : 13px;
 }
+.meta-items {
+    display    : inline-flex;
+    align-items: center;
+    gap        : 6px;
+    white-space: nowrap;
+}
 
+.meta-items svg {
+    width          : 17px;
+    height         : 17px;
+    flex           : 0 0 17px;
+    fill           : none;
+    stroke         : currentColor;
+    stroke-linecap : round;
+    stroke-linejoin: round;
+    stroke-width   : 1.6;
+}
+
+.meta-items:first-child svg {
+    color: white !important;
+}
 .meta-item {
     display    : inline-flex;
     align-items: center;
@@ -336,6 +366,13 @@
     flex         : 0 0 4px;
     border-radius: 50%;
     background   : #6e7776;
+}
+.meta-dots {
+    width        : 4px;
+    height       : 4px;
+    flex         : 0 0 4px;
+    border-radius: 50%;
+    background-color   : white !important;
 }
 
 .appointment-actions {
@@ -582,4 +619,44 @@
 .cancelbtn {
   border: 1px solid var(--primary-color);
   color: var(--primary-color);
+}
+
+::ng-deep .p-overlay {
+  inset-inline-start: auto !important;
+}
+
+:host::ng-deep .p-select {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 40px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+:host::ng-deep .p-select-label.p-placeholder {
+  font-weight: 400 !important;
+  line-height: 17px !important;
+  color: #334155 !important;
+}
+
+:host::ng-deep .p-icon {
+  width: 12px !important;
+  height: 12px !important;
+  color: #000000 !important;
+}
+
+:host::ng-deep .p-inputtext {
+  width: 100% !important;
+  padding: 0 12px !important;
+  height: 40px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
 }

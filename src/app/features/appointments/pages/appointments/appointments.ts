@@ -88,6 +88,22 @@ function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): Visit
   });
 }
 
+function formatVisitType(visitType: string | undefined): string {
+  const normalizedType = visitType?.trim().toLocaleLowerCase();
+
+  if (normalizedType === 'checkup') {
+    return 'كشف';
+  }
+
+  if (
+    normalizedType === 'consultation' ||
+    normalizedType === 'consulatation'
+  ) {
+    return 'استشارة';
+  }
+
+  return visitType ?? '';
+}
 function formatDate(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -241,7 +257,9 @@ export class Appointments implements OnInit {
             patientName,
             patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
             patientPhone,
-            visitType: appointment.visit_type_label ?? appointment.visit_type ?? '',
+            visitType: formatVisitType(
+  appointment.visit_type_label ?? appointment.visit_type
+),
             time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
             clinicAddress: appointment.time_slot?.clinic_location?.address
               ?? appointment.clinic_location?.address
@@ -255,13 +273,14 @@ export class Appointments implements OnInit {
         });
 
         const currentPage = pageData.currentPage ?? page;
-        const rows = pageData.perPage ?? perPage;
-        this.currentPage.set(currentPage);
-        this.rows.set(rows);
-        this.first.set((currentPage - 1) * rows);
-        this.appointments.set(cards);
-        this.totalAppointments.set(pageData.total);
-        this.isLoading.set(false);
+const rows = perPage;
+
+this.currentPage.set(currentPage);
+this.rows.set(rows);
+this.first.set((currentPage - 1) * rows);
+this.appointments.set(cards);
+this.totalAppointments.set(pageData.total);
+this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
