@@ -42,10 +42,10 @@ export class BranchesService {
     locationId: number,
     payload: UpdateClinicLocationPayload,
   ): Observable<unknown> {
-    return this.http.put(`${this.clinicLocationsUrl}/${locationId}`, payload);
+    return this.http.put(`https://api.flexlify.com/api/admin/update-clinic/${locationId}`, payload);
   }
 
   deleteClinicLocation(locationId: number): Observable<unknown> {
-    return this.http.delete(`${this.clinicLocationsUrl}/${locationId}`);
+    return this.http.delete(`https://api.flexlify.com/api/admin/delete-clinic/${locationId}`);
   }
 }

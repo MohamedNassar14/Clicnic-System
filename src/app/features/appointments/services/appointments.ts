@@ -234,7 +234,7 @@ export class AppointmentsService {
   );
 }
 
-  getVisitTypes(clinicLocationId = 13): Observable<VisitTypeOption[] | VisitTypesResponse> {
+  getVisitTypes(clinicLocationId = 16): Observable<VisitTypeOption[] | VisitTypesResponse> {
     return this.http.get<VisitTypeOption[] | VisitTypesResponse>(
       `${environment.url}clinics/${clinicLocationId}/visit-types`,
     );

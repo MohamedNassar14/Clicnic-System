@@ -3,7 +3,7 @@ import { patientGuard } from './core/guards/patient.guard';
 
 export const routes: Routes = 
 [
-    { path: '', redirectTo: '/home', pathMatch: 'full'},
+    { path: '', redirectTo: 'home', pathMatch: 'full'},
     {path: 'home', canActivate: [patientGuard], loadComponent: () => import('./features/home/home').then(c => c.Home)},
     { path: 'my-profile', canActivate: [patientGuard], loadComponent: () => import('./features/profile/patient-profile').then(c => c.PatientProfile) },
     {path: 'admin', loadChildren: () => import('./layout/layout.routes').then(m => m.routes)},
