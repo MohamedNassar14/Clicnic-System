@@ -5,68 +5,93 @@
   </header>
 
   @if (isLoading()) {
-    <p class="profile-state" role="status">جارٍ تحميل بيانات الملف الشخصي...</p>
+  <p class="profile-state" role="status">جارٍ تحميل بيانات الملف الشخصي...</p>
   } @else if (errorMessage()) {
-    <div class="profile-state profile-error" role="alert">
-      <p>{{ errorMessage() }}</p>
-      <button type="button" (click)="loadProfile()">إعادة المحاولة</button>
-    </div>
-  } @else {
-    @if (saveSuccess()) {
-      <p class="profile-success" role="status">{{ saveSuccess() }}</p>
-    }
-    <div class="profile-actions">
-      <button type="button" class="edit-profile-button" (click)="openEditDialog()">تعديل البيانات</button>
-    </div>
-
- <div class="photo-upload">
-  <input
-    #fileInput
-    type="file"
-    accept="image/*"
-    hidden
-    (change)="onFileSelected($event)"
-  />
-
-  <div class="photo-preview" (click)="fileInput.click()">
-    @if (previewUrl) {
-      <img [src]="previewUrl" alt="Doctor profile photo" />
-    } @else {
-      <span>اختار صورة</span>
-    }
+  <div class="profile-state profile-error" role="alert">
+    <p>{{ errorMessage() }}</p>
+    <button type="button" (click)="loadProfile()">إعادة المحاولة</button>
   </div>
-
-  @if (selectedFile) {
-    <button
-      type="button"
-      (click)="uploadPhoto()"
-      [disabled]="uploading"
-    >
-      {{ uploading ? 'جاري الرفع...' : 'رفع الصورة' }}
-    </button>
+  } @else {
+  @if (saveSuccess()) {
+  <p class="profile-success" role="status">{{ saveSuccess() }}</p>
   }
+
+
+  <div class="avatar flex justify-center items-center flex-col gap-4">
+  <div class="photo-upload">
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      hidden
+      (change)="onFileSelected($event)"
+    />
+
+    <div class="photo-preview" (click)="fileInput.click()">
+      @if (previewUrl) {
+        <img [src]="previewUrl" alt="Doctor profile photo" />
+      } @else {
+        <span>اختار صورة</span>
+      }
+    </div>
+
+    @if (selectedFile && !photoUploaded()) {
+  <button
+    type="button"
+    class="main-color text-white rounded-xl flex items-center gap-2"
+    (click)="uploadPhoto()"
+    [disabled]="uploading()"
+  >
+    <span>
+      {{ uploading() ? 'جاري الرفع...' : 'رفع الصورة' }}
+    </span>
+
+    @if (!uploading()) {
+<svg
+            width="30"
+            height="30"
+            viewBox="0 0 22 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 8L12 16"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8.5 11.5L12 8L15.5 11.5"
+              stroke="white"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>    }
+  </button>
+}
+  </div>
 </div>
 
-    <dl class="profile-details">
-      @for (field of profileFields(); track field.label) {
-        <div>
-          <dt>{{ field.label }}</dt>
-          <dd [dir]="field.label === 'البريد الإلكتروني' || field.label === 'رقم الهاتف' ? 'ltr' : null">
-            {{ field.value }}
-          </dd>
-        </div>
-      }
-    </dl>
+  <dl class="profile-details">
+    @for (field of profileFields(); track field.label) {
+    <div>
+      <dt>{{ field.label }}</dt>
+      <dd [dir]="field.label === 'البريد الإلكتروني' || field.label === 'رقم الهاتف' ? 'ltr' : null">
+        {{ field.value }}
+      </dd>
+    </div>
+    }
+  </dl>
   }
+  <div class="profile-actions">
+    <button type="button" class="edit-profile-button" (click)="openEditDialog()">تعديل البيانات</button>
+  </div>
 </section>
 
-<p-dialog
-  header="تعديل بيانات الطبيب"
-  [modal]="true"
-  [visible]="isEditDialogVisible()"
-  (visibleChange)="!$event && closeEditDialog()"
-  [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }"
->
+<p-dialog header="تعديل بيانات الطبيب" [modal]="true" [visible]="isEditDialogVisible()"
+  (visibleChange)="!$event && closeEditDialog()" [style]="{ width: 'min(42rem, calc(100vw - 2rem))' }">
   <form class="profile-form" [formGroup]="doctorForm" (ngSubmit)="saveProfile()">
     <div class="profile-form-field">
       <label for="doctor-specialty">التخصص</label>
@@ -89,18 +114,14 @@
       <legend>المؤهلات العلمية</legend>
       <div formArrayName="qualifications">
         @for (qualification of qualifications.controls; track $index; let index = $index) {
-          <div class="profile-array-row">
-            <label class="sr-only" [for]="'doctor-qualification-' + index">المؤهل العلمي {{ index + 1 }}</label>
-            <input
-              [id]="'doctor-qualification-' + index"
-              type="text"
-              [formControlName]="index"
-              placeholder="مثال: بكالوريوس الطب والجراحة - جامعة القاهرة"
-            />
-            <button type="button" class="remove-row-button" (click)="removeQualification(index)">
-              حذف
-            </button>
-          </div>
+        <div class="profile-array-row">
+          <label class="sr-only" [for]="'doctor-qualification-' + index">المؤهل العلمي {{ index + 1 }}</label>
+          <input [id]="'doctor-qualification-' + index" type="text" [formControlName]="index"
+            placeholder="مثال: بكالوريوس الطب والجراحة - جامعة القاهرة" />
+          <button type="button" class="remove-row-button" (click)="removeQualification(index)">
+            حذف
+          </button>
+        </div>
         }
       </div>
       <button type="button" class="add-row-button" (click)="addQualification()">إضافة مؤهل</button>
@@ -110,34 +131,34 @@
       <legend>الخبرات العملية</legend>
       <div formArrayName="experiences">
         @for (experience of experiences.controls; track $index; let index = $index) {
-          <div class="experience-form-row" [formGroupName]="index">
-            <div class="profile-form-field">
-              <label [for]="'doctor-experience-place-' + index">مكان العمل</label>
-              <input [id]="'doctor-experience-place-' + index" type="text" formControlName="place" />
-            </div>
-            <div class="profile-form-field">
-              <label [for]="'doctor-experience-position-' + index">الوظيفة</label>
-              <input [id]="'doctor-experience-position-' + index" type="text" formControlName="position" />
-            </div>
-            <div class="profile-form-field">
-              <label [for]="'doctor-experience-from-' + index">من سنة</label>
-              <input [id]="'doctor-experience-from-' + index" type="number" formControlName="from" />
-            </div>
-            <div class="profile-form-field">
-              <label [for]="'doctor-experience-to-' + index">إلى سنة</label>
-              <input [id]="'doctor-experience-to-' + index" type="number" formControlName="to" />
-            </div>
-            <button type="button" class="remove-row-button" (click)="removeExperience(index)">
-              حذف الخبرة
-            </button>
+        <div class="experience-form-row" [formGroupName]="index">
+          <div class="profile-form-field">
+            <label [for]="'doctor-experience-place-' + index">مكان العمل</label>
+            <input [id]="'doctor-experience-place-' + index" type="text" formControlName="place" />
           </div>
+          <div class="profile-form-field">
+            <label [for]="'doctor-experience-position-' + index">الوظيفة</label>
+            <input [id]="'doctor-experience-position-' + index" type="text" formControlName="position" />
+          </div>
+          <div class="profile-form-field">
+            <label [for]="'doctor-experience-from-' + index">من سنة</label>
+            <input [id]="'doctor-experience-from-' + index" type="number" formControlName="from" />
+          </div>
+          <div class="profile-form-field">
+            <label [for]="'doctor-experience-to-' + index">إلى سنة</label>
+            <input [id]="'doctor-experience-to-' + index" type="number" formControlName="to" />
+          </div>
+          <button type="button" class="remove-row-button" (click)="removeExperience(index)">
+            حذف الخبرة
+          </button>
+        </div>
         }
       </div>
       <button type="button" class="add-row-button" (click)="addExperience()">إضافة خبرة</button>
     </fieldset>
 
     @if (saveError()) {
-      <p class="profile-form-error" role="alert">{{ saveError() }}</p>
+    <p class="profile-form-error" role="alert">{{ saveError() }}</p>
     }
 
     <div class="profile-form-actions">

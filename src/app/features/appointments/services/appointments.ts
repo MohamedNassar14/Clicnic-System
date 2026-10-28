@@ -222,6 +222,10 @@ export class AppointmentsService {
     return this.http.get(`${environment.url}admin/patients/search`, { params });
   }
 
+  getDoctorProfile(): Observable<unknown> {
+    return this.http.get<unknown>(`${environment.url}doctor-profile`);
+  }
+
   getTimeSlots(locationId: number, date?: string) {
   const params = date ? new HttpParams().set('date', date) : undefined;
   return this.http.get<AppointmentTimeSlot[] | AppointmentTimeSlotsResponse>(

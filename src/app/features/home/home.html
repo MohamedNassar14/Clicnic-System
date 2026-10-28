@@ -10,7 +10,8 @@
 
     <section class="booking-layout" aria-label="حجز موعد">
         <aside class="booking-sidebar">
-            <a class="back-doctors" routerLink="/home" (click)="closeBooking()"><span aria-hidden="true">‹</span> العودة للأطباء</a>
+            <a class="back-doctors" routerLink="/home" (click)="closeBooking()"><span aria-hidden="true">‹</span> العودة
+                للأطباء</a>
             <div class="doctor-summary">
                 <div class="doctor-avatar" aria-hidden="true">أم</div>
                 <div>
@@ -46,8 +47,8 @@
                 <h2 id="booking-branch-title">اختر الفرع</h2>
                 @if (locationsError()) {
                 <p class="booking-data-error" role="alert">
-                        {{ locationsError() }}
-                        <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
+                    {{ locationsError() }}
+                    <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
                 </p>
                 } @else if (isLoadingLocations()) {
                 <p class="booking-data-message" role="status">جارٍ تحميل الفروع...</p>
@@ -55,42 +56,41 @@
                 <p class="booking-data-message">لا توجد فروع متاحة حاليًا.</p>
                 } @else {
                 <div class="booking-branch-options">
-                        @for (location of locations(); track location.id) {
-                        <button type="button" class="booking-branch-option"
-                            [class.selected]="selectedClinicLocationId() === location.id"
-                            [attr.aria-pressed]="selectedClinicLocationId() === location.id"
-                            (click)="selectClinicLocation(location.id)">
-                            <span class="branch-pin" aria-hidden="true">●</span>
-                            <span class="branch-details">
-                                <strong>{{ location.name }}</strong>
-                                @if (location.address) {
-                                <small>{{ location.address }}</small>
-                                }
-                            </span>
-                        </button>
-                        }
+                    @for (location of locations(); track location.id) {
+                    <button type="button" class="booking-branch-option"
+                        [class.selected]="selectedClinicLocationId() === location.id"
+                        [attr.aria-pressed]="selectedClinicLocationId() === location.id"
+                        (click)="selectClinicLocation(location.id)">
+                        <span class="branch-pin" aria-hidden="true">●</span>
+                        <span class="branch-details">
+                            <strong>{{ location.name }}</strong>
+                            @if (location.address) {
+                            <small>{{ location.address }}</small>
+                            }
+                        </span>
+                    </button>
+                    }
                 </div>
                 }
             </section>
             <section class="booking-date-picker" aria-labelledby="booking-date-title">
                 <h2 id="booking-date-title">اختر اليوم</h2>
                 <div class="booking-date-options">
-                        @for (date of dateOptions; track $index) {
-                        <button type="button" class="booking-date-option"
-                            [class.selected]="isSelectedDate(date)" [attr.aria-pressed]="isSelectedDate(date)"
-                            (click)="selectDate(date)">
-                            <span>{{ formatDateLabel(date) }}</span>
-                            <strong>{{ date.getDate() }}</strong>
-                        </button>
-                        }
+                    @for (date of dateOptions; track $index) {
+                    <button type="button" class="booking-date-option" [class.selected]="isSelectedDate(date)"
+                        [attr.aria-pressed]="isSelectedDate(date)" (click)="selectDate(date)">
+                        <span>{{ formatDateLabel(date) }}</span>
+                        <strong>{{ date.getDate() }}</strong>
+                    </button>
+                    }
                 </div>
             </section>
             <section class="booking-slot-picker" aria-labelledby="booking-slot-title">
                 <h2 id="booking-slot-title">اختر الموعد</h2>
                 @if (timeSlotsError()) {
                 <p class="booking-data-error" role="alert">
-                        {{ timeSlotsError() }}
-                        <button type="button" (click)="selectDate(selectedDate())">إعادة المحاولة</button>
+                    {{ timeSlotsError() }}
+                    <button type="button" (click)="selectDate(selectedDate())">إعادة المحاولة</button>
                 </p>
                 } @else if (!selectedClinicLocationId() || !selectedDate()) {
                 <p class="booking-data-message">اختر الفرع والتاريخ لعرض المواعيد المتاحة.</p>
@@ -100,24 +100,22 @@
                 <p class="booking-data-message">لا توجد مواعيد متاحة في هذا اليوم. اختر تاريخًا آخر.</p>
                 } @else {
                 <div class="time-options">
-                        @for (time of availableTimeSlots(); track time.id) {
-                        <button type="button" class="time-option"
-                            [class.selected]="selectedTime()?.id === time.id"
-                            [attr.aria-pressed]="selectedTime()?.id === time.id"
-                            (click)="selectTimeSlot(time)">
-                            {{ time.label }}
-                        </button>
-                        }
+                    @for (time of availableTimeSlots(); track time.id) {
+                    <button type="button" class="time-option" [class.selected]="selectedTime()?.id === time.id"
+                        [attr.aria-pressed]="selectedTime()?.id === time.id" (click)="selectTimeSlot(time)">
+                        {{ time.label }}
+                    </button>
+                    }
                 </div>
                 }
             </section>
             <div class="booking-actions">
                 <span class="timezone-note">
-                        {{ selectedDate() ? formatSelectedDate() : 'الأوقات حسب التوقيت المحلي للقاهرة' }}
+                    {{ selectedDate() ? formatSelectedDate() : 'الأوقات حسب التوقيت المحلي للقاهرة' }}
                 </span>
                 <button type="button" class="booking-primary-button"
-                        [disabled]="!selectedClinicLocationId() || !selectedDate() || !selectedTime()"
-                        (click)="continueBooking()">التالي
+                    [disabled]="!selectedClinicLocationId() || !selectedDate() || !selectedTime()"
+                    (click)="continueBooking()">التالي
                 </button>
             </div>
             }
@@ -144,7 +142,8 @@
                     [class.selected]="selectedVisitTypeKey() === visitType.key"
                     [attr.aria-pressed]="selectedVisitTypeKey() === visitType.key"
                     (click)="selectVisitType(visitType.key!)">
-                    <span class="visit-type-icon" aria-hidden="true">{{ visitType.key === 'checkup' ? '🩺' : '📋' }}</span>
+                    <span class="visit-type-icon" aria-hidden="true">{{ visitType.key === 'checkup' ? '🩺' : '📋'
+                        }}</span>
                     <strong>{{ visitType.label }}</strong>
                     <small>{{ visitType.key === 'checkup' ? 'أول زيارة أو حالة جديدة' : 'استشارة طبية' }}</small>
                     <span class="visit-type-price">
@@ -189,26 +188,20 @@
                 <p class="payment-error" role="alert">{{ paymentError() }}</p>
                 }
                 <div class="payment-options" role="group" aria-label="اختر طريقة الدفع">
-                    <button type="button" class="payment-option"
-                        [class.selected]="selectedPaymentMethod() === 'card'"
-                        [attr.aria-pressed]="selectedPaymentMethod() === 'card'"
-                        [disabled]="isSubmittingPayment()"
+                    <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod() === 'card'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'card'" [disabled]="isSubmittingPayment()"
                         (click)="selectPaymentMethod('card')">
                         <span class="payment-option-icon" aria-hidden="true">💳</span>
                         <strong>بطاقة بنكية</strong>
                     </button>
-                    <button type="button" class="payment-option"
-                        [class.selected]="selectedPaymentMethod() === 'wallet'"
-                        [attr.aria-pressed]="selectedPaymentMethod() === 'wallet'"
-                        [disabled]="isSubmittingPayment()"
+                    <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod() === 'wallet'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'wallet'" [disabled]="isSubmittingPayment()"
                         (click)="selectPaymentMethod('wallet')">
                         <span class="payment-option-icon" aria-hidden="true">📱</span>
                         <strong>محفظة إلكترونية</strong>
                     </button>
-                    <button type="button" class="payment-option"
-                        [class.selected]="selectedPaymentMethod() === 'cash'"
-                        [attr.aria-pressed]="selectedPaymentMethod() === 'cash'"
-                        [disabled]="isSubmittingPayment()"
+                    <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod() === 'cash'"
+                        [attr.aria-pressed]="selectedPaymentMethod() === 'cash'" [disabled]="isSubmittingPayment()"
                         (click)="selectPaymentMethod('cash')">
                         <span class="payment-option-icon" aria-hidden="true">💵</span>
                         <strong>كاش</strong>
@@ -218,8 +211,8 @@
                 <div class="wallet-phone-field">
                     <label for="wallet-phone">رقم الموبايل المرتبط بالمحفظة</label>
                     <input id="wallet-phone" type="tel" dir="ltr" inputmode="tel" autocomplete="tel"
-                        [ngModel]="walletPhone()" (ngModelChange)="walletPhone.set($event)"
-                        placeholder="01012345678" maxlength="11" />
+                        [ngModel]="walletPhone()" (ngModelChange)="walletPhone.set($event)" placeholder="01012345678"
+                        maxlength="11" />
                 </div>
                 }
                 <section class="payment-summary" aria-label="ملخص المبلغ المطلوب">
@@ -236,21 +229,21 @@
                 }
                 <div class="booking-actions payment-actions">
                     @if (paymentComplete()) {
-                    <button type="button" class="booking-primary-button" (click)="closeBooking()">العودة للرئيسية</button>
+                    <button type="button" class="booking-primary-button" (click)="closeBooking()">العودة
+                        للرئيسية</button>
                     } @else {
-                    <button type="button" class="booking-secondary-button"
-                        [disabled]="isSubmittingPayment()" (click)="bookingStep.set(2)">رجوع</button>
+                    <button type="button" class="booking-secondary-button" [disabled]="isSubmittingPayment()"
+                        (click)="bookingStep.set(2)">رجوع</button>
                     @if (paymentError() && appointmentId()) {
-                    <button type="button" class="booking-primary-button"
-                        [disabled]="isSubmittingPayment()" (click)="retryPayment()">
+                    <button type="button" class="booking-primary-button" [disabled]="isSubmittingPayment()"
+                        (click)="retryPayment()">
                         {{ isSubmittingPayment() ? 'جارٍ الانتقال للدفع وتأكيد الحجز...' : 'إعادة المحاولة' }}
                     </button>
                     } @else {
-                    <button type="button" class="booking-primary-button"
-                        (click)="confirmPayment()">
+                    <button type="button" class="booking-primary-button" (click)="confirmPayment()">
                         {{ isSubmittingPayment()
-                            ? (appointmentId() ? 'جارٍ الانتقال للدفع وتأكيد الحجز...' : 'جارٍ إنشاء الحجز...')
-                            : 'انتقل للدفع وتأكيد الحجز' }}
+                        ? (appointmentId() ? 'جارٍ الانتقال للدفع وتأكيد الحجز...' : 'جارٍ إنشاء الحجز...')
+                        : 'انتقل للدفع وتأكيد الحجز' }}
                     </button>
                     }
                     }
@@ -299,7 +292,8 @@
             </p>
             <div class="hero-actions">
                 <a class="primary-action" href="#booking" (click)="openBooking($event)">احجز موعدًا</a>
-                <a class="secondary-action" href="#services" (click)="scrollToSection($event, 'services')">اكتشف خدماتنا</a>
+                <a class="secondary-action" href="#services" (click)="scrollToSection($event, 'services')">اكتشف
+                    خدماتنا</a>
             </div>
             <div class="trust-note">
                 <span class="trust-mark" aria-hidden="true">✓</span>
@@ -311,6 +305,121 @@
         </a>
     </section>
 
+    <!-- Doctor Profile Section -->
+    <section class="doctor-profile-section" dir="rtl">
+        <div class="doctor-container">
+
+            <!-- Section Heading -->
+            <div class="section-heading">
+                <span class="section-label">تعرف على طبيبك</span>
+                <h2>رعاية طبية بخبرة وثقة</h2>
+                <p>
+                    خبرة طبية واهتمام شخصي علشان نوفرلك أفضل رعاية صحية.
+                </p>
+            </div>
+
+            <!-- Doctor Card -->
+            <div class="doctor-card">
+
+                <!-- Doctor Photo -->
+                <div class="doctor-image-wrapper">
+                    @if (doctorProfile()?.photo_url) {
+                    <img [src]="doctorProfile()?.photo_url" [alt]="'د. ' + doctorProfile()?.name"
+                        class="doctor-image" />
+                    } @else {
+                    <div class="doctor-image-placeholder">
+                        <span>صورة {{ doctorProfile()?.name }}</span>
+                        
+                    </div>
+                    }
+
+                    <div class="experience-badge">
+                        <i class="pi pi-verified"></i>
+                        <span>خبرة {{ doctorProfile()?.years_of_experience }} سنة</span>
+                    </div>
+                </div>
+
+                <!-- Doctor Information -->
+                <div class="doctor-info">
+
+                    <span class="doctor-title">
+                        {{ doctorProfile()?.title }}
+                    </span>
+
+                    <h3>د. {{ doctorProfile()?.name }}</h3>
+
+                    <div class="doctor-specialty">
+                        <i class="pi pi-heart-fill"></i>
+                        <span>تخصص {{ doctorProfile()?.specialty }}</span>
+                    </div>
+
+                    <p class="doctor-bio">
+                        {{ doctorProfile()?.bio }}
+                    </p>
+
+                    <!-- Qualifications -->
+                    @if (doctorProfile()?.qualifications?.length) {
+                    <div class="doctor-qualifications py-3 flex flex-col gap-3">
+                        <h4>
+                            <i class="pi pi-graduation-cap"></i>
+                            المؤهلات العلمية
+                        </h4>
+
+                        <ul class="text-[#68778e] flex flex-col gap-1.5">
+                            @for (
+                            qualification of doctorProfile()?.qualifications;
+                            track qualification
+                            ) {
+                            <li>
+                                <i class="pi pi-check-circle"></i>
+                                <span>{{ qualification }}</span>
+                            </li>
+                            }
+                        </ul>
+                    </div>
+                    }
+
+                    @if (doctorProfile()?.experiences?.length) {
+                    <div class="doctor-experiences py-3 flex flex-col gap-3">
+                        <h4>
+                            <i class="pi pi-briefcase"></i>
+                            الخبرات العملية
+                        </h4>
+
+                        <div class="text-[#68778e]">
+                            @for (
+                            experience of doctorProfile()?.experiences;
+                            track experience.place + experience.from
+                            ) {
+                            <div class="">
+                                <div class="experience-icon">
+                                    <i class="pi pi-building"></i>
+                                </div>
+
+                                <div class="experience-details flex items-center gap-1">
+                                    <h5>{{ experience.position }}</h5> - 
+                                    <p class="experience-place"> 
+                                        {{ experience.place }} 
+                                    </p> -
+
+                                    <span class="experience-period">
+                                        <i class="pi pi-calendar"></i>
+                                       ({{ experience.from }} - {{ experience.to }})
+                                    </span>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+
+
+                </div>
+            </div>
+
+
+        </div>
+    </section>
     <section class="branches-section" id="branches" aria-labelledby="branches-title">
         <div class="section-heading">
             <h2 id="eyebrow branches-title">فروعنا</h2>
@@ -424,7 +533,7 @@
             <section class="footer-contact" aria-labelledby="footer-contact-title">
                 <h2 id="footer-contact-title">تواصل معنا</h2>
                 <p>يسعدنا استقبال زيارتك. اختر الفرع المناسب واحجز موعدك بسهولة.</p>
-                <p class="footer-phone">رقم الهاتف: 201013808583+  </p>
+                <p class="footer-phone">رقم الهاتف: 201013808583+ </p>
                 <a class="footer-book-link" href="#booking" (click)="openBooking($event)">احجز موعدك</a>
             </section>
         </div>

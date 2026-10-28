@@ -20,6 +20,22 @@ interface BookingTimeOption extends AppointmentTimeSlot {
   label: string;
 }
 
+export interface DoctorProfile {
+  name: string;
+  specialty: string;
+  title: string;
+  years_of_experience: number;
+  bio: string;
+  qualifications: string[];
+  experiences: {
+    place: string;
+    position: string;
+    from: number;
+    to: number;
+  }[];
+  photo_url: string | null;
+}
+
 function readClinicLocations(
   response: ClinicLocationOption[] | ClinicLocationsResponse,
 ): ClinicLocationOption[] {
@@ -106,6 +122,7 @@ export class Home implements OnInit {
   private readonly router = inject(Router);
   private timeSlotsRequestId = 0;
   private visitTypesRequestId = 0;
+  readonly doctorProfile = signal<DoctorProfile | null>(null);
 
   readonly bookingActive = signal(false);
   readonly bookingStep = signal(1);
@@ -144,6 +161,7 @@ export class Home implements OnInit {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadClinicLocations();
+      this.getProfileDoctor();
     }
   }
 
@@ -170,6 +188,15 @@ export class Home implements OnInit {
     this.bookingActive.set(false);
     this.bookingStep.set(1);
     this.resetPaymentSubmission();
+  }
+
+  getProfileDoctor() {
+    this.appointmentsService.getDoctorProfile().subscribe({
+      next: (response:any) => {
+        console.log('Doctor profile response:', response.doctor);
+        this.doctorProfile.set(response.doctor);
+      }
+    });
   }
 
   loadClinicLocations(): void {

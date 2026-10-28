@@ -127,7 +127,6 @@ type ExperienceForm = FormGroup<{
 })
 export class DoctorProfile implements OnInit {
   private readonly profileService = inject(DoctorProfileService);
-
   readonly profileFields = signal<DoctorProfileField[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
@@ -409,7 +408,8 @@ export class DoctorProfile implements OnInit {
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
-  uploading = false;
+  photoUploaded = signal(false);
+uploading = signal(false);
 
   private readonly apiUrl =
     'https://api.flexlify.com/api/doctor/profile/photo';
@@ -428,27 +428,29 @@ export class DoctorProfile implements OnInit {
     this.previewUrl = URL.createObjectURL(file);
   }
 
-  uploadPhoto(): void {
-    if (!this.selectedFile || this.uploading) return;
 
-    const formData = new FormData();
 
-    formData.append('photo', this.selectedFile);
+uploadPhoto(): void {
+  if (!this.selectedFile || this.uploading()) return;
 
-    this.uploading = true;
+  const formData = new FormData();
+  formData.append('photo', this.selectedFile);
 
-    this.http.post(
-      `${this.apiUrl}?photo_path`,
-      formData
-    ).subscribe({
-      next: (response) => {
-        console.log('Upload success:', response);
-        this.uploading = false;
-      },
-      error: (error) => {
-        console.error('Upload failed:', error);
-        this.uploading = false;
-      }
-    });
-  }
+  this.uploading.set(true);
+
+  this.http.post(`${this.apiUrl}?photo_path`, formData).subscribe({
+    next: (response) => {
+      console.log('Upload success:', response);
+
+      this.uploading.set(false);
+      this.photoUploaded.set(true);
+    },
+    error: (error) => {
+      console.error('Upload failed:', error);
+
+      this.uploading.set(false);
+      this.photoUploaded.set(false);
+    }
+  });
+}
 }

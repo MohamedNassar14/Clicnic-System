@@ -64,7 +64,248 @@ app-home {
 .login-link:hover {
     color: var(--clinic-blue);
 }
+.doctor-profile-section {
+  padding: 90px 24px;
+  background: linear-gradient(180deg, #f5f8ff 0%, #ffffff 100%);
+  color: #17243b;
+}
 
+.doctor-container {
+  max-width: 1150px;
+  margin: 0 auto;
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 45px;
+
+  .section-label {
+    display: inline-block;
+    color: #1a5cff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 800;
+    margin: 0 0 14px;
+    color: #17243b;
+  }
+
+  p {
+    margin: 0;
+    color: #718096;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+}
+
+.doctor-card {
+  display: grid;
+  grid-template-columns: 350px minmax(0, 1fr);
+  gap: 42px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e4eaf4;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 12px 40px rgba(26, 55, 100, 0.06);
+}
+
+.doctor-image-wrapper {
+  position: relative;
+  min-width: 0;
+}
+
+.doctor-image,
+.doctor-image-placeholder {
+  width: 100%;
+  height: 390px;
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.doctor-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(145deg, #e7efff, #d8e7ff);
+  color: #1a5cff;
+
+  span {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  i {
+    font-size: 38px;
+  }
+}
+
+.experience-badge {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  color: #1a5cff;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.doctor-info {
+  min-width: 0;
+
+  .doctor-title {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 8px;
+    background: #edf3ff;
+    color: #1a5cff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  h3 {
+    margin: 16px 0 12px;
+    color: #17243b;
+    font-size: 32px;
+    font-weight: 800;
+  }
+}
+
+.doctor-specialty {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #1a5cff;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.doctor-bio {
+  color: #68778e;
+  line-height: 2;
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.doctor-qualifications {
+  border-top: 1px solid #edf0f6;
+ 
+}
+
+.doctor-experiences {
+  border-top: 1px solid #edf0f6;
+ 
+}
+
+.doctor-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+}
+
+.btn-doctor-primary {
+  border: 1px solid #1a5cff;
+  background: #1a5cff;
+  color: #fff;
+
+  &:hover {
+    background: #1249d8;
+    transform: translateY(-2px);
+  }
+}
+
+.btn-doctor-secondary {
+  border: 1px solid #d8e2f1;
+  background: #fff;
+  color: #1a5cff;
+
+  &:hover {
+    background: #f0f5ff;
+  }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .doctor-card {
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 26px;
+    padding: 24px;
+  }
+
+  .doctor-image,
+  .doctor-image-placeholder {
+    height: 330px;
+  }
+
+  .doctor-info h3 {
+    font-size: 27px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .doctor-profile-section {
+    padding: 60px 16px;
+  }
+
+  .section-heading {
+    margin-bottom: 30px;
+  }
+
+  .doctor-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .doctor-image,
+  .doctor-image-placeholder {
+    height: 300px;
+  }
+
+  .doctor-info h3 {
+    font-size: 25px;
+  }
+
+  .doctor-actions {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}
 .header-book,
 .header-logout,
 .primary-action {
