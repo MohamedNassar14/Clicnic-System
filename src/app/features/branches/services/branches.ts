@@ -28,7 +28,7 @@ export interface ClinicLocationsResponse {
 @Injectable({ providedIn: 'root' })
 export class BranchesService {
   private readonly http = inject(HttpClient);
-  private readonly clinicLocationsUrl = 'https://api.flexlify.live/api/admin/clinic-locations';
+  private readonly clinicLocationsUrl = 'https://api.flexlify.com/api/admin/clinic-locations';
 
   getClinicLocations(): Observable<ClinicLocation[] | ClinicLocationsResponse> {
     return this.http.get<ClinicLocation[] | ClinicLocationsResponse>(`${environment.url}admin/get-clinic-locations`);

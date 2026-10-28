@@ -6,6 +6,7 @@ import {
   DoctorProfileService,
   DoctorProfileUpdatePayload,
 } from './doctor-profile.service';
+import { HttpClient } from '@angular/common/http';
 
 interface DoctorProfileField {
   label: string;
@@ -57,6 +58,8 @@ function readProfileSources(response: unknown): Record<string, unknown>[] {
 
   return sources;
 }
+
+
 
 function readFieldValue(
   sources: Record<string, unknown>[],
@@ -399,5 +402,53 @@ export class DoctorProfile implements OnInit {
         .filter(([, value]) => value)
         .map(([label, value]) => ({ label, value })),
     ];
+  }
+
+
+    private http = inject(HttpClient);
+
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  uploading = false;
+
+  private readonly apiUrl =
+    'https://api.flexlify.com/api/doctor/profile/photo';
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (this.previewUrl) {
+      URL.revokeObjectURL(this.previewUrl);
+    }
+
+    this.selectedFile = file;
+    this.previewUrl = URL.createObjectURL(file);
+  }
+
+  uploadPhoto(): void {
+    if (!this.selectedFile || this.uploading) return;
+
+    const formData = new FormData();
+
+    formData.append('photo', this.selectedFile);
+
+    this.uploading = true;
+
+    this.http.post(
+      `${this.apiUrl}?photo_path`,
+      formData
+    ).subscribe({
+      next: (response) => {
+        console.log('Upload success:', response);
+        this.uploading = false;
+      },
+      error: (error) => {
+        console.error('Upload failed:', error);
+        this.uploading = false;
+      }
+    });
   }
 }

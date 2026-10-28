@@ -12,7 +12,7 @@ export class DoctorProfileService {
   }
 
   updateDoctorProfile(payload: DoctorProfileUpdatePayload): Observable<unknown> {
-    return this.http.put<unknown>(`${environment.url}doctor-profile`, payload);
+    return this.http.put<unknown>(`${environment.url}doctor/profile`, payload);
   }
 }
 

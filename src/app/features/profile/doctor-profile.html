@@ -18,6 +18,35 @@
     <div class="profile-actions">
       <button type="button" class="edit-profile-button" (click)="openEditDialog()">تعديل البيانات</button>
     </div>
+
+ <div class="photo-upload">
+  <input
+    #fileInput
+    type="file"
+    accept="image/*"
+    hidden
+    (change)="onFileSelected($event)"
+  />
+
+  <div class="photo-preview" (click)="fileInput.click()">
+    @if (previewUrl) {
+      <img [src]="previewUrl" alt="Doctor profile photo" />
+    } @else {
+      <span>اختار صورة</span>
+    }
+  </div>
+
+  @if (selectedFile) {
+    <button
+      type="button"
+      (click)="uploadPhoto()"
+      [disabled]="uploading"
+    >
+      {{ uploading ? 'جاري الرفع...' : 'رفع الصورة' }}
+    </button>
+  }
+</div>
+
     <dl class="profile-details">
       @for (field of profileFields(); track field.label) {
         <div>

@@ -17,8 +17,9 @@ export interface ClinicLocationsResponse {
 }
 
 export interface AppointmentTimeSlot {
-  id: number | string;
-  start_time?: string | null;
+  id: number;
+  date?: string;          // <-- add if missing
+  start_time: string | null;
   end_time?: string | null;
 }
 
@@ -221,16 +222,13 @@ export class AppointmentsService {
     return this.http.get(`${environment.url}admin/patients/search`, { params });
   }
 
-  getTimeSlots(
-    clinicLocationId: number,
-    date: string,
-  ): Observable<AppointmentTimeSlot[] | AppointmentTimeSlotsResponse> {
-    const params = new HttpParams().set('date', date);
-    return this.http.get<AppointmentTimeSlot[] | AppointmentTimeSlotsResponse>(
-      `${environment.url}clinic-locations/${clinicLocationId}/time-slots`,
-      { params },
-    );
-  }
+  getTimeSlots(locationId: number, date?: string) {
+  const params = date ? new HttpParams().set('date', date) : undefined;
+  return this.http.get<AppointmentTimeSlot[] | AppointmentTimeSlotsResponse>(
+    `${environment.url}clinic-locations/${locationId}/time-slots`,
+    { params },
+  );
+}
 
   getVisitTypes(clinicLocationId = 13): Observable<VisitTypeOption[] | VisitTypesResponse> {
     return this.http.get<VisitTypeOption[] | VisitTypesResponse>(
