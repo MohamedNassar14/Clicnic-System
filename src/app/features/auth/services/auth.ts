@@ -224,4 +224,18 @@ export class Auth {
 hasAnySession(): boolean {
   return this.hasAdminSession() || this.hasPatientSession();
 }
+
+clearAdminSession(): void {
+  if (!isPlatformBrowser(this.platformId)) {
+    return;
+  }
+
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user_role');
+
+  // امسح بيانات المستخدم لو مفيش Patient Session
+  if (!localStorage.getItem('patient_token')) {
+    localStorage.removeItem('user');
+  }
+}
 }
