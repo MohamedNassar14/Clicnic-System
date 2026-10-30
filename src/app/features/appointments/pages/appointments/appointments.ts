@@ -5,6 +5,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/types/paginator';
 import { SelectModule } from 'primeng/select';
+import { Router } from '@angular/router';
+
 import {
   APPOINTMENT_STATUS_OPTIONS,
   AppointmentListItem,
@@ -16,6 +18,7 @@ import {
 } from '../../services/appointments';
 import { Icons } from '../../../../shared/components/icons/icons';
 import { Auth } from '../../../auth/services/auth';
+import Swal from 'sweetalert2';
 
 interface AppointmentCard {
   id: number | string;
@@ -25,6 +28,7 @@ interface AppointmentCard {
   patientPhone: string;
   visitType: string;
   time: string;
+  created_at: string;
   clinicAddress: string;
   status: string | undefined;
   statusText: string;
@@ -111,6 +115,23 @@ function formatDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+interface TodayAppointment {
+  id: number | string;
+  appointmentId?: number | string;
+  patientId?: number | string;
+  patientName: string;
+  patientPhone: string;
+  patientInitials: string;
+  visitType: string;
+  created_at: string;
+  time: string;
+  clinicAddress: string;
+  status: string | undefined;
+  statusText: string;
+  paymentStatusText: string;
+  isPaid: boolean;
+}
+
 @Component({
   selector: 'app-appointments',
   imports: [DatePickerModule, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule],
@@ -119,7 +140,9 @@ function formatDate(date: Date): string {
 })
 export class Appointments implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
+  readonly isAssistant = inject(Auth).getUserRole() === '1';
   readonly isDoctor = inject(Auth).getUserRole() === '2';
+  readonly router = inject(Router);
 
   readonly appointments = signal<AppointmentCard[]>([]);
   readonly visibleAppointments = computed(() => {
@@ -148,6 +171,8 @@ export class Appointments implements OnInit {
   readonly selectedDate = signal<Date | null>(null);
   readonly selectedVisitType = signal('');
   readonly selectedStatus = signal('');
+  readonly completingAppointmentId = signal<string | null>(null);
+  readonly completeAppointmentError = signal('');
   readonly appointmentStatuses = APPOINTMENT_STATUS_OPTIONS;
 
   ngOnInit(): void {
@@ -180,6 +205,10 @@ export class Appointments implements OnInit {
     this.loadAppointments(1);
   }
 
+  viewPatientDetails(appointment: TodayAppointment): void {
+    console.log('Patient details:', appointment);
+    this.router.navigate(['/admin/appointments', appointment.appointmentId, 'patient-details']);
+  }
   onVisitTypeChange(visitType: string | null): void {
     this.selectedVisitType.set(visitType ?? '');
     this.first.set(0);
@@ -218,12 +247,32 @@ export class Appointments implements OnInit {
     this.setCurrentError.set('');
     this.appointmentsService.setAppointmentCurrent(appointment.appointmentId).subscribe({
       next: () => {
-        this.appointments.update((appointments) => appointments.map((item) =>
-          item.id === appointment.id
-            ? { ...item, status: 'in_progress', statusText: getAppointmentStatusLabel('in_progress') }
-            : item,
-        ));
+        this.loadAppointments(1, 5);
         this.settingCurrentAppointmentId.set(null);
+        Swal.fire({
+          html: `
+                  <div style="display: flex; flex-direction: column; align-items: center;">
+                   <div>
+                      <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                       <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                       <path fill-rule="evenodd" clip-rule="evenodd"
+                       d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                       fill="#009917" />
+                      </svg>
+                   </div>
+                   <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم تحديد الحجز الحالي بنجاح</h2>
+                  </div>
+                  `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
       },
       error: () => {
         this.settingCurrentAppointmentId.set(null);
@@ -258,9 +307,10 @@ export class Appointments implements OnInit {
             patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
             patientPhone,
             visitType: formatVisitType(
-  appointment.visit_type_label ?? appointment.visit_type
-),
+              appointment.visit_type_label ?? appointment.visit_type
+            ),
             time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
+            created_at: appointment.created_at ?? '',
             clinicAddress: appointment.time_slot?.clinic_location?.address
               ?? appointment.clinic_location?.address
               ?? appointment.branch?.address
@@ -273,18 +323,68 @@ export class Appointments implements OnInit {
         });
 
         const currentPage = pageData.currentPage ?? page;
-const rows = perPage;
+        const rows = perPage;
 
-this.currentPage.set(currentPage);
-this.rows.set(rows);
-this.first.set((currentPage - 1) * rows);
-this.appointments.set(cards);
-this.totalAppointments.set(pageData.total);
-this.isLoading.set(false);
+        this.currentPage.set(currentPage);
+        this.rows.set(rows);
+        this.first.set((currentPage - 1) * rows);
+        this.appointments.set(cards);
+        this.totalAppointments.set(pageData.total);
+        this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
         this.loadError.set('تعذر تحميل الحجوزات. حاول مرة أخرى.');
+      },
+    });
+  }
+
+  completeAppointment(appointment: AppointmentCard): void {
+    if (
+      appointment.appointmentId === undefined ||
+      this.completingAppointmentId() !== null
+    ) {
+      return;
+    }
+
+    const id = appointment.appointmentId;
+
+    this.completingAppointmentId.set(String(id));
+    this.completeAppointmentError.set('');
+
+    this.appointmentsService.completeAppointment(id).subscribe({
+      next: () => {
+        this.loadAppointments(1, 5);
+        this.completingAppointmentId.set(null);
+        Swal.fire({
+          html: `
+                  <div style="display: flex; flex-direction: column; align-items: center;">
+                   <div>
+                      <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                       <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                       <path fill-rule="evenodd" clip-rule="evenodd"
+                       d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                       fill="#009917" />
+                      </svg>
+                   </div>
+                   <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم إنهاء الحجز بنجاح</h2>
+                  </div>
+                  `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
+      },
+      error: (error) => {
+        console.error('Complete appointment error:', error);
+        this.completingAppointmentId.set(null);
+        this.completeAppointmentError.set('تعذر إنهاء الحجز. حاول مرة أخرى.');
       },
     });
   }

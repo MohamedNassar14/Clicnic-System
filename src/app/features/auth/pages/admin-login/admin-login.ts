@@ -58,7 +58,7 @@ export class AdminLogin implements OnInit {
         this.isLoading.set(false);
         if (response.status) {
           this.authService.saveSession(response);
-          this.router.navigate(['admin/dashboard']);
+          this.router.navigate(['/admin/dashboard']);
         }
       },
       error: () => {

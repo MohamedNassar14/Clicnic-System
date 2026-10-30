@@ -1,34 +1,39 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
+  // Patient
+  {
+    path: 'home',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'my-profile',
+    renderMode: RenderMode.Client
+  },
+
+  // Admin
+  {
+    path: 'admin',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'admin/**',
+    renderMode: RenderMode.Client
+  },
+
+  // Authentication
+  {
+    path: 'auth/**',
+    renderMode: RenderMode.Client
+  },
+
+  // Base URL
   {
     path: '',
     renderMode: RenderMode.Client
   },
-  {
-    path: 'admin/dashboard',
-    renderMode: RenderMode.Client
-  },
-  {
-    path: 'admin/appointments',
-    renderMode: RenderMode.Client
-  },
-  {
-    path: 'admin/appointments/new',
-    renderMode: RenderMode.Client
-  },
-  {
-    path: 'admin/appointments/:id/medical-record',
-    renderMode: RenderMode.Client
-  },
-  {
-    path: 'admin/weekly-schedule',
-    renderMode: RenderMode.Client
-  },
-  {
-    path: 'admin/branches',
-    renderMode: RenderMode.Client
-  },
+
+  // Other routes
   {
     path: '**',
     renderMode: RenderMode.Prerender

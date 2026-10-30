@@ -4,13 +4,15 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Auth } from '../../features/auth/services/auth';
 
 export const patientGuard: CanActivateFn = () => {
+  const platformId = inject(PLATFORM_ID);
   const router = inject(Router);
+  const auth = inject(Auth);
 
-  if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+  if (!isPlatformBrowser(platformId)) {
     return true;
   }
 
-  const auth = inject(Auth);
-
-  return auth.hasPatientSession() ? true : router.createUrlTree(['/auth/register']);
+  return auth.hasPatientSession()
+    ? true
+    : router.createUrlTree(['/auth/register']);
 };

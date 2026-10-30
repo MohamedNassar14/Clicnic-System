@@ -18,7 +18,7 @@ export interface ClinicLocationsResponse {
 
 export interface AppointmentTimeSlot {
   id: number;
-  date?: string;          // <-- add if missing
+  date: string;          // <-- add if missing
   start_time: string | null;
   end_time?: string | null;
 }
@@ -150,6 +150,7 @@ export interface AppointmentListItem {
   status?: string;
   payment_status?: string;
   start_time?: string;
+  created_at: string;
   time_slot?: AppointmentListTimeSlot;
   clinic_location_name?: string;
   clinic_location?: AppointmentListLocation;
@@ -231,6 +232,27 @@ export class AppointmentsService {
   return this.http.get<AppointmentTimeSlot[] | AppointmentTimeSlotsResponse>(
     `${environment.url}clinic-locations/${locationId}/time-slots`,
     { params },
+  );
+}
+
+getBranchTimeSlots(clinicLocationId: number) {
+  const params = new HttpParams().set(
+    'clinic_location_id',
+    clinicLocationId
+  );
+
+  return this.http.get<AppointmentTimeSlotsResponse>(
+    `${environment.url}admin/time-slots`,
+    { params }
+  );
+}
+
+completeAppointment(id: number | string) {
+  return this.http.patch(
+    `${environment.url}admin/appointments/${id}`,
+    {
+      status: 'completed',
+    }
   );
 }
 

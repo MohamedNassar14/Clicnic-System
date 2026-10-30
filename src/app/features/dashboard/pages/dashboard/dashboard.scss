@@ -308,6 +308,18 @@
     font-size  : 13px;
 }
 
+.appointment-badge {
+  &.paid {
+    background: #e8f4ec;
+    color: #17814e;
+  }
+
+  &.unpaid {
+    background: #fbf0df;
+    color: #b88747;
+  }
+}
+
 .appointment-meta {
     display    : flex;
     flex-wrap  : wrap;

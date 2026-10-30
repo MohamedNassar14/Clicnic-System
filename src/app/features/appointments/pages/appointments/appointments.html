@@ -32,8 +32,7 @@
                         <input type="text" (input)="onSearchValue($event)"
                             class="w-full min-h-[40px] md:pr-10 lg:pr-10 pr-4
                             rounded-md border border-[rgba(0,0,0,0.1)] md:text-[15px] placeholder:text-[14px] placeholder:text-[#4A5254]
-                            focus:outline-none focus:border-mainColor hover:border-mainColor transition-colors duration-500 ease-in-out"
-                            placeholder="ابحث" />
+                            focus:outline-none focus:border-mainColor hover:border-mainColor transition-colors duration-500 ease-in-out" placeholder="ابحث" />
                     </div>
                 </div>
             </div>
@@ -54,8 +53,8 @@
 
                     <div class="card">
                         <p-select [ngModel]="selectedStatus()" (ngModelChange)="onStatusChange($event)"
-                            [ngModelOptions]="{ standalone: true }" [options]="appointmentStatuses"
-                            optionLabel="label" optionValue="value" placeholder="الحالة" />
+                            [ngModelOptions]="{ standalone: true }" [options]="appointmentStatuses" optionLabel="label"
+                            optionValue="value" placeholder="الحالة" />
                     </div>
                 </div>
             </div>
@@ -80,90 +79,120 @@
     <p role="alert">{{ setCurrentError() }}</p>
     }
     @if (isLoading()) {
-        <p role="status">جاري تحميل الحجوزات...</p>
+    <p role="status">جاري تحميل الحجوزات...</p>
     } @else if (loadError()) {
-        <p role="alert">
-            {{ loadError() }}
-            <button type="button" (click)="loadAppointments()">إعادة المحاولة</button>
-        </p>
+    <p role="alert">
+        {{ loadError() }}
+        <button type="button" (click)="loadAppointments()">إعادة المحاولة</button>
+    </p>
     } @else if (visibleAppointments().length === 0) {
-        <p class="text-center text-gray-500">لا توجد حجوزات .</p>
+    <p class="text-center text-gray-500">لا توجد حجوزات .</p>
     }
 
     @for (appointment of visibleAppointments(); track appointment.id) {
-        <article class="appointment-card">
-            <div class="appointment-details">
-                <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
+    <article class="appointment-card">
+        <div class="appointment-details">
+            <div class="patient-avatar" aria-hidden="true">{{ appointment.patientInitials }}</div>
 
-                <div class="patient-copy">
-                    <div class="patient-heading">
-                        <h3>{{ appointment.patientName }}</h3>
-                        <span class="visit-type">{{ appointment.visitType }}</span>
-                    </div>
-
-                    <div class="appointment-meta">
-                        <span class="meta-item">
-                            <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M5.4 2.5 8 5.1 6.5 7.3c.8 1.6 2.1 2.9 3.7 3.7l2.2-1.5 2.6 2.6-1.6 2.6c-.5.8-1.4 1.2-2.3 1C6.6 14.5 3 10.9 1.8 6.4c-.2-.9.2-1.8 1-2.3l2.6-1.6Z" />
-                            </svg>
-                            <span>{{ appointment.patientPhone }}</span>
-                        </span>
-                        <span class="meta-dot" aria-hidden="true"></span>
-                        <span class="meta-item">
-                            <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <circle cx="10" cy="10" r="7.2" />
-                                <path d="M10 5.8v4.5l3 1.8" />
-                            </svg>
-                            <span>{{ appointment.time }}</span>
-                        </span>
-                        <span class="meta-dot" aria-hidden="true"></span>
-                        <span class="meta-item">
-                            <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
-                                <circle cx="10" cy="8" r="1.8" />
-                            </svg>
-                            <span>{{ appointment.clinicAddress }}</span>
-                        </span>
-                    </div>
+            <div class="patient-copy">
+                <div class="patient-heading">
+                    <h3>{{ appointment.patientName }}</h3>
+                    <span class="visit-type">{{ appointment.visitType }}</span>
                 </div>
-            </div>
 
-            <div class="appointment-actions">
-                <div class="appointment-badges">
-                    @if (appointment.statusText) {
-                    <span class="appointment-badge status">{{ appointment.statusText }}</span>
-                    }
-                    @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
-                    <button
-                        type="button"
-                        class="set-current-button"
-                        [disabled]="settingCurrentAppointmentId() !== null"
-                        [attr.aria-pressed]="false"
-                        [attr.aria-label]="'تحديد حجز ' + appointment.patientName + ' كالحجز الحالي'"
-                        (click)="setCurrentAppointment(appointment)">
-                        <app-icons [iconKey]="'toggleOff'"></app-icons>
-                        <span>
-                            {{ settingCurrentAppointmentId() === '' + appointment.appointmentId ? 'جاري التحديث...' : 'تحديد كالحجز الحالي' }}
-                        </span>
-                    </button>
-                    }
-                    <span class="appointment-badge"
-                        [class.paid]="appointment.isPaid"
-                        [class.unpaid]="!appointment.isPaid">
-                        {{ appointment.paymentStatusText }}
+                <div class="appointment-meta">
+                    <span class="meta-item">
+                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path
+                                d="M5.4 2.5 8 5.1 6.5 7.3c.8 1.6 2.1 2.9 3.7 3.7l2.2-1.5 2.6 2.6-1.6 2.6c-.5.8-1.4 1.2-2.3 1C6.6 14.5 3 10.9 1.8 6.4c-.2-.9.2-1.8 1-2.3l2.6-1.6Z" />
+                        </svg>
+                        <span>{{ appointment.patientPhone }}</span>
+                    </span>
+                    <span class="meta-dot" aria-hidden="true"></span>
+                    <span class="meta-item">
+                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <circle cx="10" cy="10" r="7.2" />
+                            <path d="M10 5.8v4.5l3 1.8" />
+                        </svg>
+                        <span>{{ appointment.time }}</span>
+                    </span>
+                    <span class="meta-dot" aria-hidden="true"></span>
+                    <span class="meta-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25" fill="none"
+                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="16" rx="2" />
+                            <path d="M16 3v4M8 3v4M3 11h18" />
+                        </svg>
+                        <span>{{ appointment.created_at }}</span>
+                    </span>
+                    <span class="meta-dot" aria-hidden="true"></span>
+                    <span class="meta-item">
+                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
+                            <circle cx="10" cy="8" r="1.8" />
+                        </svg>
+                        <span>{{ appointment.clinicAddress }}</span>
                     </span>
                 </div>
             </div>
-            </article>
-            }
+        </div>
+
+        <div class="appointment-actions">
+            <div class="appointment-badges">
+                @if (appointment.statusText) {
+                <span class="appointment-badge status">{{ appointment.statusText }}</span>
+                }
+                <span class="appointment-badge" [class.paid]="appointment.isPaid" [class.unpaid]="!appointment.isPaid">
+                    {{ appointment.paymentStatusText }}
+                </span>
+                @if(isAssistant) {
+                @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
+                <button type="button" class="set-current-button" [disabled]="settingCurrentAppointmentId() !== null"
+                    [attr.aria-pressed]="false"
+                    [attr.aria-label]="'تحديد حجز ' + appointment.patientName + ' كالحجز الحالي'"
+                    (click)="setCurrentAppointment(appointment)">
+                    <app-icons [iconKey]="'toggleOff'"></app-icons>
+                    <span>
+                        {{ settingCurrentAppointmentId() === '' + appointment.appointmentId ? 'جاري التحديث...' : 'تحديد
+                        كالحجز الحالي' }}
+                    </span>
+                </button>
+                }
+                <!-- الفيووووو-->
+                <!-- <button type="button" class="view-details-button" (click)="viewPatientDetails(appointment)"
+                    aria-label="عرض تفاصيل المريض" title="عرض التفاصيل">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                </button> -->
+
+                @if (!appointment.isPaid) {
+                <button type="button" class="set-current-button complete-button"
+                    [disabled]="completingAppointmentId() !== null" (click)="completeAppointment(appointment)"
+                    [attr.aria-label]="'إنهاء حجز ' + appointment.patientName">
+                    <app-icons [iconKey]="'toggleOff'"></app-icons>
+
+                    <span>
+                        {{
+                        completingAppointmentId() === '' + appointment.appointmentId
+                        ? 'جاري إنهاء الحجز...'
+                        : 'إنهاء الحجز'
+                        }}
+                    </span>
+                </button>
+                }
+                }
+
+
+            </div>
+        </div>
+    </article>
+    }
 
     @if (totalAppointments() > 0) {
-    <p-paginator
-        class="appointments-paginator"
-        [first]="first()"
-        [rows]="rows()"
-        [totalRecords]="totalAppointments()"
-        [showFirstLastIcon]="false"
-        (onPageChange)="onPageChange($event)" />
+    <p-paginator class="appointments-paginator" [first]="first()" [rows]="rows()" [totalRecords]="totalAppointments()"
+        [showFirstLastIcon]="false" (onPageChange)="onPageChange($event)" />
     }
 </section>

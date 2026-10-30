@@ -23,6 +23,8 @@ import {
   TodayAppointmentsResponse,
   TodayStats,
 } from '../../services/dashboard';
+import Swal from 'sweetalert2';
+
 
 interface TodayAppointment {
   id: number | string;
@@ -32,6 +34,7 @@ interface TodayAppointment {
   patientPhone: string;
   patientInitials: string;
   visitType: string;
+  created_at: string;
   time: string;
   clinicAddress: string;
   status: string | undefined;
@@ -39,7 +42,21 @@ interface TodayAppointment {
   paymentStatusText: string;
   isPaid: boolean;
 }
-
+interface AppointmentCard {
+  id: number | string;
+  appointmentId?: number | string;
+  patientName: string;
+  patientInitials: string;
+  patientPhone: string;
+  visitType: string;
+  time: string;
+  created_at: string;
+  clinicAddress: string;
+  status: string | undefined;
+  statusText: string;
+  paymentStatusText: string;
+  isPaid: boolean;
+}
 function readAppointments(
   response: TodayAppointmentResponse[] | TodayAppointmentsResponse,
 ): { items: TodayAppointmentResponse[]; currentPage?: number; perPage?: number; total: number } {
@@ -118,6 +135,7 @@ function toTodayAppointment(appointment: TodayAppointmentResponse, index: number
     patientName,
     patientPhone,
     patientInitials: patientName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join(''),
+    created_at: appointment.created_at ?? '',
     visitType: formatVisitType(appointment.visit_type_label ?? appointment.visit_type),
     time: appointment.time_slot?.start_time ?? appointment.start_time ?? '',
     status: appointment.status,
@@ -185,6 +203,7 @@ export class Dashboard implements OnInit {
   readonly currentDoctorAppointment = signal<TodayAppointment | null>(null);
   readonly isLoadingCurrentAppointment = signal(false);
   readonly currentAppointmentError = signal('');
+  readonly completeAppointmentError = signal('');
   readonly doctorDate = new Intl.DateTimeFormat('ar-EG', {
     weekday: 'long',
     day: 'numeric',
@@ -209,6 +228,7 @@ export class Dashboard implements OnInit {
         appointment.status !== 'no_show';
     });
   });
+  readonly completingAppointmentId = signal<string | null>(null);
   readonly visibleAppointments = computed(() => {
     const searchValue = this.searchValue().trim().toLocaleLowerCase();
     if (!searchValue) {
@@ -357,12 +377,32 @@ export class Dashboard implements OnInit {
     this.setCurrentError.set('');
     this.appointmentsService.setAppointmentCurrent(appointment.appointmentId).subscribe({
       next: () => {
-        this.todayAppointments.update((appointments) => appointments.map((item) =>
-          item.id === appointment.id
-            ? { ...item, status: 'in_progress', statusText: getAppointmentStatusLabel('in_progress') }
-            : item,
-        ));
+        this.loadTodayAppointments(1, 5);
         this.settingCurrentAppointmentId.set(null);
+        Swal.fire({
+          html: `
+                          <div style="display: flex; flex-direction: column; align-items: center;">
+                           <div>
+                              <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                               <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                               <path fill-rule="evenodd" clip-rule="evenodd"
+                               d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                               fill="#009917" />
+                              </svg>
+                           </div>
+                           <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم تحديد الحجز الحالي بنجاح</h2>
+                          </div>
+                          `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
       },
       error: () => {
         this.settingCurrentAppointmentId.set(null);
@@ -397,6 +437,55 @@ export class Dashboard implements OnInit {
       error: () => {
         this.isLoadingAppointments.set(false);
         this.appointmentsError.set('تعذر تحميل حجوزات اليوم. حاول مرة أخرى.');
+      },
+    });
+  }
+  completeAppointment(appointment: AppointmentCard): void {
+    if (
+      appointment.appointmentId === undefined ||
+      this.completingAppointmentId() !== null
+    ) {
+      return;
+    }
+
+    const id = appointment.appointmentId;
+
+    this.completingAppointmentId.set(String(id));
+    this.completeAppointmentError.set('');
+
+    this.appointmentsService.completeAppointment(id).subscribe({
+      next: () => {
+        this.loadTodayAppointments(1, 5);
+        this.completingAppointmentId.set(null);
+        Swal.fire({
+          html: `
+                          <div style="display: flex; flex-direction: column; align-items: center;">
+                           <div>
+                              <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                               <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                               <path fill-rule="evenodd" clip-rule="evenodd"
+                               d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                               fill="#009917" />
+                              </svg>
+                           </div>
+                           <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم إنهاء الحجز بنجاح</h2>
+                          </div>
+                          `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
+      },
+      error: (error) => {
+        console.error('Complete appointment error:', error);
+        this.completingAppointmentId.set(null);
+        this.completeAppointmentError.set('تعذر إنهاء الحجز. حاول مرة أخرى.');
       },
     });
   }

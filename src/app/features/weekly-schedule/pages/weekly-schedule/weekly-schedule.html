@@ -47,7 +47,8 @@
 							<span class="empty-day">لا توجد مواعيد</span>
 						}
 						@for (slot of slotsForDay(day.dateKey); track slot.id ?? $index) {
-						<article class="appointment-block">
+						<article class="appointment-block"
+						[class.expired]="isSlotExpired(slot)">	
 							<strong>{{ slot.clinicLocationName }}</strong>
 							<time>
 								{{ slot.start_time }}@if (slot.end_time) { - {{ slot.end_time }} }

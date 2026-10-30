@@ -4,13 +4,15 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Auth } from '../../features/auth/services/auth';
 
 export const authGuard: CanActivateFn = () => {
+  const platformId = inject(PLATFORM_ID);
   const router = inject(Router);
+  const auth = inject(Auth);
 
-  if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+  if (!isPlatformBrowser(platformId)) {
     return true;
   }
 
-  const auth = inject(Auth);
-
-  return auth.hasAdminSession() ? true : router.createUrlTree(['/auth/admin-login']);
+  return auth.hasAdminSession()
+    ? true
+    : router.createUrlTree(['/auth/admin-login']);
 };

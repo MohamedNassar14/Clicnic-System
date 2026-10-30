@@ -139,6 +139,26 @@
 	color: #b88747;
 }
 
+.view-details-button {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #eef4ff;
+    color: #1a5cff;
+    border-color: #1a5cff;
+  }
+}
+
 .appointment-badge.status {
 	background: #eaf0ff;
 	color: #3154a0;

@@ -216,4 +216,12 @@ export class Auth {
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
   }
+
+  isBrowser(): boolean {
+  return isPlatformBrowser(this.platformId);
+}
+
+hasAnySession(): boolean {
+  return this.hasAdminSession() || this.hasPatientSession();
+}
 }

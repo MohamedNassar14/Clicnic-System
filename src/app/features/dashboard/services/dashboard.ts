@@ -31,6 +31,7 @@ export interface TodayAppointmentResponse {
   visit_type?: string;
   visit_type_label?: string;
   status?: string;
+  created_at?: string;
   payment_status?: string;
   start_time?: string;
   end_time?: string;

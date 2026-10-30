@@ -24,18 +24,18 @@
             <div class="appointment-meta">
                 <span class="meta-items text-white">
                     <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <circle cx="10" cy="10" r="7.2" />
-                                <path d="M10 5.8v4.5l3 1.8" />
-                            </svg>
-                <span>{{ appointment.time }}</span>
+                        <circle cx="10" cy="10" r="7.2" />
+                        <path d="M10 5.8v4.5l3 1.8" />
+                    </svg>
+                    <span>{{ appointment.time }}</span>
                 </span>
                 <span class="meta-dots" aria-hidden="true"></span>
                 <span class="meta-items text-white">
                     <svg viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
-                                <circle cx="10" cy="8" r="1.8" />
-                            </svg>
-                <span>  {{ appointment.clinicAddress }}</span>
+                        <path d="M16 8.3c0 4.2-6 9.2-6 9.2S4 12.5 4 8.3a6 6 0 1 1 12 0Z" />
+                        <circle cx="10" cy="8" r="1.8" />
+                    </svg>
+                    <span> {{ appointment.clinicAddress }}</span>
                 </span>
                 <span class="meta-dots" aria-hidden="true"></span>
                 <span class="meta-items text-white">
@@ -45,7 +45,7 @@
             </div>
             @if (appointment.appointmentId !== undefined) {
             <a class="doctor-record-link doctor-record-link--current"
-               [routerLink]="['/admin/appointments',appointment.appointmentId,'medical-record']"
+                [routerLink]="['/admin/appointments',appointment.appointmentId,'medical-record']"
                 [queryParams]="{ patientId: appointment.patientId ?? null }" [state]="{
                     patientId: appointment.patientId,
                     patientName: appointment.patientName,
@@ -82,13 +82,23 @@
                 <div class="doctor-patient-avatar" aria-hidden="true">{{ appointment.patientInitials || '؟' }}</div>
                 <div class="doctor-patient-info">
                     <h3 class="text-lg mb-0">{{ appointment.patientName }}</h3>
-                      <div class="appointments-meta">
+                    <div class="appointments-meta">
                         <span class="meta-item">
                             <svg viewBox="0 0 20 20" aria-hidden="true">
                                 <circle cx="10" cy="10" r="7.2" />
                                 <path d="M10 5.8v4.5l3 1.8" />
                             </svg>
                             <span>{{ appointment.time }}</span>
+                        </span>
+                        <span class="meta-dot" aria-hidden="true"></span>
+                        <span class="meta-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 25 25"
+                                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="3" y="5" width="18" height="16" rx="2" />
+                                <path d="M16 3v4M8 3v4M3 11h18" />
+                            </svg>
+                            <span>{{ appointment.created_at}}</span>
                         </span>
                         <span class="meta-dot" aria-hidden="true"></span>
                         <span class="meta-item">
@@ -335,6 +345,10 @@
                     @if (appointment.statusText) {
                     <span class="appointment-badge status">{{ appointment.statusText }}</span>
                     }
+                    <span class="appointment-badge" [class.paid]="appointment.isPaid"
+                        [class.unpaid]="!appointment.isPaid">
+                        {{ appointment.paymentStatusText }}
+                    </span>
                     @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
                     <button type="button" class="set-current-button" [disabled]="settingCurrentAppointmentId() !== null"
                         [attr.aria-pressed]="false"
@@ -347,10 +361,21 @@
                         </span>
                     </button>
                     }
-                    <span class="appointment-badge" [class.paid]="appointment.isPaid"
-                        [class.unpaid]="!appointment.isPaid">
-                        {{ appointment.paymentStatusText }}
+                     @if (!appointment.isPaid) {
+                <button type="button" class="set-current-button complete-button"
+                    [disabled]="completingAppointmentId() !== null" (click)="completeAppointment(appointment)"
+                    [attr.aria-label]="'إنهاء حجز ' + appointment.patientName">
+                    <app-icons [iconKey]="'toggleOff'"></app-icons>
+
+                    <span>
+                        {{
+                        completingAppointmentId() === '' + appointment.appointmentId
+                        ? 'جاري إنهاء الحجز...'
+                        : 'إنهاء الحجز'
+                        }}
                     </span>
+                </button>
+                }
                 </div>
             </div>
         </article>

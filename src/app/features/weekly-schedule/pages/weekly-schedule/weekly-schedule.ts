@@ -41,6 +41,7 @@ function readCollection<T>(
 
 interface ScheduledTimeSlot extends TimeSlot {
   clinicLocationName: string;
+  date: string;
 }
 
 @Component({
@@ -123,6 +124,24 @@ export class WeeklySchedule implements OnInit {
     this.loadTimeSlots();
   }
 
+  isSlotExpired(slot: ScheduledTimeSlot): boolean {
+  const slotDateTime = new Date(`${slot.date}T${this.normalizeTime(slot.start_time)}`);
+  return slotDateTime < new Date();
+}
+
+private normalizeTime(time: string): string {
+  // لو الوقت جاي بصيغة 12:00 ص أو 12:00 م
+  const isPM = time.includes('م');
+  const isAM = time.includes('ص');
+
+  let [hours, minutes] = time.replace(/[صم]/g, '').trim().split(':').map(Number);
+
+  if (isPM && hours !== 12) hours += 12;
+  if (isAM && hours === 12) hours = 0;
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+}
+
   openCreateDialog(): void {
     this.saveError.set('');
     this.slotForm.reset({
@@ -191,62 +210,80 @@ export class WeeklySchedule implements OnInit {
       },
     });
   }
+private loadTimeSlots(): void {
+  const locations = this.locations();
 
-  private loadTimeSlots(): void {
-    const locations = this.locations();
-    if (locations.length === 0) {
-      this.slotsByDate.set({});
-      return;
+  if (locations.length === 0) {
+    this.slotsByDate.set({});
+    return;
+  }
+
+  this.isLoading.set(true);
+  this.loadError.set('');
+
+  const requests = locations.map(location =>
+    this.appointmentsService.getBranchTimeSlots(location.id).pipe(
+      map(response => ({
+        locationName: location.name,
+        slots: this.readAppointmentTimeSlots(response),
+      }))
+    )
+  );
+
+  forkJoin(requests).subscribe({
+    next: results => {
+      const groupedSlots: Record<string, ScheduledTimeSlot[]> = {};
+
+      results.forEach(({ locationName, slots }) => {
+  slots.forEach(slot => {
+    const dateKey = slot.date;
+
+    if (!dateKey) return;
+
+    if (!groupedSlots[dateKey]) {
+      groupedSlots[dateKey] = [];
     }
 
-    this.isLoading.set(true);
-    this.loadError.set('');
-    const todayDate = formatDate(this.today);
-    const requests = locations.map((location) =>
-      this.appointmentsService.getTimeSlots(location.id, todayDate).pipe(
-        map((response) => ({
-          locationName: location.name,
-          slots: this.readAppointmentTimeSlots(response),
-        })),
-      ),
-    );
+    groupedSlots[dateKey].push({
+  id: slot.id,
+  date: dateKey,
+  start_time: slot.start_time,
+  end_time: slot.end_time ?? undefined,
+  clinicLocationName: locationName,
+});
+  });
+});
 
-    forkJoin(requests).subscribe({
-      next: (results) => {
-        const dateSlots = results.flatMap(({ locationName, slots }) =>
-          slots.map((slot) => ({
-            ...slot,
-            clinicLocationName: locationName,
-          })),
+      // ترتيب المواعيد داخل كل يوم
+      Object.values(groupedSlots).forEach(daySlots => {
+        daySlots.sort((a, b) =>
+          a.start_time.localeCompare(b.start_time)
         );
-        dateSlots.sort((first, second) => first.start_time.localeCompare(second.start_time));
-        this.slotsByDate.set({ [todayDate]: dateSlots });
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.loadError.set('تعذر تحميل المواعيد. حاول مرة أخرى.');
-      },
-    });
-  }
+      });
 
-  private readAppointmentTimeSlots(
-    response: AppointmentTimeSlot[] | AppointmentTimeSlotsResponse,
-  ): TimeSlot[] {
-    const slots = Array.isArray(response) ? response : response.time_slots ?? response.data ?? [];
-    return slots.flatMap((slot) => {
-      if (!slot.start_time) {
-        return [];
-      }
+      this.slotsByDate.set(groupedSlots);
+      this.isLoading.set(false);
+    },
 
-      return [{
-        id: slot.id,
-        start_time: slot.start_time,
-        end_time: slot.end_time ?? undefined,
-      }];
-    });
-  }
+    error: () => {
+      this.isLoading.set(false);
+      this.loadError.set('تعذر تحميل المواعيد. حاول مرة أخرى.');
+    },
+  });
+}
 
+private readAppointmentTimeSlots(
+  response: AppointmentTimeSlot[] | AppointmentTimeSlotsResponse,
+): (AppointmentTimeSlot & { start_time: string })[] {
+  const slots = Array.isArray(response)
+    ? response
+    : response.time_slots ?? response.data ?? [];
+
+  return slots.filter(
+    (slot): slot is AppointmentTimeSlot & { start_time: string } =>
+      !!slot.date && slot.start_time !== null && slot.start_time !== ''
+  );
+}
   private getWeekStart(date: Date): Date {
     const weekStart = startOfDay(date);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());

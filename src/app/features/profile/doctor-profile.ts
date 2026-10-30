@@ -134,6 +134,7 @@ export class DoctorProfile implements OnInit {
   readonly isSaving = signal(false);
   readonly saveError = signal('');
   readonly saveSuccess = signal('');
+  readonly profilePhoto = signal<string | null>(null);
   readonly doctorForm = new FormGroup({
     specialty: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     title: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -159,35 +160,58 @@ export class DoctorProfile implements OnInit {
   }
 
   loadProfile(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
+  this.isLoading.set(true);
+  this.errorMessage.set('');
 
-    this.profileService.getDoctorProfile().subscribe({
-      next: (response) => {
-        if (isRecord(response) && response['status'] === false) {
-          this.profileFields.set([]);
-          this.errorMessage.set(
-            typeof response['msg'] === 'string' && response['msg']
-              ? response['msg']
-              : 'تعذر تحميل بيانات الملف الشخصي.',
-          );
-          this.isLoading.set(false);
-          return;
-        }
+  this.profileService.getDoctorProfile().subscribe({
+    next: (response) => {
+      console.log('Profile API Response:', response);
 
-        this.setFormFromProfile(response);
-        const fields = readDoctorProfile(response);
-        this.profileFields.set(fields);
-        this.errorMessage.set(fields.length > 0 ? '' : 'لم يتم العثور على بيانات الملف الشخصي.');
-        this.isLoading.set(false);
-      },
-      error: () => {
+      this.isLoading.set(false);
+
+      if (isRecord(response) && response['status'] === false) {
         this.profileFields.set([]);
-        this.errorMessage.set('تعذر تحميل بيانات الملف الشخصي. تحقق من اتصالك وحاول مرة أخرى.');
-        this.isLoading.set(false);
-      },
-    });
-  }
+        this.errorMessage.set(
+          typeof response['msg'] === 'string'
+            ? response['msg']
+            : 'تعذر تحميل بيانات الملف الشخصي.'
+        );
+        return;
+      }
+
+      const sources = readProfileSources(response);
+
+      const photoUrl = this.readStringFromSources(
+        sources,
+        ['photo_url']
+      );
+
+      this.profilePhoto.set(photoUrl || null);
+      this.previewUrl = photoUrl || null;
+
+      this.setFormFromProfile(response);
+
+      const fields = readDoctorProfile(response);
+      this.profileFields.set(fields);
+
+      this.errorMessage.set(
+        fields.length > 0
+          ? ''
+          : 'لم يتم العثور على بيانات الملف الشخصي.'
+      );
+    },
+
+    error: (error) => {
+      console.error('Profile API Error:', error);
+
+      this.isLoading.set(false);
+      this.profileFields.set([]);
+      this.errorMessage.set(
+        'تعذر تحميل بيانات الملف الشخصي. حاول مرة أخرى.'
+      );
+    },
+  });
+}
 
   openEditDialog(): void {
     this.saveError.set('');
@@ -438,12 +462,14 @@ uploadPhoto(): void {
   this.uploading.set(true);
 
   this.http.post(`${this.apiUrl}?photo_path`, formData).subscribe({
-    next: (response) => {
-      console.log('Upload success:', response);
+    next: (response: any) => {
+  this.uploading.set(false);
+  this.photoUploaded.set(true);
 
-      this.uploading.set(false);
-      this.photoUploaded.set(true);
-    },
+  if (response?.doctor?.photo_url) {
+    this.previewUrl = response.doctor.photo_url;
+  }
+},
     error: (error) => {
       console.error('Upload failed:', error);
 

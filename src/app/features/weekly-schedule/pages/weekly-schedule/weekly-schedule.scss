@@ -134,6 +134,12 @@
 	white-space: nowrap;
 }
 
+.appointment-block.expired {
+  border-color: #f3b8b9;
+  background: #ffe9e9;
+  color: #873b42;
+}
+
 :host::ng-deep .p-select-dropdown {
 	display: flex;
 	width: 36px;
