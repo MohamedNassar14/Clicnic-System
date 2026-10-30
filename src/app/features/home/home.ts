@@ -123,6 +123,8 @@ export class Home implements OnInit {
   private timeSlotsRequestId = 0;
   private visitTypesRequestId = 0;
   readonly doctorProfile = signal<DoctorProfile | null>(null);
+  readonly mobileMenuOpen = signal(false);
+  
 
   readonly bookingActive = signal(false);
   readonly bookingStep = signal(1);

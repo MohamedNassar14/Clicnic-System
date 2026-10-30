@@ -256,30 +256,146 @@
 } @else {
 <main class="home-page" id="top">
     <header class="site-header">
-        <a class="brand" routerLink="/home" aria-label="FlowCare الرئيسية">
-            <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" priority alt="" />
-            <span>Flow<span class="brand-accent">Care</span></span>
+    <!-- Logo -->
+    <a class="brand" routerLink="/home" aria-label="FlowCare الرئيسية">
+        <img ngSrc="/assets/images/wajha-logo.png" width="42" height="42" priority alt="" />
+        <span>Flow<span class="brand-accent">Care</span></span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="main-nav desktop-nav" aria-label="التنقل الرئيسي">
+        <a href="#top" (click)="scrollToSection($event, 'top')">الرئيسية</a>
+        <a href="#branches" (click)="scrollToSection($event, 'branches')">فروعنا</a>
+        <a href="#services" (click)="scrollToSection($event, 'services')">خدماتنا</a>
+        <a href="#contact" (click)="scrollToSection($event, 'contact')">تواصل معنا</a>
+    </nav>
+
+    <!-- Desktop Actions -->
+    <div class="header-actions desktop-actions">
+        <a class="header-book" href="#booking" (click)="openBooking($event)">
+            احجز موعدك
         </a>
 
-        <nav class="main-nav" aria-label="التنقل الرئيسي">
-            <a href="#top" (click)="scrollToSection($event, 'top')">الرئيسية</a>
-            <a href="#branches" (click)="scrollToSection($event, 'branches')">فروعنا</a>
-            <a href="#services" (click)="scrollToSection($event, 'services')">خدماتنا</a>
-            <a href="#contact" (click)="scrollToSection($event, 'contact')">تواصل معنا</a>
-        </nav>
+        <a class="header-profile" routerLink="/my-profile">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 21a8 8 0 0 0-16 0"></path>
+                <circle cx="12" cy="8" r="4"></circle>
+            </svg>
+            <span>ملفي الشخصي</span>
+        </a>
 
-        <div class="header-actions">
-            <a class="header-book" href="#booking" (click)="openBooking($event)">احجز موعدك</a>
-            <a class="header-profile" routerLink="/my-profile" aria-label="ملفي الشخصي" title="ملفي الشخصي">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M20 21a8 8 0 0 0-16 0"></path>
-                    <circle cx="12" cy="8" r="4"></circle>
-                </svg>
+        <button class="header-logout" type="button" (click)="logout()">
+            تسجيل الخروج
+        </button>
+    </div>
+
+    <!-- Mobile Menu Icon -->
+    <button
+        type="button"
+        class="mobile-menu-toggle"
+        (click)="mobileMenuOpen.set(true)"
+        aria-label="فتح القائمة"
+        [attr.aria-expanded]="mobileMenuOpen()"
+    >
+        <span></span>
+  <span></span>
+  <span></span>
+    </button>
+</header>
+
+<!-- Mobile Sidebar -->
+@if (mobileMenuOpen()) {
+    <!-- Overlay -->
+    <div
+        class="mobile-sidebar-overlay"
+        (click)="mobileMenuOpen.set(false)"
+    ></div>
+
+    <!-- Sidebar -->
+    <aside class="mobile-sidebar" dir="rtl">
+
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <a class="brand" routerLink="/home" (click)="mobileMenuOpen.set(false)">
+                <img ngSrc="/assets/images/wajha-logo.png" width="38" height="38" alt="" />
+                <span>Flow<span class="brand-accent">Care</span></span>
+            </a>
+
+            <button
+                type="button"
+                class="sidebar-close"
+                (click)="mobileMenuOpen.set(false)"
+                aria-label="إغلاق القائمة"
+            >
+                <svg class="close-menu" viewBox="0 0 24 24">
+    <path d="M6 6L18 18M18 6L6 18"></path>
+  </svg>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-navigation">
+
+            <a href="#top"
+                class="sidebar-link"
+                (click)="scrollToSection($event, 'top'); mobileMenuOpen.set(false)">
+                <i class="pi pi-home"></i>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="#branches"
+                class="sidebar-link"
+                (click)="scrollToSection($event, 'branches'); mobileMenuOpen.set(false)">
+                <i class="pi pi-map-marker"></i>
+                <span>فروعنا</span>
+            </a>
+
+            <a href="#services"
+                class="sidebar-link"
+                (click)="scrollToSection($event, 'services'); mobileMenuOpen.set(false)">
+                <i class="pi pi-heart"></i>
+                <span>خدماتنا</span>
+            </a>
+
+            <a href="#contact"
+                class="sidebar-link"
+                (click)="scrollToSection($event, 'contact'); mobileMenuOpen.set(false)">
+                <i class="pi pi-phone"></i>
+                <span>تواصل معنا</span>
+            </a>
+
+            <a routerLink="/my-profile"
+                class="sidebar-link text-center"
+                (click)="mobileMenuOpen.set(false)">
+                <i class="pi pi-user"></i>
                 <span>ملفي الشخصي</span>
             </a>
-            <button class="header-logout" type="button" (click)="logout()">تسجيل الخروج</button>
+
+            <div class="sidebar-divider"></div>
+
+            <a href="#booking"
+                class="sidebar-book"
+                (click)="openBooking($event); mobileMenuOpen.set(false)">
+                <i class="pi pi-calendar-plus"></i>
+                <span>احجز موعدك</span>
+            </a>
+
+            <button
+                type="button"
+                class="sidebar-logout"
+                (click)="mobileMenuOpen.set(false); logout()"
+            >
+                <i class="pi pi-sign-out"></i>
+                <span>تسجيل الخروج</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            © FlowCare — رعايتك تبدأ بخطوة
         </div>
-    </header>
+    </aside>
+}
 
     <section class="hero" id="home" aria-labelledby="hero-title">
         <img class="hero-image" ngSrc="/assets/images/banner2.png" fill priority alt="استقبال عيادة FlowCare" />
