@@ -6,4 +6,5 @@ export const routes: Routes =
     { path: 'admin-login', canActivate: [guestGuard], loadComponent: () => import('./pages/admin-login/admin-login').then(c => c.AdminLogin)},
     { path: 'patient-login', canActivate: [guestGuard], loadComponent: () => import('./pages/patient-login/patient-login').then(c => c.PatientLogin)},
     { path: 'register', canActivate: [guestGuard], loadComponent: () => import('./pages/register/register').then(c => c.Register)},
+    { path: 'verify-phone',  loadComponent: () => import('./pages/verify-otp/verify-otp').then(c => c.VerifyOtp)}
 ];

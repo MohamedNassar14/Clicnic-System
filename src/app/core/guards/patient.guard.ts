@@ -14,5 +14,5 @@ export const patientGuard: CanActivateFn = () => {
 
   return auth.hasPatientSession()
     ? true
-    : router.createUrlTree(['/auth/register']);
+    : router.createUrlTree(['/auth/patient-login']);
 };

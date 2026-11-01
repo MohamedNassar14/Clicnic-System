@@ -1,53 +1,67 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../services/auth';
+import { Icons } from '../../../../shared/components/icons/icons';
+
 
 @Component({
   selector: 'app-patient-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, Icons],
   templateUrl: './patient-login.html',
   styleUrl: './patient-login.scss',
 })
 export class PatientLogin {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly authService = inject(Auth);
-  private readonly router = inject(Router);
+  constructor(private fb: FormBuilder,private authService: Auth, private router: Router) { }
 
-  readonly isLoading = signal(false);
-  readonly errorMessage = signal('');
-  readonly loginForm = this.formBuilder.nonNullable.group({
-    phone: ['', Validators.required],
-    password: ['', Validators.required],
-  });
+  loginForm!: FormGroup;
+  isLoading = signal<boolean>(false);
+  showPassword: boolean = false;
 
-  isInvalid(controlName: 'phone' | 'password'): boolean {
-    const control = this.loginForm.controls[controlName];
-    return control.invalid && (control.touched || control.dirty);
+  ngOnInit(): void {
+    // if(this.authService.getToken()) {
+    //   this.router.navigate(['/']);
+    // }
+    this.initialForm();
   }
 
-  onSubmitData(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
+    togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
+  
+  initialForm() {
+    this.loginForm = this.fb.group({
+      phone: ['', Validators.required],
+    });
+  }
+
+  isInvalid(controlName: string): boolean {
+    const control = this.loginForm.get(controlName);
+    return !!(
+      control &&
+      control.invalid &&
+      (control.touched || control.dirty)
+    );
+  }
+
+  hasError(controlName: string, error: string): boolean {
+    const control = this.loginForm.get(controlName);
+    return !!control?.errors?.[error];
+  }
+
+  onSubmitData() {
     this.isLoading.set(true);
-    this.errorMessage.set('');
-
-    this.authService.patientSignIn(this.loginForm.getRawValue()).subscribe({
+    this.authService.signIn(this.loginForm.value).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         if (response.status) {
-          this.authService.savePatientSession(response);
-          this.router.navigate(['/home']);
-        } else {
-          this.errorMessage.set(response.msg || 'رقم الهاتف أو كلمة المرور غير صحيحة');
+          this.authService.saveSession(response);
+          this.router.navigate(['/admin/verify-phone']);
         }
       },
       error: () => {
         this.isLoading.set(false);
-        this.errorMessage.set('تعذر تسجيل الدخول، تحقق من البيانات وحاول مرة أخرى');
       },
     });
   }

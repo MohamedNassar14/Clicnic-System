@@ -52,7 +52,7 @@ describe('route guards', () => {
     hasPatientSession = false;
     const result = TestBed.runInInjectionContext(() => patientGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     expect(result).toBeInstanceOf(UrlTree);
-    expect(router.serializeUrl(result as UrlTree)).toBe('/auth/register');
+    expect(router.serializeUrl(result as UrlTree)).toBe('/auth/patient-login');
   });
 
   it('redirects authenticated users away from guest routes', () => {

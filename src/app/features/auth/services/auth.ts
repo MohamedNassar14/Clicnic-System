@@ -49,6 +49,7 @@ export interface LoginResponse {
       role?: string | number;
     };
     access_token: string;
+    profile_completed?: boolean;
   };
 }
 
@@ -68,16 +69,19 @@ export class Auth {
   private readonly httpClient = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
 
-  signIn(data: object): Observable<LoginResponse> {
-    return this.httpClient.post<LoginResponse>(`${environment.url}admin/login`, data);
+  verifyCode(data: object): Observable<LoginResponse> {
+    return this.httpClient.post<LoginResponse>(`${environment.url}auth/verify-otp`, data);
   }
 
+  signIn(data: object): Observable<LoginResponse> {
+    return this.httpClient.post<LoginResponse>(`${environment.url}login`, data);
+  }
   patientSignIn(data: PatientLoginPayload): Observable<LoginResponse> {
     return this.httpClient.post<LoginResponse>(`${environment.url}login`, data);
   }
 
   register(data: RegisterPayload): Observable<RegisterResponse> {
-    return this.httpClient.post<RegisterResponse>(`${environment.url}register`, data);
+    return this.httpClient.post<RegisterResponse>(`${environment.url}patient/profile`, data);
   }
 
   saveSession(response: LoginResponse): void {

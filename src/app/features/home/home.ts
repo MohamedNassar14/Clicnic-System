@@ -179,7 +179,7 @@ export class Home implements OnInit {
 
   logout(): void {
     this.authService.logout();
-    void this.router.navigateByUrl('/auth/register');
+    void this.router.navigateByUrl('/auth/patient-login');
   }
 
   closeBooking(): void {
