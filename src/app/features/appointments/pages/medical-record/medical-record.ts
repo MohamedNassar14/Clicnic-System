@@ -14,6 +14,7 @@ import {
   PrescriptionItemPayload,
   PrescriptionPayload,
 } from '../../services/appointments';
+import Swal from 'sweetalert2';
 
 interface PatientNavigationState {
   patientId?: number | string;
@@ -218,6 +219,13 @@ export class MedicalRecord implements OnInit {
   readonly patientPhone = this.patientState.patientPhone ?? '';
   readonly isDiagnosisPopupOpen = signal(false);
   readonly isPrescriptionPopupOpen = signal(false);
+  readonly isMedicalFilePopupOpen = signal(false);
+  readonly medicalFileCategory = signal<'radiology' | 'analysis'>('radiology');
+  readonly selectedMedicalFile = signal<File | null>(null);
+  readonly selectedMedicalFileRecord = signal<MedicalHistoryRecord | null>(null);
+  readonly isUploadingMedicalFile = signal(false);
+  readonly medicalFileError = signal('');
+  readonly medicalFileSuccess = signal('');
   readonly isLoadingHistory = signal(true);
   readonly historyError = signal('');
   readonly isSaving = signal(false);
@@ -228,6 +236,8 @@ export class MedicalRecord implements OnInit {
   readonly prescriptionSuccess = signal('');
   readonly selectedPrescriptionRecord = signal<MedicalHistoryRecord | null>(null);
   readonly medicalRecords = signal<MedicalHistoryRecord[]>([]);
+  readonly isFinishingAppointment = signal(false);
+  readonly finishAppointmentError = signal('');
 
   readonly diagnosisForm = this.formBuilder.nonNullable.group({
     record_type: ['checkup', Validators.required],
@@ -315,7 +325,6 @@ export class MedicalRecord implements OnInit {
           },
           ...records,
         ]);
-        this.saveSuccess.set(response.msg || 'تم حفظ التشخيص بنجاح.');
         this.isDiagnosisPopupOpen.set(false);
         this.diagnosisForm.reset();
         this.loadPatientHistory();
@@ -354,6 +363,84 @@ export class MedicalRecord implements OnInit {
     this.isPrescriptionPopupOpen.set(false);
     this.prescriptionError.set('');
     this.selectedPrescriptionRecord.set(null);
+  }
+
+  onRecordActionClick(event: MouseEvent, record: MedicalHistoryRecord): void {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    if (target.closest('[data-record-action="upload-medical-file"]')) {
+      this.openMedicalFilePopup(record);
+    }
+  }
+
+  openMedicalFilePopup(record: MedicalHistoryRecord): void {
+    this.selectedMedicalFileRecord.set(record);
+    this.selectedMedicalFile.set(null);
+    this.medicalFileCategory.set('radiology');
+    this.medicalFileError.set(
+      record.id === undefined ? 'معرّف التشخيص غير متوفر، لا يمكن رفع الملف.' : '',
+    );
+    this.medicalFileSuccess.set('');
+    this.isMedicalFilePopupOpen.set(true);
+  }
+
+  closeMedicalFilePopup(): void {
+    if (this.isUploadingMedicalFile()) {
+      return;
+    }
+
+    this.isMedicalFilePopupOpen.set(false);
+    this.selectedMedicalFile.set(null);
+    this.selectedMedicalFileRecord.set(null);
+    this.medicalFileError.set('');
+  }
+
+  onMedicalFileSelected(event: Event): void {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.selectedMedicalFile.set(input.files?.[0] ?? null);
+    this.medicalFileError.set('');
+  }
+
+  uploadMedicalFile(): void {
+    const record = this.selectedMedicalFileRecord();
+    const file = this.selectedMedicalFile();
+    if (!record || record.id === undefined || !file || this.isUploadingMedicalFile()) {
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append('file', file);
+    payload.append('category', this.medicalFileCategory());
+
+    this.isUploadingMedicalFile.set(true);
+    this.medicalFileError.set('');
+    this.appointmentsService.uploadMedicalRecordAttachment(record.id, payload).subscribe({
+      next: (response) => {
+        this.isUploadingMedicalFile.set(false);
+        if (isRecord(response) && response['status'] === false) {
+          this.medicalFileError.set(
+            typeof response['msg'] === 'string' && response['msg']
+              ? response['msg']
+              : 'تعذر رفع الملف.',
+          );
+          return;
+        }
+
+        this.medicalFileSuccess.set('تم رفع الملف بنجاح.');
+        this.closeMedicalFilePopup();
+      },
+      error: () => {
+        this.isUploadingMedicalFile.set(false);
+        this.medicalFileError.set('تعذر رفع الملف. تحقق من اتصالك وحاول مرة أخرى.');
+      },
+    });
   }
 
   addPrescriptionItem(): void {
@@ -491,5 +578,65 @@ export class MedicalRecord implements OnInit {
         ? state.patientPhone
         : undefined,
     };
+  }
+
+  finishAppointment(): void {
+    if (!this.appointmentId || this.isFinishingAppointment()) {
+      return;
+    }
+
+    const id = Number(this.appointmentId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      this.finishAppointmentError.set('رقم الزيارة غير صحيح.');
+      return;
+    }
+
+    this.isFinishingAppointment.set(true);
+    this.finishAppointmentError.set('');
+
+    this.appointmentsService.completeAppointment(id).subscribe({
+      next: () => {
+        this.isFinishingAppointment.set(false);
+
+        Swal.fire({
+          html: `
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div>
+              <svg width="75" height="75" viewBox="0 0 113 113"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="56.5" cy="56.5" r="51.5"
+                  stroke="#009917" stroke-width="10" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                  fill="#009917" />
+              </svg>
+            </div>
+            <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">
+              تم إنهاء الزيارة بنجاح
+            </h2>
+          </div>
+        `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+        }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigate(['/admin/dashboard']);
+            }
+          });
+      },
+
+      error: (error) => {
+        console.error('Finish appointment error:', error);
+
+        this.isFinishingAppointment.set(false);
+        this.finishAppointmentError.set('تعذر إنهاء الزيارة. حاول مرة أخرى.');
+      },
+    });
   }
 }

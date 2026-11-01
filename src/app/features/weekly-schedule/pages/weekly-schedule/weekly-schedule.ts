@@ -16,6 +16,7 @@ import {
   TimeSlot,
   TimeSlotsService,
 } from '../../services/time-slots';
+import Swal from 'sweetalert2';
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -42,8 +43,8 @@ function readCollection<T>(
 interface ScheduledTimeSlot extends TimeSlot {
   clinicLocationName: string;
   date: string;
+  status: 'booked' | 'available';
 }
-
 @Component({
   selector: 'app-weekly-schedule',
   imports: [DatePickerModule, DialogModule, ReactiveFormsModule, SelectModule],
@@ -67,13 +68,21 @@ export class WeeklySchedule implements OnInit {
   readonly slotForm = new FormGroup({
     clinicLocationId: new FormControl<number | null>(null, Validators.required),
     date: new FormControl<Date | null>(startOfDay(new Date()), Validators.required),
-    startTime: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    endTime: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    startTime: new FormControl<Date | null>(null, Validators.required),
+    endTime: new FormControl<Date | null>(null, Validators.required),
   });
 
   readonly monthLabel = computed(() =>
     this.activeDate().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
   );
+
+  private formatTime(date: Date): string {
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
+
+  private timeToMinutes(date: Date): number {
+    return date.getHours() * 60 + date.getMinutes();
+  }
 
   readonly weekDays = computed(() => {
     const weekStart = new Date(this.activeDate());
@@ -124,31 +133,32 @@ export class WeeklySchedule implements OnInit {
     this.loadTimeSlots();
   }
 
+
   isSlotExpired(slot: ScheduledTimeSlot): boolean {
-  const slotDateTime = new Date(`${slot.date}T${this.normalizeTime(slot.start_time)}`);
-  return slotDateTime < new Date();
-}
+    const slotDateTime = new Date(`${slot.date}T${this.normalizeTime(slot.start_time)}`);
+    return slotDateTime < new Date();
+  }
 
-private normalizeTime(time: string): string {
-  // لو الوقت جاي بصيغة 12:00 ص أو 12:00 م
-  const isPM = time.includes('م');
-  const isAM = time.includes('ص');
+  private normalizeTime(time: string): string {
+    // لو الوقت جاي بصيغة 12:00 ص أو 12:00 م
+    const isPM = time.includes('م');
+    const isAM = time.includes('ص');
 
-  let [hours, minutes] = time.replace(/[صم]/g, '').trim().split(':').map(Number);
+    let [hours, minutes] = time.replace(/[صم]/g, '').trim().split(':').map(Number);
 
-  if (isPM && hours !== 12) hours += 12;
-  if (isAM && hours === 12) hours = 0;
+    if (isPM && hours !== 12) hours += 12;
+    if (isAM && hours === 12) hours = 0;
 
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
-}
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+  }
 
   openCreateDialog(): void {
     this.saveError.set('');
     this.slotForm.reset({
       clinicLocationId: this.slotForm.controls.clinicLocationId.value ?? this.locations()[0]?.id ?? null,
       date: this.activeDate() < this.today ? this.today : this.activeDate(),
-      startTime: '',
-      endTime: '',
+      startTime: null,
+      endTime: null,
     });
     this.isDialogVisible.set(true);
   }
@@ -160,12 +170,20 @@ private normalizeTime(time: string): string {
     }
 
     const value = this.slotForm.getRawValue();
-    if (!value.clinicLocationId || !value.date || formatDate(value.date) < formatDate(this.today)) {
-      this.slotForm.controls.date.markAsTouched();
+
+    if (
+      !value.clinicLocationId ||
+      !value.date ||
+      !value.startTime ||
+      !value.endTime ||
+      formatDate(value.date) < formatDate(this.today)
+    ) {
+      this.slotForm.markAllAsTouched();
       return;
     }
 
-    if (value.endTime <= value.startTime) {
+    // Compare start and end times
+    if (this.timeToMinutes(value.endTime) <= this.timeToMinutes(value.startTime)) {
       this.saveError.set('وقت النهاية يجب أن يكون بعد وقت البداية.');
       return;
     }
@@ -173,18 +191,43 @@ private normalizeTime(time: string): string {
     const payload: CreateTimeSlotPayload = {
       clinic_location_id: value.clinicLocationId,
       date: formatDate(value.date),
-      start_time: value.startTime,
-      end_time: value.endTime,
+      start_time: this.formatTime(value.startTime),
+      end_time: this.formatTime(value.endTime),
     };
 
     this.isSaving.set(true);
     this.saveError.set('');
+
     this.timeSlotsService.createTimeSlot(payload).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.isDialogVisible.set(false);
         this.activeDate.set(value.date!);
         this.loadTimeSlots();
+        Swal.fire({
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center;"><div>
+           <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+            <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+            fill="#009917" />
+           </svg>
+                           </div>
+                           <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم إضافة الموعد بنجاح</h2>
+                          </div>
+                          `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
+
       },
       error: () => {
         this.isSaving.set(false);
@@ -210,80 +253,82 @@ private normalizeTime(time: string): string {
       },
     });
   }
-private loadTimeSlots(): void {
-  const locations = this.locations();
+  private loadTimeSlots(): void {
+    const locations = this.locations();
 
-  if (locations.length === 0) {
-    this.slotsByDate.set({});
-    return;
-  }
-
-  this.isLoading.set(true);
-  this.loadError.set('');
-
-  const requests = locations.map(location =>
-    this.appointmentsService.getBranchTimeSlots(location.id).pipe(
-      map(response => ({
-        locationName: location.name,
-        slots: this.readAppointmentTimeSlots(response),
-      }))
-    )
-  );
-
-  forkJoin(requests).subscribe({
-    next: results => {
-      const groupedSlots: Record<string, ScheduledTimeSlot[]> = {};
-
-      results.forEach(({ locationName, slots }) => {
-  slots.forEach(slot => {
-    const dateKey = slot.date;
-
-    if (!dateKey) return;
-
-    if (!groupedSlots[dateKey]) {
-      groupedSlots[dateKey] = [];
+    if (locations.length === 0) {
+      this.slotsByDate.set({});
+      return;
     }
 
-    groupedSlots[dateKey].push({
-  id: slot.id,
-  date: dateKey,
-  start_time: slot.start_time,
-  end_time: slot.end_time ?? undefined,
-  clinicLocationName: locationName,
-});
-  });
-});
+    this.isLoading.set(true);
+    this.loadError.set('');
 
-      // ترتيب المواعيد داخل كل يوم
-      Object.values(groupedSlots).forEach(daySlots => {
-        daySlots.sort((a, b) =>
-          a.start_time.localeCompare(b.start_time)
-        );
-      });
+    const requests = locations.map(location =>
+      this.appointmentsService.getBranchTimeSlots(location.id).pipe(
+        map(response => ({
+          locationName: location.name,
+          slots: this.readAppointmentTimeSlots(response),
+        }))
+      )
+    );
 
-      this.slotsByDate.set(groupedSlots);
-      this.isLoading.set(false);
-    },
+    forkJoin(requests).subscribe({
+      next: results => {
+        const groupedSlots: Record<string, ScheduledTimeSlot[]> = {};
 
-    error: () => {
-      this.isLoading.set(false);
-      this.loadError.set('تعذر تحميل المواعيد. حاول مرة أخرى.');
-    },
-  });
-}
+        results.forEach(({ locationName, slots }) => {
+          slots.forEach(slot => {
+            const dateKey = slot.date;
 
-private readAppointmentTimeSlots(
-  response: AppointmentTimeSlot[] | AppointmentTimeSlotsResponse,
-): (AppointmentTimeSlot & { start_time: string })[] {
-  const slots = Array.isArray(response)
-    ? response
-    : response.time_slots ?? response.data ?? [];
+            if (!dateKey) return;
 
-  return slots.filter(
-    (slot): slot is AppointmentTimeSlot & { start_time: string } =>
-      !!slot.date && slot.start_time !== null && slot.start_time !== ''
-  );
-}
+            if (!groupedSlots[dateKey]) {
+              groupedSlots[dateKey] = [];
+            }
+
+            groupedSlots[dateKey].push({
+              id: slot.id,
+              date: dateKey,
+              start_time: slot.start_time,
+              end_time: slot.end_time ?? undefined,
+              clinicLocationName: locationName,
+              status: slot.status,
+            });
+          });
+        });
+
+        // ترتيب المواعيد داخل كل يوم
+        Object.values(groupedSlots).forEach(daySlots => {
+          daySlots.sort((a, b) =>
+            a.start_time.localeCompare(b.start_time)
+          );
+        });
+
+        this.slotsByDate.set(groupedSlots);
+        this.isLoading.set(false);
+      },
+
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set('تعذر تحميل المواعيد. حاول مرة أخرى.');
+      },
+    });
+  }
+
+  private readAppointmentTimeSlots(
+    response: AppointmentTimeSlot[] | AppointmentTimeSlotsResponse,
+  ): (AppointmentTimeSlot & { start_time: string })[] {
+    const slots = Array.isArray(response)
+      ? response
+      : response.time_slots ?? response.data ?? [];
+
+    return slots.filter(
+      (slot): slot is AppointmentTimeSlot & { start_time: string } =>
+        !!slot.date && slot.start_time !== null && slot.start_time !== ''
+    );
+  }
+
   private getWeekStart(date: Date): Date {
     const weekStart = startOfDay(date);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());

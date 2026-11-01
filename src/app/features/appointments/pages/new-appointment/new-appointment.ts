@@ -273,7 +273,7 @@ export class NewAppointment implements OnInit {
             }
           }).then((result) => {
             if (result.isConfirmed) {
-              this.router.navigate(['/dashboard']);
+              this.router.navigate(['/admin/dashboard']);
             }
           });
         },
@@ -327,7 +327,7 @@ export class NewAppointment implements OnInit {
           }
         }).then((result) => {
           if (result.isConfirmed) {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/admin/dashboard']);
           }
         });
       },

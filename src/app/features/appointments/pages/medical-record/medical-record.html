@@ -26,6 +26,9 @@
     @if (prescriptionSuccess()) {
       <p class="save-success" role="status">{{ prescriptionSuccess() }}</p>
     }
+    @if (medicalFileSuccess()) {
+      <p class="save-success" role="status">{{ medicalFileSuccess() }}</p>
+    }
     @if (isLoadingHistory()) {
       <p class="history-state" role="status">جارٍ تحميل التشخيصات السابقة...</p>
     } @else if (historyError()) {
@@ -60,7 +63,10 @@
               }
             </section>
           }
-          <div class="record-actions" aria-label="إجراءات التشخيص">
+          <div
+            class="record-actions"
+            aria-label="إجراءات التشخيص"
+            (click)="onRecordActionClick($event, record)">
             @if (record.prescriptions.length === 0) {
               <button
                 class="record-action-button"
@@ -72,16 +78,17 @@
                 إضافة روشتة
               </button>
             }
-            <!-- <button
-              class="record-action-button"
-              type="button"
-              disabled
-              title="ستتوفر هذه الخاصية لاحقًا">
-              <svg viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
-              </svg>
-              رفع صور
-            </button> -->
+            <button
+  data-record-action="upload-medical-file"
+  class="record-action-button"
+  type="button"
+  [disabled]="record.id === undefined"
+  (click)="openMedicalFilePopup(record)">
+  <svg viewBox="0 0 20 20" aria-hidden="true">
+    <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
+  </svg>
+  رفع صور
+</button>
           </div>
         </article>
       }
@@ -210,4 +217,77 @@
       </section>
     </div>
   }
+  @if (isMedicalFilePopupOpen()) {
+    <div class="modal-backdrop" (click)="closeMedicalFilePopup()">
+      <section
+        class="medical-file-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="medical-file-modal-title"
+        (click)="$event.stopPropagation()">
+        <button
+          class="close-modal-button"
+          type="button"
+          aria-label="إغلاق"
+          [disabled]="isUploadingMedicalFile()"
+          (click)="closeMedicalFilePopup()">×</button>
+        <h2 id="medical-file-modal-title">رفع ملف طبي</h2>
+
+        <div class="medical-file-types" role="group" aria-label="نوع الملف">
+          <button
+            type="button"
+            [class.selected]="medicalFileCategory() === 'radiology'"
+            [attr.aria-pressed]="medicalFileCategory() === 'radiology'"
+            (click)="medicalFileCategory.set('radiology')">
+            أشعة <span aria-hidden="true">▯</span>
+          </button>
+          <button
+            type="button"
+            [class.selected]="medicalFileCategory() === 'analysis'"
+            [attr.aria-pressed]="medicalFileCategory() === 'analysis'"
+            (click)="medicalFileCategory.set('analysis')">
+            تحاليل <span aria-hidden="true">🧪</span>
+          </button>
+        </div>
+
+        <label class="medical-file-label" for="medical-file-input">اختر الملف</label>
+        <input
+          id="medical-file-input"
+          class="medical-file-input"
+          type="file"
+          accept="image/*,.pdf"
+          (change)="onMedicalFileSelected($event)" />
+        @if (medicalFileError()) {
+          <p class="save-error" role="alert">{{ medicalFileError() }}</p>
+        }
+        <button
+          class="medical-file-submit"
+          type="button"
+          [disabled]="
+            !selectedMedicalFile() ||
+            selectedMedicalFileRecord()?.id === undefined ||
+            isUploadingMedicalFile()
+          "
+          (click)="uploadMedicalFile()">
+          {{ isUploadingMedicalFile() ? 'جارٍ رفع الملف...' : 'رفع الملف' }}
+        </button>
+      </section>
+    </div>
+  }
+  <div class="finish flex justify-center">
+  @if (finishAppointmentError()) {
+    <p class="save-error" role="alert">
+      {{ finishAppointmentError() }}
+    </p>
+  }
+
+  <button
+    class="bg-[#1053fc] text-white font-bold px-[18px] rounded-xl min-h-[42px] min-w-[140px]"
+    type="button"
+    [disabled]="isFinishingAppointment()"
+    (click)="finishAppointment()">
+
+    {{ isFinishingAppointment() ? 'جارٍ إنهاء الزيارة...' : 'إنهاء الزيارة' }}
+  </button>
+</div>
 </section>

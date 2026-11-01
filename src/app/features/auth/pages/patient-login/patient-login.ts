@@ -52,7 +52,7 @@ export class PatientLogin {
 
   onSubmitData() {
     this.isLoading.set(true);
-    this.authService.signIn(this.loginForm.value).subscribe({
+    this.authService.patientSignIn(this.loginForm.value).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         if (response.status) {

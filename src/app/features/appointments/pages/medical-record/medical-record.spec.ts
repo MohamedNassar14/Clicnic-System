@@ -70,6 +70,23 @@ describe('AppointmentsService medical record', () => {
     expect(request.request.body).toEqual(payload);
     request.flush({ status: true, msg: 'Saved' });
   });
+
+  it('uploads an attachment to the selected medical record', () => {
+    const payload = new FormData();
+    payload.append('file', new File(['scan'], 'scan.png', { type: 'image/png' }));
+    payload.append('category', 'radiology');
+
+    service.uploadMedicalRecordAttachment(4, payload).subscribe();
+
+    const request = httpMock.expectOne(
+      `${environment.url}doctor/medical-records/4/attachments`,
+    );
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBe(payload);
+    expect(payload.get('category')).toBe('radiology');
+    expect((payload.get('file') as File).name).toBe('scan.png');
+    request.flush({ status: true, msg: 'Uploaded' });
+  });
 });
 
 describe('readMedicalHistory', () => {
@@ -125,6 +142,8 @@ describe('readMedicalHistory', () => {
 
   describe('MedicalRecord prescription display', () => {
     let fixture: ComponentFixture<MedicalRecord>;
+    const uploadMedicalRecordAttachment = jasmine.createSpy()
+      .and.returnValue(of({ status: true, msg: 'Uploaded' }));
 
     beforeEach(async () => {
       const historyResponse = {
@@ -198,6 +217,7 @@ describe('readMedicalHistory', () => {
             useValue: {
               getPatientHistory: () => of(historyResponse),
               createPrescription: () => of(prescriptionResponse),
+              uploadMedicalRecordAttachment,
             },
           },
           {
@@ -261,6 +281,103 @@ describe('readMedicalHistory', () => {
       expect(text).toContain('5 أيام');
       expect(text).toContain('يفضل شرب سوائل دافئة');
       expect(buttons.some((label) => label.includes('إضافة روشتة'))).toBeFalse();
+    });
+
+    it('opens the medical file popup from the upload button', () => {
+      const uploadButton = Array.from(
+        fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
+      ).find((button) => button.textContent?.includes('رفع صور'));
+
+      expect(uploadButton).toBeDefined();
+      uploadButton?.click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('رفع ملف طبي');
+      expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+    });
+
+    it('opens the medical file popup when clicking the upload icon', () => {
+      const uploadIcon = fixture.nativeElement.querySelector(
+        '[data-record-action="upload-medical-file"] svg path',
+      ) as SVGPathElement | null;
+      expect(uploadIcon).not.toBeNull();
+
+      uploadIcon?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+    });
+
+    it('opens the medical file popup when the record has no id', () => {
+      fixture.componentInstance.medicalRecords.set([{
+        record_type: 'checkup',
+        diagnosis: 'التهاب في الحلق',
+        treatment: 'نام كويس',
+        notes: '',
+        prescriptions: [],
+      }]);
+      fixture.detectChanges();
+
+      const uploadButton = Array.from(
+        fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
+      ).find((button) => button.textContent?.includes('رفع صور'));
+      expect(uploadButton?.disabled).toBeFalse();
+      uploadButton?.click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[role="dialog"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain(
+        'معرّف التشخيص غير متوفر، لا يمكن رفع الملف.',
+      );
+    });
+
+    it('uploads the selected file with the chosen category', () => {
+      const component = fixture.componentInstance;
+      const record = {
+        id: 4,
+        record_type: 'checkup',
+        diagnosis: 'التهاب في الحلق',
+        treatment: 'نام كويس',
+        notes: '',
+        prescriptions: [],
+      };
+      component.medicalRecords.set([record]);
+      fixture.detectChanges();
+
+      const uploadButton = Array.from(
+        fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
+      ).find((button) => button.textContent?.includes('رفع صور'));
+      uploadButton?.click();
+      fixture.detectChanges();
+
+      const fileInput = fixture.nativeElement.querySelector(
+        '#medical-file-input',
+      ) as HTMLInputElement;
+      const file = new File(['scan'], 'scan.png', { type: 'image/png' });
+      Object.defineProperty(fileInput, 'files', { value: [file] });
+      fileInput.dispatchEvent(new Event('change'));
+
+      const categoryButton = Array.from(
+        fixture.nativeElement.querySelectorAll('.medical-file-types button') as NodeListOf<HTMLButtonElement>,
+      ).find((button) => button.textContent?.includes('تحاليل'));
+      categoryButton?.click();
+      fixture.detectChanges();
+
+      const submitButton = fixture.nativeElement.querySelector(
+        '.medical-file-submit',
+      ) as HTMLButtonElement;
+      submitButton.click();
+      fixture.detectChanges();
+
+      expect(uploadMedicalRecordAttachment).toHaveBeenCalled();
+      const [recordId, payload] = uploadMedicalRecordAttachment.calls.mostRecent().args as [
+        number,
+        FormData,
+      ];
+      expect(recordId).toBe(4);
+      expect(payload.get('file')).toBe(file);
+      expect(payload.get('category')).toBe('analysis');
+      expect(fixture.nativeElement.textContent).toContain('تم رفع الملف بنجاح.');
     });
   });
 });

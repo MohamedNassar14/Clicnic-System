@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { DialogModule } from 'primeng/dialog';
 import { Icons } from '../../../../shared/components/icons/icons';
 import { BranchesService, ClinicLocation, ClinicLocationsResponse } from '../../services/branches';
+import Swal from 'sweetalert2';
 
 interface Branch {
   id: number;
@@ -135,6 +136,29 @@ export class Branches implements OnInit {
         this.isAddDialogVisible.set(false);
         this.editingBranchId.set(null);
         this.loadBranches();
+        Swal.fire({
+          html: `
+                    <div style="display: flex; flex-direction: column; align-items: center;"><div>
+                   <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                    fill="#009917" />
+                   </svg>
+                                   </div>
+                                   <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم تعديل الفرع بنجاح</h2>
+                                  </div>
+                                  `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
       },
       error: () => {
         this.isSaving.set(false);
@@ -160,6 +184,29 @@ export class Branches implements OnInit {
       next: () => {
         this.deletingBranchId.set(null);
         this.branches.update((branches) => branches.filter((item) => item.id !== branch.id));
+        Swal.fire({
+          html: `
+               <div style="display: flex; flex-direction: column; align-items: center;"><div>
+                   <svg width="75" height="75" viewBox="0 0 113 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="56.5" cy="56.5" r="51.5" stroke="#009917" stroke-width="10" />
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M26.8863 57.7045C25.7046 58.8707 25.7046 60.7628 26.8863 61.9289L43.299 78.1254C44.4807 79.2915 46.3981 79.2915 47.5798 78.1254L86.113 40.1C87.2957 38.9328 87.2957 37.0417 86.113 35.8746C84.9313 34.7085 83.0139 34.7085 81.8322 35.8746L45.4394 71.7878L31.1681 57.7035C29.9854 56.5374 28.069 56.5374 26.8863 57.7045Z"
+                    fill="#009917" />
+                   </svg>
+                    </div>
+                    <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم حذف الفرع بنجاح</h2>
+                   </div>
+                  `,
+          confirmButtonColor: '#1aaa55',
+          confirmButtonText: 'يمكنك المتابعة',
+          customClass: {
+            confirmButton: 'custom-confirm-btn',
+            popup: 'custom-swal-popup',
+            htmlContainer: 'custom-text',
+          },
+          showCloseButton: false,
+          showCancelButton: false,
+        })
       },
       error: () => {
         this.deletingBranchId.set(null);

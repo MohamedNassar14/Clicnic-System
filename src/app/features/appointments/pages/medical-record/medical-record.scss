@@ -197,8 +197,8 @@
   border-radius: 8px;
   background: #f8f6f1;
   color: #68716e;
-  font-size: 13.5px !important;
-  font-weight: 600;
+  font-size: 14px !important;
+  cursor: pointer;
 }
 
 .record-action-button svg {
@@ -218,6 +218,118 @@
 
 .medical-record-card p {
   color: #6d7271;
+}
+
+.medical-file-modal {
+  position: relative;
+  width: min(550px, calc(100% - 32px));
+  background: #fff;
+  border-radius: 24px;
+  padding: 34px 30px 26px;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  h2 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #172c2a;
+    margin: 0 0 8px;
+    text-align: right;
+  }
+
+  .close-modal-button {
+    position: absolute;
+    top: 27px;
+    left: 30px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f6f5f1;
+    color: #777;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.medical-file-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  direction: rtl;
+  margin-bottom: 2px;
+
+  button {
+    height: 50px;
+    border: 1px solid #e3ded3;
+    border-radius: 13px;
+    background: #f7f5f0;
+    color: #60716e;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &.selected {
+      background: #eef4f2;
+      border-color: #07564f;
+      color: #07564f;
+    }
+  }
+}
+
+.medical-file-label {
+  font-size: 13px;
+  color: #70807b;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.medical-file-input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid #e3ded3;
+  border-radius: 13px;
+  background: #f7f5f0;
+  padding: 10px;
+  color: #344440;
+  font-size: 14px;
+  direction: rtl;
+
+  &::file-selector-button {
+    margin-inline-start: 10px;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+}
+
+.medical-file-submit {
+  width: 100%;
+  min-height: 47px;
+  border: none;
+  border-radius: 13px;
+  background: #1A5CFF;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 480px) {
+  .medical-file-modal {
+    padding: 30px 18px 22px;
+  }
 }
 
 .record-type {
@@ -260,6 +372,81 @@
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 20px 60px rgb(0 0 0 / 16%);
+}
+
+.medical-file-modal {
+  position: relative;
+  width: min(100%, 550px);
+  padding: 32px 30px 26px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 16%);
+}
+
+.medical-file-modal h2 {
+  margin: 4px 0 24px;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.medical-file-types {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.medical-file-types button {
+  min-height: 50px;
+  border: 1px solid #e4ded3;
+  border-radius: 13px;
+  background: #f7f5f0;
+  color: #68716e;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.medical-file-types button.selected {
+  border-color: #4274f3;
+  background: #eef4f2;
+  color: #4b7af0;
+}
+
+.medical-file-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #77827e;
+  font-size: 13px;
+}
+
+.medical-file-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 10px;
+  border: 1px solid #e4ded3;
+  border-radius: 13px;
+  background: #f7f5f0;
+  color: #26332f;
+  font: inherit;
+  font-size: 14px;
+}
+
+.medical-file-submit {
+  width: 100%;
+  min-height: 47px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 13px;
+  background: #1A5CFF;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.medical-file-submit:hover {
+  background: #1A5CFF;
 }
 
 .diagnosis-modal h2 {
@@ -331,7 +518,7 @@
   border: 1px dashed #e4ded3;
   border-radius: 10px;
   background: #f8f6f1;
-  color: #697371;
+  color: #1053fc;
   font: inherit;
   cursor: pointer;
 }
@@ -341,7 +528,7 @@
   margin-top: 2px;
   border: 0;
   border-radius: 11px;
-  background: #07584f;
+  background: #1053fc !important;
   color: #fff;
   font: inherit;
   font-weight: 800;
@@ -349,7 +536,7 @@
 }
 
 .save-prescription-button:hover:not(:disabled) {
-  background: #064a43;
+  background: #1053fc;
 }
 
 .save-prescription-button:disabled,
@@ -455,6 +642,10 @@
 
   .diagnosis-modal {
     padding: 25px 20px;
+  }
+
+  .medical-file-modal {
+    padding: 28px 20px 22px;
   }
 
   .prescription-item-fields {

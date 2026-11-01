@@ -449,10 +449,10 @@
 
 .cancel-button {
 	padding: 8px 16px;
-	border: 1px solid #d1d5db;
+	border: 1px solid #1A5CFF;
 	border-radius: 7px;
 	background: #fff;
-	color: #344247;
+	color: #1A5CFF;
 	font: inherit;
 	cursor: pointer;
 }
@@ -516,4 +516,62 @@
 		min-width: 0;
 		width: min(190px, 55vw);
 	}
+}
+
+.appointment-block {
+  &.available {
+    background: #e8f8ee;
+    border-inline-start: 4px solid #22c55e;
+    color: #166534;
+  }
+
+  &.booked,
+  &.expired {
+    background: #fee2e2;
+    border-inline-start: 4px solid #ef4444;
+    color: #873b42;
+  }
+}
+
+::ng-deep .p-overlay {
+  inset-inline-start: auto !important;
+}
+
+:host::ng-deep .p-select {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 48px !important;
+  border: 1px solid #F1F1F1 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+:host::ng-deep .p-select-label.p-placeholder {
+  color: #B3B3B3 !important;
+}
+
+:host::ng-deep  .ng-trigger .ng-trigger-overlayAnimation .ng-tns-c396297526-7 .p-component .p-datepicker-panel .ng-star-inserted 
+{
+	position: absolute;
+    top: 10px !important;
+    z-index: 2400 !important;
+    width: 415px;
+    min-width: 415px;
+    inset-inline-start: 0px;
+    transform-origin: center bottom;
+    margin-top: 0 !important;
+}
+
+:host::ng-deep .p-inputtext {
+    width: 100% !important;
+  padding: 0 12px !important;
+  height: 48px !important;
+  border: 1px solid #F1F1F1 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+:host::ng-deep .p-inputtext::placeholder {
+  color: #B3B3B3 !important;
+  font-weight: 400 !important;
 }

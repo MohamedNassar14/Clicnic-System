@@ -74,8 +74,9 @@ export class Auth {
   }
 
   signIn(data: object): Observable<LoginResponse> {
-    return this.httpClient.post<LoginResponse>(`${environment.url}login`, data);
+    return this.httpClient.post<LoginResponse>(`${environment.url}admin/login`, data);
   }
+  
   patientSignIn(data: PatientLoginPayload): Observable<LoginResponse> {
     return this.httpClient.post<LoginResponse>(`${environment.url}login`, data);
   }

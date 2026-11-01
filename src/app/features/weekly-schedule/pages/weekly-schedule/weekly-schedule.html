@@ -42,13 +42,14 @@
 					</div>
 					<div class="day-body">
 						@if (day.isPast) {
-							<span class="empty-day">-</span>
+						<span class="empty-day">-</span>
 						} @else if (slotsForDay(day.dateKey).length === 0) {
-							<span class="empty-day">لا توجد مواعيد</span>
+						<span class="empty-day">لا توجد مواعيد</span>
 						}
 						@for (slot of slotsForDay(day.dateKey); track slot.id ?? $index) {
-						<article class="appointment-block"
-						[class.expired]="isSlotExpired(slot)">	
+						<article class="appointment-block" [class.expired]="isSlotExpired(slot)"
+							[class.booked]="slot.status === 'booked'"
+							[class.available]="slot.status === 'available' && !isSlotExpired(slot)">
 							<strong>{{ slot.clinicLocationName }}</strong>
 							<time>
 								{{ slot.start_time }}@if (slot.end_time) { - {{ slot.end_time }} }
@@ -64,40 +65,41 @@
 </section>
 
 
-<p-dialog header="إضافة موعد" [modal]="true" [visible]="isDialogVisible()"
-	(visibleChange)="isDialogVisible.set($event)"
+<p-dialog header="إضافة موعد" [modal]="true" [visible]="isDialogVisible()" (visibleChange)="isDialogVisible.set($event)"
 	[style]="{ width: 'min(30rem, calc(100vw - 2rem))' }">
 	<form class="slot-form" [formGroup]="slotForm" (ngSubmit)="createTimeSlot()">
 		<label class="slot-form-field">
 			<span>الفرع</span>
-			<select formControlName="clinicLocationId" aria-label="اختر الفرع">
-				<option [ngValue]="null" disabled>اختر الفرع</option>
-				@for (location of locations(); track location.id) {
-				<option [ngValue]="location.id">{{ location.name }}</option>
-				}
-			</select>
+			<p-select formControlName="clinicLocationId" [options]="locations()" optionLabel="name" optionValue="id"
+				placeholder="اختر الفرع" />
 		</label>
 		<label class="slot-form-field">
 			<span>التاريخ</span>
-			<p-datepicker inputId="slot-date" class="w-full" formControlName="date" [minDate]="today" [showIcon]="true"
-				iconDisplay="input" dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
+			<p-datepicker inputId="slot-date" [iconDisplay]="'input'" [showIcon]="true" inputId="icondisplay"
+				styleClass="w-full" panelStyleClass="custom-calendar-panel" formControlName="date" [minDate]="today"
+				dateFormat="dd/mm/yy" placeholder="اختر التاريخ" />
 		</label>
 		<label class="slot-form-field">
 			<span>من الساعة</span>
-			<input type="time" formControlName="startTime" />
+
+			<p-datepicker formControlName="startTime" [timeOnly]="true" hourFormat="12" [showIcon]="true"
+				iconDisplay="input" styleClass="w-full" placeholder="وقت البداية" />
 		</label>
+
 		<label class="slot-form-field">
 			<span>إلى الساعة</span>
-			<input type="time" formControlName="endTime" />
+
+			<p-datepicker formControlName="endTime" [timeOnly]="true" hourFormat="12" [showIcon]="true"
+				iconDisplay="input" styleClass="w-full" placeholder="وقت النهاية" />
 		</label>
 		@if (saveError()) {
 		<p class="schedule-message error-message" role="alert">{{ saveError() }}</p>
 		}
 		<div class="slot-form-actions">
-			<button type="button" class="cancel-button" (click)="isDialogVisible.set(false)">إلغاء</button>
 			<button type="submit" class="add-slot-button" [disabled]="isSaving()">
 				{{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ الموعد' }}
 			</button>
+			<button type="button" class="cancel-button" (click)="isDialogVisible.set(false)">إلغاء</button>
 		</div>
 	</form>
 </p-dialog>

@@ -18,9 +18,10 @@ export interface ClinicLocationsResponse {
 
 export interface AppointmentTimeSlot {
   id: number;
-  date: string;          // <-- add if missing
-  start_time: string | null;
+  date: string;
+  start_time: string;
   end_time?: string | null;
+  status: 'booked' | 'available';
 }
 
 export interface AppointmentTimeSlotsResponse {
@@ -337,4 +338,14 @@ completeAppointment(id: number | string) {
       payload,
     );
   }
+
+  uploadMedicalRecordAttachment(
+  medicalRecordId: number | string,
+  payload: FormData
+) {
+  return this.http.post(
+    `${environment.url}doctor/medical-records/${medicalRecordId}/attachments`,
+    payload
+  );
+}
 }
