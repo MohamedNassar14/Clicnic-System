@@ -57,7 +57,7 @@ export class PatientLogin {
         this.isLoading.set(false);
         if (response.status) {
   
-          this.router.navigate(['/admin/verify-phone']);
+          this.router.navigate(['/auth/verify-phone']);
         }
       },
       error: () => {
