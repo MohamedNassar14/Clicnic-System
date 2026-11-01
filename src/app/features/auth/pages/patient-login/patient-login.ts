@@ -56,7 +56,7 @@ export class PatientLogin {
       next: (response) => {
         this.isLoading.set(false);
         if (response.status) {
-          localStorage.setItem('phone', token);
+          localStorage.setItem('phone', response.user.user.phone);
           this.router.navigate(['/auth/verify-phone']);
         }
       },
