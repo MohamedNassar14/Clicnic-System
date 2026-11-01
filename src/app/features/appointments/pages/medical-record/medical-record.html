@@ -49,6 +49,7 @@
           @if (record.notes) {
             <p>ملاحظات الطبيب: <span class="text-black">{{ record.notes }}</span></p>
           }
+          <p>التشخيص بتاريخ: <span class="text-black">{{ record.created_at | date:'dd/MM/yyyy' }}</span></p>
           @for (prescription of record.prescriptions; track prescription.id ?? $index) {
             <section class="prescription-details" aria-label="الروشتة">
               <h4><span aria-hidden="true">💊</span> الروشتة</h4>

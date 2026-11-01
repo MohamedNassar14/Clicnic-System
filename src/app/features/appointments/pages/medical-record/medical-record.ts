@@ -15,6 +15,7 @@ import {
   PrescriptionPayload,
 } from '../../services/appointments';
 import Swal from 'sweetalert2';
+import { DatePipe } from '@angular/common';
 
 interface PatientNavigationState {
   patientId?: number | string;
@@ -38,6 +39,7 @@ interface PrescriptionDisplay {
 interface MedicalHistoryRecord extends MedicalRecordPayload {
   id?: number | string;
   date?: string;
+  created_at: string;
   prescriptions: PrescriptionDisplay[];
 }
 
@@ -196,13 +198,14 @@ function toMedicalHistoryRecord(record: Record<string, unknown>): MedicalHistory
     treatment: readString(record, 'treatment', 'plan'),
     notes: readString(record, 'notes', 'medical_notes'),
     date: readString(record, 'date', 'created_at', 'visit_date'),
+    created_at: readString(record, 'created_at', 'date', 'visit_date'),
     prescriptions,
   };
 }
 
 @Component({
   selector: 'app-medical-record',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, DatePipe],
   templateUrl: './medical-record.html',
   styleUrl: './medical-record.scss',
 })
@@ -321,6 +324,7 @@ export class MedicalRecord implements OnInit {
           {
             ...payload,
             ...(medicalRecordId === null ? {} : { id: medicalRecordId }),
+            created_at: new Date().toISOString(),
             prescriptions: [],
           },
           ...records,
