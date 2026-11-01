@@ -56,7 +56,7 @@ export class PatientLogin {
       next: (response) => {
         this.isLoading.set(false);
         if (response.status) {
-          this.authService.saveSession(response);
+  
           this.router.navigate(['/admin/verify-phone']);
         }
       },
