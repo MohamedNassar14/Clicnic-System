@@ -44,6 +44,7 @@ export class VerifyOtp {
           this.authService.savePatientSession(res);
           this.router.navigate(['/home']);
         } else {
+          this.authService.savePatientSession(res);
           this.router.navigate(['/auth/register']);
         }
       } else {
