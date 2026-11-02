@@ -35,6 +35,22 @@ describe('Auth', () => {
     expect(service.getAccessToken()).toBe('patient-token-value');
   });
 
+  it('stores the incomplete patient profile state with the patient session', () => {
+    service.savePatientSession({
+      status: true,
+      errNum: '',
+      msg: '',
+      user: {
+        user: { id: 19, name: 'Omar', email: 'omar@example.com', phone: '01013141516' },
+        access_token: 'patient-token-value',
+        profile_completed: false,
+      },
+    });
+
+    expect(localStorage.getItem('profile_completed')).toBe('false');
+    expect(service.hasIncompletePatientProfile()).toBe(true);
+  });
+
   it('reads the role saved with the user session', () => {
     localStorage.setItem('user', JSON.stringify({ role: '2' }));
 

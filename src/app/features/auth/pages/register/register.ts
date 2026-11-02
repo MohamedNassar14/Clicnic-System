@@ -60,6 +60,7 @@ showPassword: boolean = false;
           this.errorMessage.set(response.msg || 'تعذر إنشاء الحساب، حاول مرة أخرى');
           return;
         }
+        this.authService.markPatientProfileCompleted();
         this.successMessage.set('تم إنشاء الحساب بنجاح');
         void this.router.navigateByUrl('/home');
       },

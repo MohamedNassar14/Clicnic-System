@@ -3,7 +3,7 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Auth } from '../../features/auth/services/auth';
 
-export const guestGuard: CanActivateFn = () => {
+export const guestGuard: CanActivateFn = (_route, state) => {
   const platformId = inject(PLATFORM_ID);
   const router = inject(Router);
   const auth = inject(Auth);
@@ -17,6 +17,10 @@ export const guestGuard: CanActivateFn = () => {
   }
 
   if (auth.hasPatientSession()) {
+    if (state.url === '/auth/register' && auth.hasIncompletePatientProfile()) {
+      return true;
+    }
+
     return router.createUrlTree(['/home']);
   }
 

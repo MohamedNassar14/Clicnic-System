@@ -9,12 +9,14 @@ import { patientGuard } from './patient.guard';
 describe('route guards', () => {
   let hasAdminSession: boolean;
   let hasPatientSession: boolean;
+  let hasIncompletePatientProfile: boolean;
   let platformId: string;
   let router: Router;
 
   beforeEach(() => {
     hasAdminSession = false;
     hasPatientSession = false;
+    hasIncompletePatientProfile = false;
     platformId = 'browser';
     TestBed.configureTestingModule({
       providers: [
@@ -26,6 +28,7 @@ describe('route guards', () => {
           useValue: {
             hasAdminSession: () => hasAdminSession,
             hasPatientSession: () => hasPatientSession,
+            hasIncompletePatientProfile: () => hasIncompletePatientProfile,
           },
         },
       ],
@@ -58,7 +61,7 @@ describe('route guards', () => {
   it('redirects authenticated users away from guest routes', () => {
     hasAdminSession = true;
     const adminResult = TestBed.runInInjectionContext(() =>
-      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/auth/register' } as RouterStateSnapshot),
     );
     expect(adminResult).toBeInstanceOf(UrlTree);
     expect(router.serializeUrl(adminResult as UrlTree)).toBe('/dashboard');
@@ -66,14 +69,26 @@ describe('route guards', () => {
     hasAdminSession = false;
     hasPatientSession = true;
     const patientResult = TestBed.runInInjectionContext(() =>
-      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/auth/patient-login' } as RouterStateSnapshot),
     );
     expect(patientResult).toBeInstanceOf(UrlTree);
     expect(router.serializeUrl(patientResult as UrlTree)).toBe('/home');
 
+    hasIncompletePatientProfile = true;
+    expect(TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/auth/register' } as RouterStateSnapshot),
+    )).toBe(true);
+
+    hasIncompletePatientProfile = false;
+    const completedPatientResult = TestBed.runInInjectionContext(() =>
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/auth/register' } as RouterStateSnapshot),
+    );
+    expect(completedPatientResult).toBeInstanceOf(UrlTree);
+    expect(router.serializeUrl(completedPatientResult as UrlTree)).toBe('/home');
+
     hasPatientSession = false;
     expect(TestBed.runInInjectionContext(() =>
-      guestGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+      guestGuard({} as ActivatedRouteSnapshot, { url: '/auth/register' } as RouterStateSnapshot),
     )).toBe(true);
   });
 

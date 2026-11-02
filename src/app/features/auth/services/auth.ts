@@ -95,6 +95,7 @@ export class Auth {
       localStorage.removeItem('user_role');
     }
     localStorage.removeItem('patient_token');
+    localStorage.removeItem('profile_completed');
   }
 
   savePatientSession(response: RegisterResponse | LoginResponse): void {
@@ -105,6 +106,11 @@ export class Auth {
     const token = 'token' in response.user ? response.user.token : response.user.access_token;
     localStorage.setItem('patient_token', token);
     localStorage.setItem('user', JSON.stringify(response.user.user));
+    if ('profile_completed' in response.user && typeof response.user.profile_completed === 'boolean') {
+      localStorage.setItem('profile_completed', String(response.user.profile_completed));
+    } else {
+      localStorage.removeItem('profile_completed');
+    }
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_role');
     localStorage.removeItem('register_form');
@@ -124,6 +130,22 @@ export class Auth {
     }
 
     return Boolean(localStorage.getItem('patient_token'));
+  }
+
+  hasIncompletePatientProfile(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
+    return localStorage.getItem('profile_completed') === 'false';
+  }
+
+  markPatientProfileCompleted(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    localStorage.setItem('profile_completed', 'true');
   }
 
   getUserRole(): string | null {
@@ -217,6 +239,7 @@ export class Auth {
     localStorage.removeItem('patient_token');
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
+    localStorage.removeItem('profile_completed');
   }
 
   isBrowser(): boolean {
