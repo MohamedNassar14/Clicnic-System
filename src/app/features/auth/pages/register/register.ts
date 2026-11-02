@@ -23,9 +23,6 @@ showPassword: boolean = false;
   readonly errorMessage = signal('');
   readonly registerForm = this.formBuilder.nonNullable.group({
     name: ['', Validators.required],
-    email: ['', Validators.email],
-    phone: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(8)]],
     date_of_birth: ['', Validators.required],
     gender: ['', Validators.required],
     address: ['', Validators.required],

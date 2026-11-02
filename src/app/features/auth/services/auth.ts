@@ -6,9 +6,6 @@ import { isPlatformBrowser } from '@angular/common';
 
 export interface RegisterPayload {
   name: string;
-  email: string;
-  phone: string;
-  password: string;
   date_of_birth: string;
   gender: string;
   address: string;
