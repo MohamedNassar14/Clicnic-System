@@ -249,12 +249,8 @@ getBranchTimeSlots(clinicLocationId: number) {
 }
 
 completeAppointment(id: number | string) {
-  return this.http.patch(
-    `${environment.url}admin/appointments/${id}`,
-    {
-      status: 'completed',
-    }
-  );
+  return this.http.post(
+    `${environment.url}admin/appointments/${id}/confirm-cash-payment`,{});
 }
 
   getVisitTypes(clinicLocationId = 16): Observable<VisitTypeOption[] | VisitTypesResponse> {

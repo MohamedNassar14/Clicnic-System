@@ -24,6 +24,8 @@ import {
   TodayStats,
 } from '../../services/dashboard';
 import Swal from 'sweetalert2';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
 
 
 interface TodayAppointment {
@@ -185,7 +187,7 @@ function readCurrentAppointment(
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePickerModule, DecimalPipe, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule],
+  imports: [DatePickerModule, DecimalPipe, FormsModule, Icons, PaginatorModule, RouterLink, SelectModule, MenuModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -468,7 +470,7 @@ export class Dashboard implements OnInit {
                                fill="#009917" />
                               </svg>
                            </div>
-                           <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم إنهاء الحجز بنجاح</h2>
+                           <h2 style="margin-top: 16px; font-size: 20px; font-weight: bold;">تم تأكيد الحجز بنجاح</h2>
                           </div>
                           `,
           confirmButtonColor: '#1aaa55',
@@ -485,9 +487,61 @@ export class Dashboard implements OnInit {
       error: (error) => {
         console.error('Complete appointment error:', error);
         this.completingAppointmentId.set(null);
-        this.completeAppointmentError.set('تعذر إنهاء الحجز. حاول مرة أخرى.');
+        this.completeAppointmentError.set('تعذر تأكيد الحجز. حاول مرة أخرى.');
       },
     });
+  }
+
+  getAppointmentMenuItems(appointment: AppointmentCard): MenuItem[] {
+    const items: MenuItem[] = [];
+
+    if (
+      appointment.status === 'confirmed' &&
+      appointment.appointmentId !== undefined
+    ) {
+      items.push({
+        label:
+          this.settingCurrentAppointmentId() === '' + appointment.appointmentId
+            ? 'جاري التحديث...'
+            : 'تحديد كالحجز الحالي',
+
+        icon: 'pi pi-toggle-off',
+
+        disabled: this.settingCurrentAppointmentId() !== null,
+
+        command: () => {
+          this.setCurrentAppointment(appointment);
+        }
+      });
+    }
+
+    // تأكيد الحجز
+    if (!appointment.isPaid) {
+      items.push({
+        label:
+          this.completingAppointmentId() === '' + appointment.appointmentId
+            ? 'جاري تأكيد الحجز...'
+            : 'تأكيد الحجز',
+
+        icon: 'pi pi-check-circle',
+
+        disabled: this.completingAppointmentId() !== null,
+
+        command: () => {
+          this.completeAppointment(appointment);
+        }
+      });
+    }
+
+    return items;
+  }
+
+  openedMenuId: number | string | null = null;
+
+  toggleAppointmentMenu(id: number | string | undefined) {
+    if (id === undefined) return;
+
+    this.openedMenuId = this.openedMenuId === id ? null : id;
   }
 }
 

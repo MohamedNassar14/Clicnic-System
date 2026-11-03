@@ -145,52 +145,61 @@
                 <span class="appointment-badge" [class.paid]="appointment.isPaid" [class.unpaid]="!appointment.isPaid">
                     {{ appointment.paymentStatusText }}
                 </span>
-                @if(isAssistant) {
-                @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
-                <button type="button" class="set-current-button" [disabled]="settingCurrentAppointmentId() !== null"
-                    [attr.aria-pressed]="false"
-                    [attr.aria-label]="'تحديد حجز ' + appointment.patientName + ' كالحجز الحالي'"
-                    (click)="setCurrentAppointment(appointment)">
-                    <app-icons [iconKey]="'toggleOff'"></app-icons>
-                    <span>
-                        {{ settingCurrentAppointmentId() === '' + appointment.appointmentId ? 'جاري التحديث...' : 'تحديد
-                        كالحجز الحالي' }}
-                    </span>
-                </button>
+                @if (isAssistant) {
+                @if ((appointment.status === 'confirmed' &&appointment.appointmentId !== undefined) ||!appointment.isPaid) {
+                <div class="appointment-actions">
+
+                    <button type="button" class="action-btn" (click)="toggleAppointmentMenu(appointment.appointmentId)"
+                        aria-label="خيارات الحجز">
+                        <i class="pi pi-ellipsis-v"></i>
+                    </button>
+
+                    @if (openedMenuId === appointment.appointmentId) {
+                    <div class="actions-menu">
+
+                        @if (
+                        appointment.status === 'confirmed' &&
+                        appointment.appointmentId !== undefined
+                        ) {
+                        <button type="button" class="menu-item" [disabled]="settingCurrentAppointmentId() !== null"
+                            (click)="setCurrentAppointment(appointment); openedMenuId = null">
+                            <app-icons [iconKey]="'toggleOff'"></app-icons>
+
+                            <span>
+                                {{
+                                settingCurrentAppointmentId() === '' + appointment.appointmentId
+                                ? 'جاري التحديث...'
+                                : 'تحديد كالحجز الحالي'
+                                }}
+                            </span>
+                        </button>
+                        }
+
+                        @if (!appointment.isPaid) {
+                        <button type="button" class="menu-item" [disabled]="completingAppointmentId() !== null"
+                            (click)="completeAppointment(appointment); openedMenuId = null">
+                            <app-icons [iconKey]="'toggleOff'"></app-icons>
+
+                            <span>
+                                {{
+                                completingAppointmentId() === '' + appointment.appointmentId
+                                ? 'جاري تأكيد الحجز...'
+                                : 'تأكيد الحجز'
+                                }}
+                            </span>
+                        </button>
+                        }
+
+                    </div>
+                    }
+
+                </div>
                 }
-                <!-- الفيووووو-->
-                <!-- <button type="button" class="view-details-button" (click)="viewPatientDetails(appointment)"
-                    aria-label="عرض تفاصيل المريض" title="عرض التفاصيل">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-                        <circle cx="12" cy="12" r="3" />
-                    </svg>
-                </button> -->
-
-                @if (!appointment.isPaid) {
-                <button type="button" class="set-current-button complete-button"
-                    [disabled]="completingAppointmentId() !== null" (click)="completeAppointment(appointment)"
-                    [attr.aria-label]="'إنهاء حجز ' + appointment.patientName">
-                    <app-icons [iconKey]="'toggleOff'"></app-icons>
-
-                    <span>
-                        {{
-                        completingAppointmentId() === '' + appointment.appointmentId
-                        ? 'جاري إنهاء الحجز...'
-                        : 'إنهاء الحجز'
-                        }}
-                    </span>
-                </button>
                 }
-                }
-
-
             </div>
         </div>
     </article>
     }
-
     @if (totalAppointments() > 0) {
     <p-paginator class="appointments-paginator" [first]="first()" [rows]="rows()" [totalRecords]="totalAppointments()"
         [showFirstLastIcon]="false" (onPageChange)="onPageChange($event)" />
