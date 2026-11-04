@@ -24,12 +24,6 @@
             <button type="button" (click)="loadClinicLocations()">إعادة المحاولة</button>
         </p>
         }
-        @if (visitTypesError()) {
-        <p class="form-error" role="alert">
-            {{ visitTypesError() }}
-            <button type="button" (click)="loadVisitTypes()">إعادة المحاولة</button>
-        </p>
-        }
         @if (bookingError()) {
         <p class="form-error" role="alert">{{ bookingError() }}</p>
         }
@@ -78,8 +72,8 @@
             </div>
             <div class="form-field">
                 <label for="existing-visit">نوع الزيارة</label>
-                <p-select inputId="existing-visit" name="existingVisitType" [options]="visitTypes()" optionLabel="label"
-                    optionValue="key" [(ngModel)]="selectedVisitTypeKey" [loading]="isLoadingVisitTypes()"
+                <p-select inputId="existing-visit" name="existingVisitType" [options]="visitTypes" optionLabel="label"
+                    optionValue="key" [(ngModel)]="selectedVisitTypeKey"
                     placeholder="نوع الزيارة" />
             </div>
         </div>
@@ -155,8 +149,8 @@
             </div>
             <div class="form-field">
                 <label for="new-visit">نوع الزيارة</label>
-                <p-select inputId="new-visit" name="newVisitType" [options]="visitTypes()" optionLabel="label"
-                    optionValue="key" [(ngModel)]="selectedVisitTypeKey" [loading]="isLoadingVisitTypes()"
+                <p-select inputId="new-visit" name="newVisitType" [options]="visitTypes" optionLabel="label"
+                    optionValue="key" [(ngModel)]="selectedVisitTypeKey"
                     placeholder="نوع الزيارة" />
             </div>
         </div>

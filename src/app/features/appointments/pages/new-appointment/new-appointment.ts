@@ -13,7 +13,6 @@ import {
   ExistingWalkInAppointmentPayload,
   NewWalkInAppointmentPayload,
   VisitTypeOption,
-  VisitTypesResponse,
 } from '../../services/appointments';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
@@ -35,24 +34,6 @@ function readTimeSlots(
   }
 
   return response.time_slots ?? response.data ?? [];
-}
-
-function readVisitTypes(response: VisitTypeOption[] | VisitTypesResponse): VisitTypeOption[] {
-  const visitTypes = Array.isArray(response)
-    ? response
-    : response.visit_types ?? response.data ?? [];
-
-  return visitTypes.flatMap((visitType) => {
-    if (!visitType.key) {
-      return [];
-    }
-
-    return [{
-      ...visitType,
-      key: visitType.key,
-      label: visitType.label ?? visitType.name ?? visitType.key,
-    }];
-  });
 }
 
 function formatDate(date: Date): string {
@@ -122,9 +103,10 @@ export class NewAppointment implements OnInit {
   readonly isLoadingTimeSlots = signal(false);
   readonly timeSlotsError = signal('');
   readonly timeSlotIdForPayload = computed(() => this.selectedTimeSlotId());
-  readonly visitTypes = signal<VisitTypeOption[]>([]);
-  readonly isLoadingVisitTypes = signal(false);
-  readonly visitTypesError = signal('');
+  readonly visitTypes: VisitTypeOption[] = [
+    { key: 'checkup', label: 'كشف' },
+    { key: 'consultation', label: 'استشارة' },
+  ];
   readonly bookingError = signal('');
   readonly bookingSuccess = signal('');
   readonly isSavingBooking = signal(false);
@@ -147,7 +129,6 @@ export class NewAppointment implements OnInit {
 
   ngOnInit(): void {
     this.loadClinicLocations();
-    this.loadVisitTypes();
     this.existingPhoneChanges.pipe(
       debounceTime(350),
       distinctUntilChanged(),
@@ -217,22 +198,6 @@ export class NewAppointment implements OnInit {
     const query = phone.trim();
     this.isSearchingPatient.set(query.length >= 7);
     this.existingPhoneChanges.next(query);
-  }
-
-  loadVisitTypes(): void {
-    this.isLoadingVisitTypes.set(true);
-    this.visitTypesError.set('');
-    this.appointmentsService.getVisitTypes().subscribe({
-      next: (response) => {
-        console.log('Visit types response:', response);
-        this.visitTypes.set(readVisitTypes(response));
-        this.isLoadingVisitTypes.set(false);
-      },
-      error: () => {
-        this.isLoadingVisitTypes.set(false);
-        this.visitTypesError.set('تعذر تحميل أنواع الزيارة. حاول مرة أخرى.');
-      },
-    });
   }
 
   submitBooking(): void {
