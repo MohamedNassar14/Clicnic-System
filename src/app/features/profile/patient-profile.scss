@@ -137,44 +137,141 @@
   gap: 12px;
 }
 
-.diagnosis-history-item {
-  padding: 16px;
+.appointment-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
   border: 1px solid #edf0f5;
   border-radius: 9px;
   background: #fbfcfe;
 }
 
-.diagnosis-history-heading {
+.appointment-summary-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.appointment-summary-field span {
+  color: #7b8799;
+  font-size: 11px;
+}
+
+.appointment-summary-field strong {
+  overflow: hidden;
+  color: #26364e;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appointment-details-button,
+.appointment-dialog-close {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #dce6f8;
+  border-radius: 9px;
+  background: #fff;
+  color: #1a5cff;
+  cursor: pointer;
+}
+
+.appointment-details-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.appointment-details-button:hover,
+.appointment-dialog-close:hover {
+  background: #eaf1ff;
+}
+
+.appointment-dialog-backdrop {
+  position: fixed;
+  z-index: 1000;
+  display: grid;
+  padding: 20px;
+  background: rgb(16 28 48 / 55%);
+  inset: 0;
+  place-items: center;
+}
+
+.appointment-dialog {
+  width: min(100%, 560px);
+  max-height: min(90vh, 720px);
+  overflow-y: auto;
+  padding: 24px;
+  border: 1px solid #e5ebf2;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgb(23 36 58 / 20%);
+}
+
+.appointment-dialog-heading {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.diagnosis-history-heading h3 {
-  margin: 0;
-  color: #26364e;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.diagnosis-history-heading time {
-  flex: 0 0 auto;
+.appointment-dialog-heading p {
+  margin: 0 0 5px;
   color: #7b8799;
   font-size: 12px;
 }
 
-.diagnosis-history-item > p {
-  margin: 7px 0 0;
-  color: #667386;
-  font-size: 13px;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
+.appointment-dialog-heading h2 {
+  margin: 0;
+  color: #17243a;
+  font-size: 20px;
+  font-weight: 800;
 }
 
-.diagnosis-history-item > p strong {
+.appointment-dialog-close {
+  font-size: 25px;
+  line-height: 1;
+}
+
+.appointment-dialog-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.appointment-dialog-details > div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.appointment-dialog-details dt {
+  margin-bottom: 6px;
+  color: #7b8799;
+  font-size: 12px;
+}
+
+.appointment-dialog-details dd {
+  overflow-wrap: anywhere;
+  margin: 0;
   color: #26364e;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .profile-state {
@@ -209,7 +306,9 @@
 }
 
 .profile-error button:focus-visible,
-.profile-back-link:focus-visible {
+.profile-back-link:focus-visible,
+.appointment-details-button:focus-visible,
+.appointment-dialog-close:focus-visible {
   outline: 3px solid rgb(26 92 255 / 30%);
   outline-offset: 3px;
 }
@@ -236,5 +335,31 @@
   .profile-details {
     grid-template-columns: minmax(0, 1fr);
     gap: 9px;
+  }
+
+  .appointment-summary-row {
+    gap: 8px;
+    padding: 12px 10px;
+  }
+
+  .appointment-summary-field span {
+    font-size: 10px;
+  }
+
+  .appointment-summary-field strong {
+    font-size: 11px;
+  }
+
+  .appointment-details-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .appointment-dialog {
+    padding: 18px 14px;
+  }
+
+  .appointment-dialog-details {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

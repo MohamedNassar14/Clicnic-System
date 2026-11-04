@@ -83,22 +83,39 @@ describe('PatientProfile', () => {
     fixture.detectChanges();
   });
 
-  it('displays the appointment fields returned by the patient appointments API', () => {
+  it('shows a compact appointment row and opens the remaining details in a dialog', () => {
     const text = fixture.nativeElement.textContent as string;
+    const rows = fixture.nativeElement.querySelectorAll('.appointment-summary-row') as NodeListOf<HTMLElement>;
 
     expect(text).toContain('سجل المواعيد');
-    expect(text).toContain('04/11/2026');
-    expect(text).toContain('كشف');
-    expect(text).toContain('استشارة');
-    expect(text).toContain('لم يحضر');
-    expect(text).toContain('مكتمل');
-    expect(text).toContain('غير مدفوع');
-    expect(text).toContain('مدفوع');
-    expect(text).toContain('10:07 PM');
-    expect(text).toContain('10:09 PM');
-    expect(text).toContain('دمياط');
-    expect(text).toContain('200 جنيه');
-    expect(text).toContain('100 جنيه');
+    expect(rows.length).toBe(2);
+    expect(rows[0].textContent).toContain('كشف');
+    expect(rows[0].textContent).toContain('04/11/2026');
+    expect(rows[0].textContent).toContain('دمياط');
+    expect(rows[1].textContent).toContain('استشارة');
+    expect(rows[1].textContent).toContain('04/11/2026');
+    expect(rows[1].textContent).toContain('دمياط');
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
+    expect(text).not.toContain('لم يحضر');
+
+    const detailsButton = rows[0].querySelector('.appointment-details-button') as HTMLButtonElement;
+    detailsButton.click();
+    fixture.detectChanges();
+
+    const dialog = fixture.nativeElement.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.textContent).toContain('10:07 PM');
+    expect(dialog.textContent).toContain('10:09 PM');
+    expect(dialog.textContent).toContain('لم يحضر');
+    expect(dialog.textContent).toContain('غير مدفوع');
+    expect(dialog.textContent).toContain('200 جنيه');
+    expect(dialog.textContent).toContain('دمياط');
+
+    const closeButton = dialog.querySelector('.appointment-dialog-close') as HTMLButtonElement;
+    closeButton.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
     expect(text).not.toContain('لا توجد مواعيد مسجلة حتى الآن.');
   });
 });

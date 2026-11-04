@@ -210,6 +210,7 @@ export class PatientProfile implements OnInit {
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
   readonly diagnosisHistory = signal<PatientAppointmentRecord[]>([]);
+  readonly selectedAppointment = signal<PatientAppointmentRecord | null>(null);
   readonly isLoadingDiagnosisHistory = signal(true);
   readonly diagnosisHistoryError = signal('');
 
@@ -308,6 +309,14 @@ export class PatientProfile implements OnInit {
       default:
         return status;
     }
+  }
+
+  openAppointmentDetails(appointment: PatientAppointmentRecord): void {
+    this.selectedAppointment.set(appointment);
+  }
+
+  closeAppointmentDetails(): void {
+    this.selectedAppointment.set(null);
   }
 
   formatGender(gender: string): string {
