@@ -2,17 +2,25 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PatientProfile as PatientProfileData, PatientProfileService } from './patient-profile.service';
 
-interface DiagnosisHistoryRecord {
+interface PatientAppointmentRecord {
   id: string | number;
   type: string;
   diagnosis: string;
   treatment: string;
   notes: string;
   date: string;
+  startTime: string;
+  endTime: string;
+  clinicName: string;
+  status: string;
+  paymentStatus: string;
+  durationMinutes: number | null;
+  price: number | null;
+  totalAmount: number | null;
 }
 
 interface DiagnosisHistory {
-  records: DiagnosisHistoryRecord[];
+  records: PatientAppointmentRecord[];
   error: string;
 }
 
@@ -29,6 +37,11 @@ function readString(record: Record<string, unknown>, ...keys: string[]): string 
   }
 
   return '';
+}
+
+function readNumber(record: Record<string, unknown>, key: string): number | null {
+  const value = record[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 function readHistoryDate(record: Record<string, unknown>, parent?: Record<string, unknown>): string {
@@ -57,20 +70,58 @@ function readHistoryDate(record: Record<string, unknown>, parent?: Record<string
 function toDiagnosisRecord(
   record: Record<string, unknown>,
   parent?: Record<string, unknown>,
-): DiagnosisHistoryRecord | null {
+): PatientAppointmentRecord | null {
   const diagnosis = readString(record, 'diagnosis') || (parent ? readString(parent, 'diagnosis') : '');
-  if (!diagnosis) {
+  const date = readHistoryDate(record, parent);
+  const startTime = readString(record, 'start_time') || (parent ? readString(parent, 'start_time') : '');
+  const endTime = readString(record, 'end_time') || (parent ? readString(parent, 'end_time') : '');
+  const clinicName = readString(record, 'clinic_name') || (parent ? readString(parent, 'clinic_name') : '');
+  const status = readString(record, 'status') || (parent ? readString(parent, 'status') : '');
+  const paymentStatus = readString(record, 'payment_status')
+    || (parent ? readString(parent, 'payment_status') : '');
+  const durationMinutes = readNumber(record, 'duration_minutes')
+    ?? (parent ? readNumber(parent, 'duration_minutes') : null);
+  const price = readNumber(record, 'price') ?? (parent ? readNumber(parent, 'price') : null);
+  const totalAmount = readNumber(record, 'total_amount')
+    ?? (parent ? readNumber(parent, 'total_amount') : null);
+  const type = readString(record, 'record_type', 'type')
+    || (parent ? readString(parent, 'visit_type') : '')
+    || readString(record, 'visit_type');
+
+  if (
+    !diagnosis &&
+    !date &&
+    !startTime &&
+    !endTime &&
+    !clinicName &&
+    !status &&
+    !paymentStatus &&
+    !type &&
+    durationMinutes === null &&
+    price === null &&
+    totalAmount === null
+  ) {
     return null;
   }
 
-  const id = record['id'] ?? parent?.['id'] ?? diagnosis;
+  const id = record['appointment_id'] ?? record['id'] ?? parent?.['appointment_id'] ?? parent?.['id']
+    ?? diagnosis
+    ?? `${date}-${startTime}`;
   return {
     id: typeof id === 'string' || typeof id === 'number' ? id : diagnosis,
-    type: readString(record, 'record_type', 'type') || (parent ? readString(parent, 'visit_type') : ''),
+    type,
     diagnosis,
     treatment: readString(record, 'treatment') || (parent ? readString(parent, 'treatment') : ''),
     notes: readString(record, 'notes', 'medical_notes') || (parent ? readString(parent, 'notes') : ''),
-    date: readHistoryDate(record, parent),
+    date,
+    startTime,
+    endTime,
+    clinicName,
+    status,
+    paymentStatus,
+    durationMinutes,
+    price,
+    totalAmount,
   };
 }
 
@@ -109,7 +160,7 @@ function readDiagnosisHistory(response: unknown): DiagnosisHistory {
     return { records: [], error: 'تنسيق سجل التشخيص المستلم غير معروف.' };
   }
 
-  const records: DiagnosisHistoryRecord[] = [];
+  const records: PatientAppointmentRecord[] = [];
   for (const entry of entries) {
     if (!isRecord(entry)) {
       continue;
@@ -158,7 +209,7 @@ export class PatientProfile implements OnInit {
   readonly profile = signal<PatientProfileData | null>(null);
   readonly isLoading = signal(true);
   readonly errorMessage = signal('');
-  readonly diagnosisHistory = signal<DiagnosisHistoryRecord[]>([]);
+  readonly diagnosisHistory = signal<PatientAppointmentRecord[]>([]);
   readonly isLoadingDiagnosisHistory = signal(true);
   readonly diagnosisHistoryError = signal('');
 
@@ -217,6 +268,46 @@ export class PatientProfile implements OnInit {
   formatDateTime(date: string): string {
     const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(date);
     return match ? `${match[3]}/${match[2]}/${match[1]}` : date;
+  }
+
+  formatVisitType(type: string): string {
+    switch (type.trim().toLocaleLowerCase()) {
+      case 'checkup':
+        return 'كشف';
+      case 'consultation':
+      case 'consulatation':
+        return 'استشارة';
+      default:
+        return type;
+    }
+  }
+
+  formatAppointmentStatus(status: string): string {
+    switch (status) {
+      case 'no_show':
+        return 'لم يحضر';
+      case 'completed':
+        return 'مكتمل';
+      case 'confirmed':
+        return 'تم الحجز';
+      case 'in_progress':
+        return 'قيد الكشف';
+      case 'cancelled':
+        return 'ملغي';
+      default:
+        return status;
+    }
+  }
+
+  formatPaymentStatus(status: string): string {
+    switch (status) {
+      case 'paid':
+        return 'مدفوع';
+      case 'unpaid':
+        return 'غير مدفوع';
+      default:
+        return status;
+    }
   }
 
   formatGender(gender: string): string {

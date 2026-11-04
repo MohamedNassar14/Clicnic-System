@@ -92,7 +92,7 @@
       <span class="profile-section-icon history-icon" aria-hidden="true">▤</span>
       <div>
         <h2 id="diagnosis-history-title">سجل الكشوفات</h2>
-        <p>الكشوفات المسجلة خلال مواعيدك السابقة</p>
+        <p>تفاصيل مواعيدك والكشوفات المسجلة خلالها</p>
       </div>
     </div>
 
@@ -104,19 +104,43 @@
         <button type="button" (click)="loadDiagnosisHistory()">إعادة المحاولة</button>
       </div>
     } @else if (diagnosisHistory().length === 0) {
-      <p class="profile-state">لا توجد كشوفات مسجلة حتى الآن.</p>
+      <p class="profile-state">لا توجد مواعيد مسجلة حتى الآن.</p>
     } @else {
       <div class="diagnosis-history-list">
         @for (record of diagnosisHistory(); track record.id) {
           <article class="diagnosis-history-item">
             <div class="diagnosis-history-heading">
-              <h3>{{ record.diagnosis }}</h3>
+              <h3>{{ record.diagnosis || formatVisitType(record.type) || 'موعد' }}</h3>
               @if (record.date) {
                 <time>{{ formatDateTime(record.date) }}</time>
               }
             </div>
             @if (record.type) {
-              <p><strong>نوع الزيارة:</strong> {{ record.type }}</p>
+              <p><strong>نوع الزيارة:</strong> {{ formatVisitType(record.type) }}</p>
+            }
+            @if (record.startTime) {
+              <p><strong>من الساعة:</strong> {{ record.startTime }}</p>
+            }
+            @if (record.endTime) {
+              <p><strong>إلى الساعة:</strong> {{ record.endTime }}</p>
+            }
+            @if (record.durationMinutes !== null) {
+              <p><strong>مدة الموعد:</strong> {{ record.durationMinutes }} دقيقة</p>
+            }
+            @if (record.clinicName) {
+              <p><strong>العيادة:</strong> {{ record.clinicName }}</p>
+            }
+            @if (record.status) {
+              <p><strong>حالة الموعد:</strong> {{ formatAppointmentStatus(record.status) }}</p>
+            }
+            @if (record.paymentStatus) {
+              <p><strong>حالة الدفع:</strong> {{ formatPaymentStatus(record.paymentStatus) }}</p>
+            }
+            @if (record.price !== null) {
+              <p><strong>سعر الزيارة:</strong> {{ record.price }} جنيه</p>
+            }
+            @if (record.totalAmount !== null) {
+              <p><strong>الإجمالي:</strong> {{ record.totalAmount }} جنيه</p>
             }
             @if (record.treatment) {
               <p><strong>العلاج:</strong> {{ record.treatment }}</p>
