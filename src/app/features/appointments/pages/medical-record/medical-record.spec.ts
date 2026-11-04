@@ -56,7 +56,16 @@ describe('AppointmentsService medical record', () => {
       `${environment.url}doctor/medicines/search?q=%D8%A8%D9%86%D8%A7%D8%AF%D9%88%D9%84`,
     );
     expect(request.request.method).toBe('GET');
-    request.flush({ status: true, data: [{ id: 1, name: 'بنادول' }] });
+    request.flush({
+      status: true,
+      medicines: [{
+        id: 1,
+        commercial_name_ar: 'بنادول',
+        commercial_name_en: 'Panadol',
+        scientific_name: 'Paracetamol',
+        price_egp: '1.00',
+      }],
+    });
   });
 
   it('creates a prescription for the selected medical record', () => {
@@ -244,7 +253,13 @@ describe('readMedicalHistory', () => {
       }));
       searchMedicines = jasmine.createSpy().and.returnValue(of({
         status: true,
-        data: [{ id: 12, name: 'بنادول' }],
+        medicines: [{
+          id: 12,
+          commercial_name_ar: 'بنادول',
+          commercial_name_en: 'Panadol',
+          scientific_name: 'Paracetamol',
+          price_egp: '1.00',
+        }],
       }));
 
       await TestBed.configureTestingModule({

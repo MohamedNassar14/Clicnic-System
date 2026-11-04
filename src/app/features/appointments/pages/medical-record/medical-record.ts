@@ -179,7 +179,15 @@ function readMedicineSearchResult(response: unknown): MedicineSearchResult {
       return [];
     }
 
-    const name = readString(entry, 'name', 'medicine_name', 'trade_name', 'brand_name');
+    const name = readString(
+      entry,
+      'commercial_name_ar',
+      'commercial_name_en',
+      'name',
+      'medicine_name',
+      'trade_name',
+      'brand_name',
+    );
     if (!name) {
       return [];
     }
