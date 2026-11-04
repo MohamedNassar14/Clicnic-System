@@ -19,6 +19,7 @@ import Swal from 'sweetalert2';
 import { DatePipe } from '@angular/common';
 import { environment } from '../../../../../environments/environment';
 import { Subject, Subscription, catchError, distinctUntilChanged, map, of, switchMap, timer } from 'rxjs';
+import { DashboardService } from '../../../dashboard/services/dashboard';
 
 interface PatientNavigationState {
   patientId?: number | string;
@@ -96,6 +97,38 @@ function readString(record: Record<string, unknown>, ...keys: string[]): string 
     }
   }
   return '';
+}
+
+function readCurrentVisitType(value: unknown, visited = new Set<object>()): string {
+  if (!isRecord(value) || visited.has(value)) {
+    return '';
+  }
+  visited.add(value);
+
+  const visitType = readString(value, 'visit_type_label', 'visit_type');
+  if (visitType) {
+    return visitType;
+  }
+
+  for (const key of ['current_appointment', 'appointment', 'data']) {
+    const nestedVisitType = readCurrentVisitType(value[key], visited);
+    if (nestedVisitType) {
+      return nestedVisitType;
+    }
+  }
+
+  return '';
+}
+
+function formatVisitType(visitType: string): string {
+  switch (visitType.trim().toLocaleLowerCase()) {
+    case 'checkup':
+      return 'كشف';
+    case 'consultation':
+      return 'استشارة';
+    default:
+      return visitType;
+  }
 }
 
 function readArray(value: unknown): unknown[] {
@@ -334,6 +367,7 @@ function toMedicalHistoryRecord(record: Record<string, unknown>): MedicalHistory
 export class MedicalRecord implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly appointmentsService = inject(AppointmentsService);
+  private readonly dashboardService = inject(DashboardService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -346,6 +380,9 @@ export class MedicalRecord implements OnInit {
   readonly patientName = this.patientState.patientName ?? 'المريض';
   readonly patientPhone = this.patientState.patientPhone ?? '';
   readonly isDiagnosisPopupOpen = signal(false);
+  readonly currentVisitType = signal('');
+  readonly isLoadingCurrentVisitType = signal(false);
+  readonly currentVisitTypeError = signal('');
   readonly isPrescriptionPopupOpen = signal(false);
   readonly isMedicalFilePopupOpen = signal(false);
   readonly selectedMedicalFile = signal<File | null>(null);
@@ -380,6 +417,31 @@ export class MedicalRecord implements OnInit {
 
   ngOnInit(): void {
     this.loadPatientHistory();
+    this.loadCurrentVisitType();
+  }
+
+  loadCurrentVisitType(): void {
+    this.isLoadingCurrentVisitType.set(true);
+    this.currentVisitTypeError.set('');
+    this.dashboardService.getDoctorCurrentAppointment().subscribe({
+      next: (response) => {
+        this.isLoadingCurrentVisitType.set(false);
+        const visitType = readCurrentVisitType(response);
+        if (response.status === false || !visitType) {
+          this.currentVisitType.set('');
+          this.currentVisitTypeError.set(
+            response.msg || 'نوع الزيارة غير متوفر في الموعد الحالي.',
+          );
+          return;
+        }
+        this.currentVisitType.set(formatVisitType(visitType));
+      },
+      error: () => {
+        this.isLoadingCurrentVisitType.set(false);
+        this.currentVisitType.set('');
+        this.currentVisitTypeError.set('تعذر تحميل نوع الزيارة من الموعد الحالي.');
+      },
+    });
   }
 
   loadPatientHistory(): void {

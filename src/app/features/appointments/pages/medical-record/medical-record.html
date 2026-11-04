@@ -110,7 +110,13 @@
 
       <form [formGroup]="diagnosisForm" (ngSubmit)="saveDiagnosis()">
         <span class="form-field-label" id="record-type-label">نوع الزيارة</span>
-        <p class="visit-type-value" aria-labelledby="record-type-label">كشف</p>
+        @if (isLoadingCurrentVisitType()) {
+        <p class="visit-type-value" role="status">جارٍ تحميل نوع الزيارة...</p>
+        } @else if (currentVisitTypeError()) {
+        <p class="visit-type-value" role="alert">{{ currentVisitTypeError() }}</p>
+        } @else {
+        <p class="visit-type-value" aria-labelledby="record-type-label">{{ currentVisitType() }}</p>
+        }
 
         <label for="diagnosis">التشخيص</label>
         <input id="diagnosis" type="text" formControlName="diagnosis" placeholder="مثال: التهاب في الحلق" />

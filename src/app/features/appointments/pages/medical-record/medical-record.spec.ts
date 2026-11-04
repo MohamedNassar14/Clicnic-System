@@ -7,6 +7,7 @@ import { readMedicalHistory } from './medical-record';
 import { MedicalRecord } from './medical-record';
 import { AppointmentsService } from '../../services/appointments';
 import { environment } from '../../../../../environments/environment';
+import { DashboardService } from '../../../dashboard/services/dashboard';
 
 describe('AppointmentsService medical record', () => {
   let service: AppointmentsService;
@@ -164,6 +165,7 @@ describe('readMedicalHistory', () => {
   describe('MedicalRecord prescription display', () => {
     let fixture: ComponentFixture<MedicalRecord>;
     let getPatientHistory: jasmine.Spy;
+    let getDoctorCurrentAppointment: jasmine.Spy;
     let searchMedicines: jasmine.Spy;
     const uploadMedicalRecordAttachment = jasmine.createSpy()
       .and.returnValue(of({ status: true, msg: 'Uploaded' }));
@@ -236,6 +238,10 @@ describe('readMedicalHistory', () => {
         },
       };
       getPatientHistory = jasmine.createSpy().and.returnValue(of(historyResponse));
+      getDoctorCurrentAppointment = jasmine.createSpy().and.returnValue(of({
+        status: true,
+        data: { visit_type: 'consultation' },
+      }));
       searchMedicines = jasmine.createSpy().and.returnValue(of({
         status: true,
         data: [{ id: 12, name: 'بنادول' }],
@@ -256,6 +262,10 @@ describe('readMedicalHistory', () => {
             },
           },
           {
+            provide: DashboardService,
+            useValue: { getDoctorCurrentAppointment },
+          },
+          {
             provide: ActivatedRoute,
             useValue: {
               snapshot: {
@@ -269,6 +279,11 @@ describe('readMedicalHistory', () => {
 
       fixture = TestBed.createComponent(MedicalRecord);
       fixture.detectChanges();
+    });
+
+    it('shows the visit type from the current appointment', () => {
+      expect(getDoctorCurrentAppointment).toHaveBeenCalledTimes(1);
+      expect(fixture.componentInstance.currentVisitType()).toBe('استشارة');
     });
 
     it('renders the saved prescription and keeps the add-prescription button visible', () => {
