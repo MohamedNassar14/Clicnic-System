@@ -48,6 +48,16 @@ describe('AppointmentsService medical record', () => {
     request.flush({ status: true, data: [] });
   });
 
+  it('searches medicines with the typed query', () => {
+    service.searchMedicines('بنادول').subscribe();
+
+    const request = httpMock.expectOne(
+      `${environment.url}doctor/medicines/search?q=%D8%A8%D9%86%D8%A7%D8%AF%D9%88%D9%84`,
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush({ status: true, data: [{ id: 1, name: 'بنادول' }] });
+  });
+
   it('creates a prescription for the selected medical record', () => {
     const payload = {
       notes: 'يفضل شرب سوائل دافئة',
@@ -74,7 +84,7 @@ describe('AppointmentsService medical record', () => {
   it('uploads an attachment to the selected medical record', () => {
     const payload = new FormData();
     payload.append('file', new File(['scan'], 'scan.png', { type: 'image/png' }));
-    payload.append('category', 'radiology');
+    payload.append('type', 'xray');
 
     service.uploadMedicalRecordAttachment(4, payload).subscribe();
 
@@ -83,7 +93,7 @@ describe('AppointmentsService medical record', () => {
     );
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toBe(payload);
-    expect(payload.get('category')).toBe('radiology');
+    expect(payload.get('type')).toBe('xray');
     expect((payload.get('file') as File).name).toBe('scan.png');
     request.flush({ status: true, msg: 'Uploaded' });
   });
@@ -123,7 +133,12 @@ describe('readMedicalHistory', () => {
                 ],
               },
             ],
-            attachments: [],
+            attachments: [{
+              id: 2,
+              type: 'xray',
+              file_path: 'medical-attachments/scan.png',
+              original_name: 'scan.png',
+            }],
           },
         ],
       },
@@ -138,10 +153,18 @@ describe('readMedicalHistory', () => {
       frequency: 'مرتين يوميًا',
       duration: '5 أيام',
     });
+    expect(result.records[0].attachments).toEqual([{
+      id: 2,
+      typeLabel: 'أشعة',
+      originalName: 'scan.png',
+      url: `${new URL(environment.url).origin}/storage/medical-attachments/scan.png`,
+    }]);
   });
 
   describe('MedicalRecord prescription display', () => {
     let fixture: ComponentFixture<MedicalRecord>;
+    let getPatientHistory: jasmine.Spy;
+    let searchMedicines: jasmine.Spy;
     const uploadMedicalRecordAttachment = jasmine.createSpy()
       .and.returnValue(of({ status: true, msg: 'Uploaded' }));
 
@@ -172,6 +195,12 @@ describe('readMedicalHistory', () => {
                   ],
                 },
               ],
+              attachments: [{
+                id: 2,
+                type: 'xray',
+                file_path: 'medical-attachments/scan.png',
+                original_name: 'scan.png',
+              }],
             },
           ],
         },
@@ -206,6 +235,11 @@ describe('readMedicalHistory', () => {
           ],
         },
       };
+      getPatientHistory = jasmine.createSpy().and.returnValue(of(historyResponse));
+      searchMedicines = jasmine.createSpy().and.returnValue(of({
+        status: true,
+        data: [{ id: 12, name: 'بنادول' }],
+      }));
 
       await TestBed.configureTestingModule({
         imports: [MedicalRecord],
@@ -215,7 +249,8 @@ describe('readMedicalHistory', () => {
           {
             provide: AppointmentsService,
             useValue: {
-              getPatientHistory: () => of(historyResponse),
+              getPatientHistory,
+              searchMedicines,
               createPrescription: () => of(prescriptionResponse),
               uploadMedicalRecordAttachment,
             },
@@ -236,7 +271,7 @@ describe('readMedicalHistory', () => {
       fixture.detectChanges();
     });
 
-    it('renders the prescription returned by the save request and hides its button', () => {
+    it('renders the saved prescription and keeps the add-prescription button visible', () => {
       const component = fixture.componentInstance;
       component.medicalRecords.set([{
         id: '4',
@@ -244,15 +279,18 @@ describe('readMedicalHistory', () => {
         diagnosis: 'التهاب في الحلق',
         treatment: 'نام كويس',
         notes: 'يرتاح',
+        created_at: '',
         prescriptions: [],
+        attachments: [],
       }]);
       component.openPrescriptionPopup(component.medicalRecords()[0]);
-      component.prescriptionItems.at(0).setValue({
-        medicine_name: 'Augmentin 1g',
-        dosage: 'قرص واحد',
+      const item = component.prescriptionItems.at(0);
+      component.selectMedicine(item, { id: 5, name: 'Augmentin 1g' });
+      item.patchValue({
         frequency: 'مرتين يوميًا',
         duration: '5 أيام',
       });
+      expect(item.contains('dosage')).toBeFalse();
       component.savePrescription();
       fixture.detectChanges();
 
@@ -266,10 +304,45 @@ describe('readMedicalHistory', () => {
       expect(text).toContain('مرتين يوميًا');
       expect(text).toContain('5 أيام');
       expect(text).toContain('يفضل شرب سوائل دافئة');
-      expect(buttons.some((label) => label.includes('إضافة روشتة'))).toBeFalse();
+      expect(buttons.some((label) => label.includes('إضافة روشتة'))).toBeTrue();
+      expect(getPatientHistory).toHaveBeenCalledTimes(2);
     });
 
-    it('shows returned prescription items and hides the add-prescription button', () => {
+    it('searches and lets the doctor select a medicine suggestion', async () => {
+      const component = fixture.componentInstance;
+      component.openPrescriptionPopup({
+        id: 4,
+        record_type: 'checkup',
+        diagnosis: 'التهاب في الحلق',
+        treatment: '',
+        notes: '',
+        created_at: '',
+        prescriptions: [],
+        attachments: [],
+      });
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector(
+        'input[formControlName="medicine_name"]',
+      ) as HTMLInputElement;
+      input.value = 'بنادول';
+      input.dispatchEvent(new Event('input'));
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      fixture.detectChanges();
+
+      expect(searchMedicines).toHaveBeenCalledOnceWith('بنادول');
+      const option = fixture.nativeElement.querySelector(
+        '.medicine-suggestions [role="option"]',
+      ) as HTMLButtonElement;
+      expect(option.textContent).toContain('بنادول');
+      option.click();
+      fixture.detectChanges();
+
+      expect(input.value).toBe('بنادول');
+      expect(fixture.nativeElement.querySelector('.medicine-suggestions')).toBeNull();
+    });
+
+    it('shows returned prescription items and the add-prescription button', () => {
       const text = fixture.nativeElement.textContent as string;
       const buttons = Array.from(
         fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
@@ -280,13 +353,21 @@ describe('readMedicalHistory', () => {
       expect(text).toContain('مرتين يوميًا');
       expect(text).toContain('5 أيام');
       expect(text).toContain('يفضل شرب سوائل دافئة');
-      expect(buttons.some((label) => label.includes('إضافة روشتة'))).toBeFalse();
+      expect(text).toContain('الملفات الطبية');
+      expect(text).toContain('scan.png');
+      const attachmentLink = fixture.nativeElement.querySelector(
+        '.medical-attachment-link',
+      ) as HTMLAnchorElement;
+      expect(attachmentLink.href).toBe(
+        `${new URL(environment.url).origin}/storage/medical-attachments/scan.png`,
+      );
+      expect(buttons.some((label) => label.includes('إضافة روشتة'))).toBeTrue();
     });
 
     it('opens the medical file popup from the upload button', () => {
       const uploadButton = Array.from(
         fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
-      ).find((button) => button.textContent?.includes('رفع صور'));
+      ).find((button) => button.textContent?.includes('رفع أشعة أو تحاليل'));
 
       expect(uploadButton).toBeDefined();
       uploadButton?.click();
@@ -314,13 +395,15 @@ describe('readMedicalHistory', () => {
         diagnosis: 'التهاب في الحلق',
         treatment: 'نام كويس',
         notes: '',
+        created_at: '',
         prescriptions: [],
+        attachments: [],
       }]);
       fixture.detectChanges();
 
       const uploadButton = Array.from(
         fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
-      ).find((button) => button.textContent?.includes('رفع صور'));
+      ).find((button) => button.textContent?.includes('رفع أشعة أو تحاليل'));
       expect(uploadButton?.disabled).toBeFalse();
       uploadButton?.click();
       fixture.detectChanges();
@@ -331,7 +414,7 @@ describe('readMedicalHistory', () => {
       );
     });
 
-    it('uploads the selected file with the chosen category', () => {
+    it('uploads the selected file immediately as an xray attachment', () => {
       const component = fixture.componentInstance;
       const record = {
         id: 4,
@@ -339,14 +422,16 @@ describe('readMedicalHistory', () => {
         diagnosis: 'التهاب في الحلق',
         treatment: 'نام كويس',
         notes: '',
+        created_at: '',
         prescriptions: [],
+        attachments: [],
       };
       component.medicalRecords.set([record]);
       fixture.detectChanges();
 
       const uploadButton = Array.from(
         fixture.nativeElement.querySelectorAll('.record-action-button') as NodeListOf<HTMLButtonElement>,
-      ).find((button) => button.textContent?.includes('رفع صور'));
+      ).find((button) => button.textContent?.includes('رفع أشعة أو تحاليل'));
       uploadButton?.click();
       fixture.detectChanges();
 
@@ -356,17 +441,6 @@ describe('readMedicalHistory', () => {
       const file = new File(['scan'], 'scan.png', { type: 'image/png' });
       Object.defineProperty(fileInput, 'files', { value: [file] });
       fileInput.dispatchEvent(new Event('change'));
-
-      const categoryButton = Array.from(
-        fixture.nativeElement.querySelectorAll('.medical-file-types button') as NodeListOf<HTMLButtonElement>,
-      ).find((button) => button.textContent?.includes('تحاليل'));
-      categoryButton?.click();
-      fixture.detectChanges();
-
-      const submitButton = fixture.nativeElement.querySelector(
-        '.medical-file-submit',
-      ) as HTMLButtonElement;
-      submitButton.click();
       fixture.detectChanges();
 
       expect(uploadMedicalRecordAttachment).toHaveBeenCalled();
@@ -376,7 +450,7 @@ describe('readMedicalHistory', () => {
       ];
       expect(recordId).toBe(4);
       expect(payload.get('file')).toBe(file);
-      expect(payload.get('category')).toBe('analysis');
+      expect(payload.get('type')).toBe('xray');
       expect(fixture.nativeElement.textContent).toContain('تم رفع الملف بنجاح.');
     });
   });

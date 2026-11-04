@@ -672,3 +672,47 @@
   font-weight: 400 !important;
   box-shadow: none !important;
 }
+
+.appointment-actions {
+  position: relative;
+  display: inline-block;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.actions-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 200px;
+  padding: 14px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  app-icons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+	margin-top: 5px;
+  }
+}

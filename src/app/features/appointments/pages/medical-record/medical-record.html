@@ -7,8 +7,8 @@
       <h1>{{ patientName }}</h1>
       <p>
         @if (patientPhone) {
-          <span class="phone-icon" aria-hidden="true">☎</span>
-          {{ patientPhone }} ·
+        <span class="phone-icon" aria-hidden="true">☎</span>
+        {{ patientPhone }} ·
         }
         رقم الزيارة {{ appointmentId }}
       </p>
@@ -21,274 +21,240 @@
   <section class="record-list" aria-labelledby="medical-record-title">
     <h2 id="medical-record-title">السجل الطبي</h2>
     @if (saveSuccess()) {
-      <p class="save-success" role="status">{{ saveSuccess() }}</p>
+    <p class="save-success" role="status">{{ saveSuccess() }}</p>
     }
     @if (prescriptionSuccess()) {
-      <p class="save-success" role="status">{{ prescriptionSuccess() }}</p>
+    <p class="save-success" role="status">{{ prescriptionSuccess() }}</p>
     }
     @if (medicalFileSuccess()) {
-      <p class="save-success" role="status">{{ medicalFileSuccess() }}</p>
+    <p class="save-success" role="status">{{ medicalFileSuccess() }}</p>
     }
     @if (isLoadingHistory()) {
-      <p class="history-state" role="status">جارٍ تحميل التشخيصات السابقة...</p>
+    <p class="history-state" role="status">جارٍ تحميل التشخيصات السابقة...</p>
     } @else if (historyError()) {
-      <div class="history-state history-error" role="alert">
-        <p>{{ historyError() }}</p>
-        <button type="button" (click)="loadPatientHistory()">إعادة المحاولة</button>
-      </div>
+    <div class="history-state history-error" role="alert">
+      <p>{{ historyError() }}</p>
+      <button type="button" (click)="loadPatientHistory()">إعادة المحاولة</button>
+    </div>
     } @else if (medicalRecords().length === 0) {
-      <div class="empty-records">لسه مفيش تشخيصات مسجلة لهذا المريض.</div>
+    <div class="empty-records">لسه مفيش تشخيصات مسجلة لهذا المريض.</div>
     } @else {
-      @for (record of medicalRecords(); track record.id ?? $index) {
-        <article class="medical-record-card">
-          <div>
-            <span class="record-type">{{ record.record_type === 'checkup' ? 'كشف' : record.record_type }}</span>
-            <h3 class="text-xl font-semibold">{{ record.diagnosis }}</h3>
-          </div>
-          <p>العلاج: <span class="text-black">{{ record.treatment }}</span></p>
-          @if (record.notes) {
-            <p>ملاحظات الطبيب: <span class="text-black">{{ record.notes }}</span></p>
-          }
-          <p>التشخيص بتاريخ: <span class="text-black">{{ record.created_at | date:'dd/MM/yyyy' }}</span></p>
-          @for (prescription of record.prescriptions; track prescription.id ?? $index) {
-            <section class="prescription-details" aria-label="الروشتة">
-              <h4><span aria-hidden="true">💊</span> الروشتة</h4>
-              @for (item of prescription.items; track $index) {
-                <div class="prescription-line">
-                  <span>{{ item.medicine_name }}</span>
-                  <span>{{ item.dosage }} – {{ item.frequency }} – {{ item.duration }}</span>
-                </div>
-              }
-              @if (prescription.notes) {
-                <p class="prescription-notes"><strong>ملاحظات عامة:</strong> {{ prescription.notes }}</p>
-              }
-            </section>
-          }
-          <div
-            class="record-actions"
-            aria-label="إجراءات التشخيص"
-            (click)="onRecordActionClick($event, record)">
-            @if (record.prescriptions.length === 0) {
-              <button
-                class="record-action-button"
-                type="button"
-                [disabled]="record.id === undefined"
-                [attr.title]="record.id === undefined ? 'معرّف التشخيص غير متوفر' : null"
-                (click)="openPrescriptionPopup(record)">
-                <span aria-hidden="true">＋</span>
-                إضافة روشتة
-              </button>
-            }
-            <button
-  data-record-action="upload-medical-file"
-  class="record-action-button"
-  type="button"
-  [disabled]="record.id === undefined"
-  (click)="openMedicalFilePopup(record)">
-  <svg viewBox="0 0 20 20" aria-hidden="true">
-    <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
-  </svg>
-  رفع صور
-</button>
-          </div>
-        </article>
+    @for (record of medicalRecords(); track record.id ?? $index) {
+    <article class="medical-record-card">
+      <div>
+        <span class="record-type">{{ record.record_type === 'checkup' ? 'كشف' : record.record_type }}</span>
+        <h3 class="text-xl font-semibold">{{ record.diagnosis }}</h3>
+      </div>
+      @if (record.treatment) {
+      <p>العلاج: <span class="text-black">{{ record.treatment }}</span></p>
       }
+      @if (record.notes) {
+      <p>ملاحظات الطبيب: <span class="text-black">{{ record.notes }}</span></p>
+      }
+      <p>التشخيص بتاريخ: <span class="text-black">{{ record.created_at | date:'dd/MM/yyyy' }}</span></p>
+      @for (prescription of record.prescriptions; track prescription.id ?? $index) {
+      <section class="prescription-details" aria-label="الروشتة">
+        <h4><span aria-hidden="true">💊</span> الروشتة</h4>
+        @for (item of prescription.items; track $index) {
+        <div class="prescription-line">
+          <span>{{ item.medicine_name }}</span>
+          <span>{{ item.dosage }} – {{ item.frequency }} – {{ item.duration }}</span>
+        </div>
+        }
+        @if (prescription.notes) {
+        <p class="prescription-notes"><strong>ملاحظات عامة:</strong> {{ prescription.notes }}</p>
+        }
+      </section>
+      }
+      @if (record.attachments.length > 0) {
+      <section class="medical-attachments" aria-label="الملفات الطبية">
+        <h4>الملفات الطبية</h4>
+        @for (attachment of record.attachments; track attachment.id ?? $index) {
+        <a class="medical-attachment-link" [href]="attachment.url" target="_blank" rel="noopener noreferrer">
+          <span class="medical-attachment-type">{{ attachment.typeLabel }}</span>
+          <span>{{ attachment.originalName }}</span>
+        </a>
+        }
+      </section>
+      }
+      <div class="record-actions" aria-label="إجراءات التشخيص" (click)="onRecordActionClick($event, record)">
+        <button class="record-action-button" type="button" [disabled]="record.id === undefined"
+          [attr.title]="record.id === undefined ? 'معرّف التشخيص غير متوفر' : null"
+          (click)="openPrescriptionPopup(record)">
+          <span aria-hidden="true">＋</span>
+          إضافة روشتة
+        </button>
+        <button data-record-action="upload-medical-file" class="record-action-button" type="button"
+          [disabled]="record.id === undefined" (click)="openMedicalFilePopup(record)">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M10 13V3m0 0L6.5 6.5M10 3l3.5 3.5M4 11v5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-5" />
+          </svg>
+          رفع أشعة أو تحاليل
+        </button>
+      </div>
+    </article>
+    }
     }
     @if (saveError()) {
-      <p class="save-error" role="alert">{{ saveError() }}</p>
+    <p class="save-error" role="alert">{{ saveError() }}</p>
     }
   </section>
 
   @if (isDiagnosisPopupOpen()) {
-    <div class="modal-backdrop" (click)="closeDiagnosisPopup()">
-      <section
-        class="diagnosis-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="diagnosis-modal-title"
-        (click)="$event.stopPropagation()">
-        <button
-          class="close-modal-button"
-          type="button"
-          aria-label="إغلاق"
-          [disabled]="isSaving()"
-          (click)="closeDiagnosisPopup()">×</button>
-        <h2 id="diagnosis-modal-title">إضافة تشخيص جديد</h2>
+  <div class="modal-backdrop" (click)="closeDiagnosisPopup()">
+    <section class="diagnosis-modal" role="dialog" aria-modal="true" aria-labelledby="diagnosis-modal-title"
+      (click)="$event.stopPropagation()">
+      <button class="close-modal-button" type="button" aria-label="إغلاق" [disabled]="isSaving()"
+        (click)="closeDiagnosisPopup()">×</button>
+      <h2 id="diagnosis-modal-title">إضافة تشخيص جديد</h2>
 
-        <form [formGroup]="diagnosisForm" (ngSubmit)="saveDiagnosis()">
-          <span class="form-field-label" id="record-type-label">نوع الزيارة</span>
-          <p class="visit-type-value" aria-labelledby="record-type-label">كشف</p>
+      <form [formGroup]="diagnosisForm" (ngSubmit)="saveDiagnosis()">
+        <span class="form-field-label" id="record-type-label">نوع الزيارة</span>
+        <p class="visit-type-value" aria-labelledby="record-type-label">كشف</p>
 
-          <label for="diagnosis">التشخيص</label>
-          <input
-            id="diagnosis"
-            type="text"
-            formControlName="diagnosis"
-            placeholder="مثال: التهاب في الحلق" />
-          @if (diagnosisForm.controls.diagnosis.invalid && diagnosisForm.controls.diagnosis.touched) {
-            <span class="field-error">اكتب التشخيص.</span>
-          }
+        <label for="diagnosis">التشخيص</label>
+        <input id="diagnosis" type="text" formControlName="diagnosis" placeholder="مثال: التهاب في الحلق" />
+        @if (diagnosisForm.controls.diagnosis.invalid && diagnosisForm.controls.diagnosis.touched) {
+        <span class="field-error">اكتب التشخيص.</span>
+        }
 
-          <label for="treatment">العلاج</label>
-          <textarea id="treatment" rows="3" formControlName="treatment"></textarea>
-          @if (diagnosisForm.controls.treatment.invalid && diagnosisForm.controls.treatment.touched) {
-            <span class="field-error">اكتب العلاج.</span>
-          }
+        <label for="treatment">العلاج</label>
+        <textarea id="treatment" rows="3" formControlName="treatment"></textarea>
 
-          <label for="notes">ملاحظات الطبيب</label>
-          <textarea id="notes" rows="3" formControlName="notes"></textarea>
+        <label for="notes">ملاحظات الطبيب</label>
+        <textarea id="notes" rows="3" formControlName="notes"></textarea>
 
-          @if (saveError()) {
-            <p class="save-error" role="alert">{{ saveError() }}</p>
-          }
+        @if (saveError()) {
+        <p class="save-error" role="alert">{{ saveError() }}</p>
+        }
 
-          <button class="save-diagnosis-button" type="submit" [disabled]="isSaving()">
-            {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التشخيص' }}
-          </button>
-        </form>
-      </section>
-    </div>
+        <button class="save-diagnosis-button" type="submit" [disabled]="isSaving()">
+          {{ isSaving() ? 'جارٍ الحفظ...' : 'حفظ التشخيص' }}
+        </button>
+      </form>
+    </section>
+  </div>
   }
 
   @if (isPrescriptionPopupOpen()) {
-    <div class="modal-backdrop" (click)="closePrescriptionPopup()">
-      <section
-        class="diagnosis-modal prescription-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="prescription-modal-title"
-        (click)="$event.stopPropagation()">
-        <button
-          class="close-modal-button"
-          type="button"
-          aria-label="إغلاق"
-          [disabled]="isSavingPrescription()"
-          (click)="closePrescriptionPopup()">×</button>
-        <h2 id="prescription-modal-title">كتابة روشتة</h2>
+  <div class="modal-backdrop" (click)="closePrescriptionPopup()">
+    <section class="diagnosis-modal prescription-modal" role="dialog" aria-modal="true"
+      aria-labelledby="prescription-modal-title" (click)="$event.stopPropagation()">
+      <button class="close-modal-button" type="button" aria-label="إغلاق" [disabled]="isSavingPrescription()"
+        (click)="closePrescriptionPopup()">×</button>
+      <h2 id="prescription-modal-title">كتابة روشتة</h2>
 
-        <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()">
-          <div formArrayName="items" class="prescription-items">
-            @for (item of prescriptionItems.controls; track $index; let index = $index) {
-              <div class="prescription-item" [formGroupName]="index">
-                <div class="prescription-item-fields">
-                  <label>
-                    <span class="sr-only">اسم الدواء</span>
-                    <input type="text" formControlName="medicine_name" placeholder="اسم الدواء" />
-                  </label>
-                  <label>
-                    <span class="sr-only">الجرعة</span>
-                    <input type="text" formControlName="dosage" placeholder="الجرعة" />
-                  </label>
-                  <label>
-                    <span class="sr-only">عدد المرات</span>
-                    <input type="text" formControlName="frequency" placeholder="عدد المرات" />
-                  </label>
-                  <label>
-                    <span class="sr-only">المدة</span>
-                    <input type="text" formControlName="duration" placeholder="المدة" />
-                  </label>
-                </div>
-                <button
-                  class="remove-prescription-item"
-                  type="button"
-                  [disabled]="prescriptionItems.length === 1 || isSavingPrescription()"
-                  [attr.aria-label]="'حذف الدواء رقم ' + (index + 1)"
-                  (click)="removePrescriptionItem(index)">×</button>
+      <form [formGroup]="prescriptionForm" (ngSubmit)="savePrescription()">
+        <div formArrayName="items" class="prescription-items">
+          @for (item of prescriptionItems.controls; track $index; let index = $index) {
+          <div class="prescription-item" [formGroupName]="index">
+            <div class="prescription-item-fields">
+              <div class="medicine-autocomplete">
+                <label>
+                  <span class="sr-only">اسم الدواء</span>
+                  <input
+                    type="text"
+                    formControlName="medicine_name"
+                    placeholder="اسم الدواء"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    [attr.aria-expanded]="medicineSuggestions(item).length > 0"
+                    (input)="onMedicineSearchInput(item, $event)" />
+                </label>
+                @if (medicineSearchLoading(item)) {
+                  <p class="medicine-search-status" role="status">جاري البحث عن الأدوية...</p>
+                }
+                @if (medicineSearchError(item)) {
+                  <p class="medicine-search-error" role="alert">{{ medicineSearchError(item) }}</p>
+                } @else if (
+                  medicineSearchQuery(item) &&
+                  !medicineSearchLoading(item) &&
+                  medicineSuggestions(item).length === 0
+                ) {
+                  <p class="medicine-search-status" role="status">لا توجد أدوية مطابقة.</p>
+                }
+                @if (medicineSuggestions(item).length > 0) {
+                  <ul class="medicine-suggestions" role="listbox" aria-label="نتائج البحث عن الأدوية">
+                    @for (medicine of medicineSuggestions(item); track medicine.id ?? medicine.name) {
+                      <li role="presentation">
+                        <button
+                          type="button"
+                          role="option"
+                          [attr.aria-selected]="false"
+                          (click)="selectMedicine(item, medicine)">
+                          {{ medicine.name }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
-            }
+              <label>
+                <span class="sr-only">عدد المرات</span>
+                <input type="text" formControlName="frequency" placeholder="عدد المرات" />
+              </label>
+              <label>
+                <span class="sr-only">المدة</span>
+                <input type="text" formControlName="duration" placeholder="المدة" />
+              </label>
+            </div>
+            <button class="remove-prescription-item" type="button"
+              [disabled]="prescriptionItems.length === 1 || isSavingPrescription()"
+              [attr.aria-label]="'حذف الدواء رقم ' + (index + 1)" (click)="removePrescriptionItem(index)">×</button>
           </div>
-
-          <button
-            class="add-prescription-item"
-            type="button"
-            [disabled]="isSavingPrescription()"
-            (click)="addPrescriptionItem()">+ إضافة دواء</button>
-
-          <label for="prescription-notes">ملاحظات عامة</label>
-          <textarea id="prescription-notes" rows="3" formControlName="notes"></textarea>
-
-          @if (prescriptionError()) {
-            <p class="save-error" role="alert">{{ prescriptionError() }}</p>
           }
-
-          <button class="save-prescription-button" type="submit" [disabled]="isSavingPrescription()">
-            {{ isSavingPrescription() ? 'جارٍ الحفظ...' : 'حفظ الروشتة' }}
-          </button>
-        </form>
-      </section>
-    </div>
-  }
-  @if (isMedicalFilePopupOpen()) {
-    <div class="modal-backdrop" (click)="closeMedicalFilePopup()">
-      <section
-        class="medical-file-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="medical-file-modal-title"
-        (click)="$event.stopPropagation()">
-        <button
-          class="close-modal-button"
-          type="button"
-          aria-label="إغلاق"
-          [disabled]="isUploadingMedicalFile()"
-          (click)="closeMedicalFilePopup()">×</button>
-        <h2 id="medical-file-modal-title">رفع ملف طبي</h2>
-
-        <div class="medical-file-types" role="group" aria-label="نوع الملف">
-          <button
-            type="button"
-            [class.selected]="medicalFileCategory() === 'radiology'"
-            [attr.aria-pressed]="medicalFileCategory() === 'radiology'"
-            (click)="medicalFileCategory.set('radiology')">
-            أشعة <span aria-hidden="true">▯</span>
-          </button>
-          <button
-            type="button"
-            [class.selected]="medicalFileCategory() === 'analysis'"
-            [attr.aria-pressed]="medicalFileCategory() === 'analysis'"
-            (click)="medicalFileCategory.set('analysis')">
-            تحاليل <span aria-hidden="true">🧪</span>
-          </button>
         </div>
 
-        <label class="medical-file-label" for="medical-file-input">اختر الملف</label>
-        <input
-          id="medical-file-input"
-          class="medical-file-input"
-          type="file"
-          accept="image/*,.pdf"
-          (change)="onMedicalFileSelected($event)" />
-        @if (medicalFileError()) {
-          <p class="save-error" role="alert">{{ medicalFileError() }}</p>
+        <button class="add-prescription-item" type="button" [disabled]="isSavingPrescription()"
+          (click)="addPrescriptionItem()">+ إضافة دواء</button>
+
+        <label for="prescription-notes">ملاحظات عامة</label>
+        <textarea id="prescription-notes" rows="3" formControlName="notes"></textarea>
+
+        @if (prescriptionError()) {
+        <p class="save-error" role="alert">{{ prescriptionError() }}</p>
         }
-        <button
-          class="medical-file-submit"
-          type="button"
-          [disabled]="
-            !selectedMedicalFile() ||
-            selectedMedicalFileRecord()?.id === undefined ||
-            isUploadingMedicalFile()
-          "
-          (click)="uploadMedicalFile()">
-          {{ isUploadingMedicalFile() ? 'جارٍ رفع الملف...' : 'رفع الملف' }}
+
+        <button class="save-prescription-button" type="submit" [disabled]="isSavingPrescription()">
+          {{ isSavingPrescription() ? 'جارٍ الحفظ...' : 'حفظ الروشتة' }}
         </button>
-      </section>
-    </div>
+      </form>
+    </section>
+  </div>
+  }
+  @if (isMedicalFilePopupOpen()) {
+  <div class="modal-backdrop" (click)="closeMedicalFilePopup()">
+    <section class="medical-file-modal" role="dialog" aria-modal="true" aria-labelledby="medical-file-modal-title"
+      (click)="$event.stopPropagation()">
+      <button class="close-modal-button" type="button" aria-label="إغلاق" [disabled]="isUploadingMedicalFile()"
+        (click)="closeMedicalFilePopup()">×</button>
+      <h2 id="medical-file-modal-title">رفع ملف طبي</h2>
+
+      <label class="medical-file-label" for="medical-file-input">اختر ملف أشعة أو تحليل</label>
+      <input id="medical-file-input" class="medical-file-input" type="file" accept="image/*,.pdf"
+        [disabled]="selectedMedicalFileRecord()?.id === undefined || isUploadingMedicalFile()"
+        (change)="onMedicalFileSelected($event)" />
+      @if (medicalFileError()) {
+      <p class="save-error" role="alert">{{ medicalFileError() }}</p>
+      }
+      @if (isUploadingMedicalFile()) {
+      <p class="history-state" role="status">جارٍ رفع الملف...</p>
+      }
+    </section>
+  </div>
   }
   <div class="finish flex justify-center">
-  @if (finishAppointmentError()) {
+    @if (finishAppointmentError()) {
     <p class="save-error" role="alert">
       {{ finishAppointmentError() }}
     </p>
-  }
+    }
 
-  <button
-    class="bg-[#1053fc] text-white font-bold px-[18px] rounded-xl min-h-[42px] min-w-[140px]"
-    type="button"
-    [disabled]="isFinishingAppointment()"
-    (click)="finishAppointment()">
+    <button class="bg-[#1053fc] text-white font-bold px-[18px] rounded-xl min-h-[42px] min-w-[140px]" type="button"
+      [disabled]="isFinishingAppointment()" (click)="finishAppointment()">
 
-    {{ isFinishingAppointment() ? 'جارٍ إنهاء الزيارة...' : 'إنهاء الزيارة' }}
-  </button>
-</div>
+      {{ isFinishingAppointment() ? 'جارٍ إنهاء الزيارة...' : 'إنهاء الزيارة' }}
+    </button>
+  </div>
 </section>

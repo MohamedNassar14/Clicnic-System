@@ -349,8 +349,7 @@
                         [class.unpaid]="!appointment.isPaid">
                         {{ appointment.paymentStatusText }}
                     </span>
-                    @if ((appointment.status === 'confirmed' &&appointment.appointmentId !== undefined)
-                    ||!appointment.isPaid) {
+                    @if ((appointment.status === 'confirmed' &&appointment.appointmentId !== undefined) ||!appointment.isPaid) {
                     <div class="appointment-actions">
 
                         <button type="button" class="action-btn"
@@ -361,10 +360,7 @@
                         @if (openedMenuId === appointment.appointmentId) {
                         <div class="actions-menu">
 
-                            @if (
-                            appointment.status === 'confirmed' &&
-                            appointment.appointmentId !== undefined
-                            ) {
+                            @if (appointment.status === 'confirmed' && appointment.appointmentId !== undefined) {
                             <button type="button" class="menu-item" [disabled]="settingCurrentAppointmentId() !== null"
                                 (click)="setCurrentAppointment(appointment); openedMenuId = null">
                                 <app-icons [iconKey]="'toggleOff'"></app-icons>

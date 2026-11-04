@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormArray,
   FormBuilder,
@@ -16,6 +17,8 @@ import {
 } from '../../services/appointments';
 import Swal from 'sweetalert2';
 import { DatePipe } from '@angular/common';
+import { environment } from '../../../../../environments/environment';
+import { Subject, Subscription, catchError, distinctUntilChanged, map, of, switchMap, timer } from 'rxjs';
 
 interface PatientNavigationState {
   patientId?: number | string;
@@ -36,11 +39,19 @@ interface PrescriptionDisplay {
   items: PrescriptionDisplayItem[];
 }
 
+interface MedicalAttachmentDisplay {
+  id?: number | string;
+  typeLabel: string;
+  originalName: string;
+  url: string;
+}
+
 interface MedicalHistoryRecord extends MedicalRecordPayload {
   id?: number | string;
   date?: string;
   created_at: string;
   prescriptions: PrescriptionDisplay[];
+  attachments: MedicalAttachmentDisplay[];
 }
 
 interface MedicalHistoryResult {
@@ -48,9 +59,27 @@ interface MedicalHistoryResult {
   error: string;
 }
 
+interface MedicineOption {
+  id?: number | string;
+  name: string;
+}
+
+interface MedicineSearchResult {
+  medicines: MedicineOption[];
+  error: string;
+}
+
+interface MedicineSearchState {
+  query: WritableSignal<string>;
+  suggestions: WritableSignal<MedicineOption[]>;
+  isSearching: WritableSignal<boolean>;
+  error: WritableSignal<string>;
+  selected: WritableSignal<MedicineOption | null>;
+  queryChanges: Subject<string>;
+}
+
 type PrescriptionItemForm = FormGroup<{
   medicine_name: FormControl<string>;
-  dosage: FormControl<string>;
   frequency: FormControl<string>;
   duration: FormControl<string>;
 }>;
@@ -74,6 +103,93 @@ function readArray(value: unknown): unknown[] {
     return value;
   }
   return isRecord(value) ? [value] : [];
+}
+
+function findMedicineEntries(value: unknown, visited = new Set<object>()): unknown[] | null {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (!isRecord(value) || visited.has(value)) {
+    return null;
+  }
+  visited.add(value);
+
+  for (const key of ['medicines', 'results', 'data']) {
+    const candidate = value[key];
+    if (Array.isArray(candidate)) {
+      return candidate;
+    }
+  }
+
+  for (const key of ['data', 'result', 'medicines']) {
+    const nestedEntries = findMedicineEntries(value[key], visited);
+    if (nestedEntries) {
+      return nestedEntries;
+    }
+  }
+
+  return null;
+}
+
+function readMedicineSearchResult(response: unknown): MedicineSearchResult {
+  if (isRecord(response) && response['status'] === false) {
+    return {
+      medicines: [],
+      error: typeof response['msg'] === 'string' && response['msg']
+        ? response['msg']
+        : 'تعذر البحث عن الأدوية.',
+    };
+  }
+
+  const medicines = (findMedicineEntries(response) ?? []).flatMap((entry) => {
+    if (!isRecord(entry)) {
+      return [];
+    }
+
+    const name = readString(entry, 'name', 'medicine_name', 'trade_name', 'brand_name');
+    if (!name) {
+      return [];
+    }
+
+    const id = entry['id'];
+    return [{
+      ...(typeof id === 'string' || typeof id === 'number' ? { id } : {}),
+      name,
+    }];
+  });
+
+  return { medicines, error: '' };
+}
+
+function toMedicalAttachment(attachment: unknown): MedicalAttachmentDisplay | null {
+  if (!isRecord(attachment)) {
+    return null;
+  }
+
+  const filePath = readString(attachment, 'file_path');
+  const fileUrl = readString(attachment, 'url', 'file_url');
+  if (!filePath && !fileUrl) {
+    return null;
+  }
+
+  const path = filePath.replace(/^\/+/, '');
+  const storagePath = path.startsWith('storage/') ? path : `storage/${path}`;
+  const url = fileUrl || new URL(storagePath, new URL(environment.url).origin + '/').toString();
+  const originalName = readString(attachment, 'original_name') || path.split('/').pop() || 'ملف طبي';
+  const type = readString(attachment, 'type').toLocaleLowerCase();
+  const typeLabel = type === 'xray' || type === 'radiology'
+    ? 'أشعة'
+    : type === 'analysis' || type === 'lab'
+      ? 'تحاليل'
+      : type || 'ملف طبي';
+  const id = attachment['id'];
+
+  return {
+    ...(typeof id === 'string' || typeof id === 'number' ? { id } : {}),
+    typeLabel,
+    originalName,
+    url,
+  };
 }
 
 function sameMedicalRecordId(left: number | string | undefined, right: number | string | undefined): boolean {
@@ -162,6 +278,11 @@ function readMedicalHistoryRecords(entries: unknown[]): MedicalHistoryRecord[] {
 function toMedicalHistoryRecord(record: Record<string, unknown>): MedicalHistoryRecord {
   const id = record['id'];
   const recordType = readString(record, 'record_type', 'visit_type', 'type');
+  const attachments = readArray(record['attachments'])
+    .flatMap((attachment) => {
+      const parsedAttachment = toMedicalAttachment(attachment);
+      return parsedAttachment ? [parsedAttachment] : [];
+    });
   const prescriptions = readArray(record['prescriptions'])
     .flatMap((prescription) => {
       if (!isRecord(prescription)) {
@@ -200,6 +321,7 @@ function toMedicalHistoryRecord(record: Record<string, unknown>): MedicalHistory
     date: readString(record, 'date', 'created_at', 'visit_date'),
     created_at: readString(record, 'created_at', 'date', 'visit_date'),
     prescriptions,
+    attachments,
   };
 }
 
@@ -214,6 +336,9 @@ export class MedicalRecord implements OnInit {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly medicineSearchStates = new Map<PrescriptionItemForm, MedicineSearchState>();
+  private readonly medicineSearchSubscriptions = new Map<PrescriptionItemForm, Subscription>();
 
   readonly appointmentId = this.route.snapshot.paramMap.get('id') ?? '';
   private readonly patientState = this.readPatientState();
@@ -223,7 +348,6 @@ export class MedicalRecord implements OnInit {
   readonly isDiagnosisPopupOpen = signal(false);
   readonly isPrescriptionPopupOpen = signal(false);
   readonly isMedicalFilePopupOpen = signal(false);
-  readonly medicalFileCategory = signal<'radiology' | 'analysis'>('radiology');
   readonly selectedMedicalFile = signal<File | null>(null);
   readonly selectedMedicalFileRecord = signal<MedicalHistoryRecord | null>(null);
   readonly isUploadingMedicalFile = signal(false);
@@ -245,7 +369,7 @@ export class MedicalRecord implements OnInit {
   readonly diagnosisForm = this.formBuilder.nonNullable.group({
     record_type: ['checkup', Validators.required],
     diagnosis: ['', Validators.required],
-    treatment: ['', Validators.required],
+    treatment: [''],
     notes: [''],
   });
 
@@ -326,6 +450,7 @@ export class MedicalRecord implements OnInit {
             ...(medicalRecordId === null ? {} : { id: medicalRecordId }),
             created_at: new Date().toISOString(),
             prescriptions: [],
+            attachments: [],
           },
           ...records,
         ]);
@@ -354,6 +479,7 @@ export class MedicalRecord implements OnInit {
     this.prescriptionError.set('');
     this.prescriptionSuccess.set('');
     this.prescriptionForm.reset({ notes: '' });
+    this.prescriptionItems.controls.forEach((item) => this.disposeMedicineSearch(item));
     this.prescriptionItems.clear();
     this.prescriptionItems.push(this.createPrescriptionItemForm());
     this.isPrescriptionPopupOpen.set(true);
@@ -367,6 +493,7 @@ export class MedicalRecord implements OnInit {
     this.isPrescriptionPopupOpen.set(false);
     this.prescriptionError.set('');
     this.selectedPrescriptionRecord.set(null);
+    this.prescriptionItems.controls.forEach((item) => this.disposeMedicineSearch(item));
   }
 
   onRecordActionClick(event: MouseEvent, record: MedicalHistoryRecord): void {
@@ -383,7 +510,6 @@ export class MedicalRecord implements OnInit {
   openMedicalFilePopup(record: MedicalHistoryRecord): void {
     this.selectedMedicalFileRecord.set(record);
     this.selectedMedicalFile.set(null);
-    this.medicalFileCategory.set('radiology');
     this.medicalFileError.set(
       record.id === undefined ? 'معرّف التشخيص غير متوفر، لا يمكن رفع الملف.' : '',
     );
@@ -395,7 +521,7 @@ export class MedicalRecord implements OnInit {
     if (this.isUploadingMedicalFile()) {
       return;
     }
-
+    this.isMedicalFilePopupOpen.set(false);
     this.isMedicalFilePopupOpen.set(false);
     this.selectedMedicalFile.set(null);
     this.selectedMedicalFileRecord.set(null);
@@ -408,8 +534,14 @@ export class MedicalRecord implements OnInit {
       return;
     }
 
-    this.selectedMedicalFile.set(input.files?.[0] ?? null);
+    const file = input.files?.[0] ?? null;
+    this.selectedMedicalFile.set(file);
     this.medicalFileError.set('');
+    input.value = '';
+
+    if (file) {
+      this.uploadMedicalFile();
+    }
   }
 
   uploadMedicalFile(): void {
@@ -421,7 +553,7 @@ export class MedicalRecord implements OnInit {
 
     const payload = new FormData();
     payload.append('file', file);
-    payload.append('category', this.medicalFileCategory());
+    payload.append('type', 'xray');
 
     this.isUploadingMedicalFile.set(true);
     this.medicalFileError.set('');
@@ -439,6 +571,7 @@ export class MedicalRecord implements OnInit {
 
         this.medicalFileSuccess.set('تم رفع الملف بنجاح.');
         this.closeMedicalFilePopup();
+        this.loadPatientHistory();
       },
       error: () => {
         this.isUploadingMedicalFile.set(false);
@@ -453,8 +586,61 @@ export class MedicalRecord implements OnInit {
 
   removePrescriptionItem(index: number): void {
     if (this.prescriptionItems.length > 1) {
+      this.disposeMedicineSearch(this.prescriptionItems.at(index));
       this.prescriptionItems.removeAt(index);
     }
+  }
+
+  onMedicineSearchInput(item: PrescriptionItemForm, event: Event): void {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+
+    const state = this.medicineSearchStates.get(item);
+    if (!state) {
+      return;
+    }
+
+    const query = input.value.trim();
+    if (state.selected()?.name !== query) {
+      state.selected.set(null);
+    }
+    state.query.set(query);
+    state.suggestions.set([]);
+    state.error.set('');
+    state.isSearching.set(query.length > 0);
+    state.queryChanges.next(query);
+  }
+
+  medicineSuggestions(item: PrescriptionItemForm): MedicineOption[] {
+    return this.medicineSearchStates.get(item)?.suggestions() ?? [];
+  }
+
+  medicineSearchLoading(item: PrescriptionItemForm): boolean {
+    return this.medicineSearchStates.get(item)?.isSearching() ?? false;
+  }
+
+  medicineSearchQuery(item: PrescriptionItemForm): string {
+    return this.medicineSearchStates.get(item)?.query() ?? '';
+  }
+
+  medicineSearchError(item: PrescriptionItemForm): string {
+    return this.medicineSearchStates.get(item)?.error() ?? '';
+  }
+
+  selectMedicine(item: PrescriptionItemForm, medicine: MedicineOption): void {
+    item.controls.medicine_name.setValue(medicine.name);
+    const state = this.medicineSearchStates.get(item);
+    if (!state) {
+      return;
+    }
+    state.selected.set(medicine);
+    state.query.set('');
+    state.queryChanges.next('');
+    state.suggestions.set([]);
+    state.isSearching.set(false);
+    state.error.set('');
   }
 
   savePrescription(): void {
@@ -469,12 +655,19 @@ export class MedicalRecord implements OnInit {
       return;
     }
 
+    if (this.prescriptionItems.controls.some((item) =>
+      this.medicineSearchStates.get(item)?.selected()?.name !== item.controls.medicine_name.value.trim(),
+    )) {
+      this.prescriptionError.set('اختر كل دواء من نتائج البحث قبل حفظ الروشتة.');
+      return;
+    }
+
     const formValue = this.prescriptionForm.getRawValue();
     const payload: PrescriptionPayload = {
       notes: formValue.notes.trim(),
       items: formValue.items.map((item): PrescriptionItemPayload => ({
         medicine_name: item.medicine_name.trim(),
-        dosage: item.dosage.trim(),
+        dosage: '',
         frequency: item.frequency.trim(),
         duration: item.duration.trim(),
       })),
@@ -521,6 +714,7 @@ export class MedicalRecord implements OnInit {
         this.isPrescriptionPopupOpen.set(false);
         this.selectedPrescriptionRecord.set(null);
         this.prescriptionSuccess.set('تم حفظ الروشتة بنجاح.');
+        this.loadPatientHistory();
       },
       error: () => {
         this.isSavingPrescription.set(false);
@@ -530,12 +724,49 @@ export class MedicalRecord implements OnInit {
   }
 
   private createPrescriptionItemForm(): PrescriptionItemForm {
-    return new FormGroup({
+    const item = new FormGroup({
       medicine_name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      dosage: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       frequency: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       duration: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     });
+    const state: MedicineSearchState = {
+      query: signal(''),
+      suggestions: signal<MedicineOption[]>([]),
+      isSearching: signal(false),
+      error: signal(''),
+      selected: signal<MedicineOption | null>(null),
+      queryChanges: new Subject<string>(),
+    };
+    const subscription = state.queryChanges.pipe(
+      distinctUntilChanged(),
+      switchMap((query) => query
+        ? timer(300).pipe(
+          switchMap(() => this.appointmentsService.searchMedicines(query)),
+          map(readMedicineSearchResult),
+          catchError(() => of({
+            medicines: [],
+            error: 'تعذر البحث عن الأدوية. حاول مرة أخرى.',
+          })),
+        )
+        : of({ medicines: [], error: '' }),
+      ),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe((result) => {
+      state.suggestions.set(result.medicines);
+      state.error.set(result.error);
+      state.isSearching.set(false);
+    });
+
+    this.medicineSearchStates.set(item, state);
+    this.medicineSearchSubscriptions.set(item, subscription);
+    return item;
+  }
+
+  private disposeMedicineSearch(item: PrescriptionItemForm): void {
+    this.medicineSearchSubscriptions.get(item)?.unsubscribe();
+    this.medicineSearchSubscriptions.delete(item);
+    this.medicineSearchStates.get(item)?.queryChanges.complete();
+    this.medicineSearchStates.delete(item);
   }
 
   private readMedicalRecordId(response: unknown): number | string | null {

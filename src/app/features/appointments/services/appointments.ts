@@ -224,6 +224,11 @@ export class AppointmentsService {
     return this.http.get(`${environment.url}admin/patients/search`, { params });
   }
 
+  searchMedicines(query: string): Observable<unknown> {
+    const params = new HttpParams().set('q', query);
+    return this.http.get<unknown>(`${environment.url}doctor/medicines/search`, { params });
+  }
+
   getDoctorProfile(): Observable<unknown> {
     return this.http.get<unknown>(`${environment.url}doctor-profile`);
   }
@@ -249,8 +254,11 @@ getBranchTimeSlots(clinicLocationId: number) {
 }
 
 completeAppointment(id: number | string) {
-  return this.http.post(
-    `${environment.url}admin/appointments/${id}/confirm-cash-payment`,{});
+  return this.http.patch(
+    `${environment.url}admin/appointments/${id}`,
+    {
+      "status": "completed"
+    });
 }
 
   getVisitTypes(clinicLocationId = 16): Observable<VisitTypeOption[] | VisitTypesResponse> {
